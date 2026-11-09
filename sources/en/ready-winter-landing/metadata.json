@@ -1,0 +1,15 @@
+{
+  "source_id": "ready-winter-landing",
+  "document_group_id": "ready-winter",
+  "lang": "en",
+  "url": "https://www.ready.gov/collection/winter-storm",
+  "published": null,
+  "role": "translation_provenance",
+  "resolved_url": "https://www.ready.gov/collection/winter-storm",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T15:31:23.508737+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/en/ready-winter-landing/source.html",
+  "sha256": "97982ede2dab9dc2fa3f9eeb340c568204ade21a42a384339988c10d84a6cda5",
+  "bytes": 50441
+}

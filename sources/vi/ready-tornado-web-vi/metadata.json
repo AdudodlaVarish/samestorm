@@ -1,0 +1,21 @@
+{
+  "source_id": "ready-tornado-web-vi",
+  "document_group_id": "ready-tornado",
+  "lang": "vi",
+  "url": "https://www.ready.gov/vi/tornadoes",
+  "published": null,
+  "role": "resolution_candidate_not_approved",
+  "translation_provenance": "agency-published",
+  "candidate_for": [
+    "tornado-no-building-cover/vi",
+    "tornado-no-overpass/vi"
+  ],
+  "review_status": "pending acquisition, exact passage extraction, two-system alignment and student review",
+  "resolved_url": "https://www.ready.gov/vi/tornadoes",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T21:49:11.083623+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/vi/ready-tornado-web-vi/source.html",
+  "sha256": "15b952beadf13d9ca8e203a522087d4c55b58dbca934df37f947322b2d60694d",
+  "bytes": 64710
+}

@@ -1,0 +1,15 @@
+{
+  "source_id": "nc-co-response-landing",
+  "document_group_id": "nc-co-response",
+  "lang": "en",
+  "url": "https://epi.dph.ncdhhs.gov/oee/a_z/co.html",
+  "published": null,
+  "role": "translation_provenance",
+  "resolved_url": "https://epi.dph.ncdhhs.gov/oee/a_z/co.html",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T16:47:25.510505+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/en/nc-co-response-landing/source.html",
+  "sha256": "25da3f984018b371be90a9fe69dd4154d18128ee7d7c84ddb87d8d22e5c943a3",
+  "bytes": 45186
+}

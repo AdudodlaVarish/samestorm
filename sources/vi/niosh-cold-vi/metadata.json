@@ -1,0 +1,17 @@
+{
+  "source_id": "niosh-cold-vi",
+  "document_group_id": "niosh-cold",
+  "lang": "vi",
+  "url": "https://stacks.cdc.gov/view/cdc/82463/cdc_82463_DS1.pdf",
+  "published": null,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "candidate; legacy font extraction and exact visual transcription pending",
+  "resolved_url": "https://stacks.cdc.gov/view/cdc/82463/cdc_82463_DS1.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T23:52:19.810774+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/niosh-cold-vi/source.pdf",
+  "sha256": "54a36b05babc7288707b5b042d1e83fbab85d80054916f5ac53b6e68f7512da2",
+  "bytes": 195104
+}

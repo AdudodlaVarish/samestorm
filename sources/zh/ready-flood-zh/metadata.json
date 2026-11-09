@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-flood-zh",
+  "document_group_id": "ready-flood",
+  "lang": "zh",
+  "url": "https://www.ready.gov/sites/default/files/2024-12/fema_flood-hazard-info-sheet_simplified-chinese.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/collection/flood",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-12/fema_flood-hazard-info-sheet_simplified-chinese.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:25.149365+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/ready-flood-zh/source.pdf",
+  "sha256": "0b59a55fc21c222255776e16c8290c05d555b50df8c8629ec049201d57cae46d",
+  "bytes": 501639
+}

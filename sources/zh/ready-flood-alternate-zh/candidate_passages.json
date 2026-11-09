@@ -1,0 +1,31 @@
+{
+  "source_id": "ready-flood-alternate-zh",
+  "source_sha256": "2e55f8e402354afae945ebcb2b76dceb6897c681994c89ba2142864bb0a6b2d9",
+  "status": "candidate only; no two-system alignment or student acceptance",
+  "extraction": "pdftotext.exe -layout; text is navigation only, PDF authoritative",
+  "render_path": "data/sources/zh/ready-flood-alternate-zh/candidate-page-2.png",
+  "render_sha256": "08b31cde714ba1b08a3fad1ff69b96986bfd39849dbf7c337d6ab165a4284ca5",
+  "agent_visual_check": "Inspected this saved page. CERT prohibition is in the facts column, not the myth column; flood clause is in the right-column electrical-risk paragraph. This is not student review.",
+  "passages": [
+    {
+      "candidate_action": "electrical_equipment_prohibition",
+      "raw_span": "请勿触摸电气设备",
+      "page_text_offsets": [
+        1539,
+        1547
+      ],
+      "pdf_page": 2,
+      "section": "Be Safe AFTER / 事后注意安全; electrical risk paragraph"
+    },
+    {
+      "candidate_action": "wet_equipment_condition",
+      "raw_span": "在电气设备受潮",
+      "page_text_offsets": [
+        1629,
+        1636
+      ],
+      "pdf_page": 2,
+      "section": "Be Safe AFTER / 事后注意安全; electrical risk paragraph"
+    }
+  ]
+}

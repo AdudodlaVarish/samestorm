@@ -1,0 +1,27 @@
+{
+  "ready-tornado": {
+    "published": "2018-03",
+    "publication_precision": "month",
+    "publication_evidence": "PDF front page, FEMA V-1010 / translated P-series edition label, March 2018"
+  },
+  "ready-winter": {
+    "published": "2018-06",
+    "publication_precision": "month",
+    "publication_evidence": "PDF front page, FEMA V-1014 / translated P-series edition label, June 2018"
+  },
+  "ready-heat": {
+    "published": "2018-06",
+    "publication_precision": "month",
+    "publication_evidence": "PDF front page, FEMA V-1004 / translated P-series edition label, June 2018"
+  },
+  "ready-flood": {
+    "published": "2024-07",
+    "publication_precision": "month",
+    "publication_evidence": "PDF front page, FEMA V-1005 / translated P-series edition label, July 2024"
+  },
+  "nc-co-response": {
+    "published": "2020-01",
+    "publication_precision": "month",
+    "publication_evidence": "Footer 1/2020 in the agency PDFs"
+  }
+}

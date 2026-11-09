@@ -1,0 +1,9 @@
+{
+  "normalization": "pdftotext page 1 cropped medical-help block [246, 210, 360, 100] points, all conditions retained; whitespace collapsed uniformly. No lexical edits.",
+  "pages": [
+    {
+      "page": 1,
+      "text": "Tìm kiếm chăm sóc y tế nếu: • Các triệu chứng trở nặng hơn • Chuột rút kéo dài hơn 1 giờ • Người bệnh đang áp dụng chế độ ăn ít natri, mắc bệnh tim, huyết áp cao hoặc các tình trạng bệnh lý khác như hen suyễn hoặc tiểu đường."
+    }
+  ]
+}

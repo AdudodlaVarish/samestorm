@@ -1,0 +1,12 @@
+{
+  "normalization": "Manual Unicode transcription of the exact visible NIOSH page-1 warming bullet; legacy VNI font extraction retained separately. No translation or lexical rewriting. Student glyph review pending.",
+  "original_pdf_sha256": "54a36b05babc7288707b5b042d1e83fbab85d80054916f5ac53b6e68f7512da2",
+  "render_sha256": "5e2cef8b278b9a982c701649d735cba4a378adcc2df7fd7a58a2cdf1b879a4c0",
+  "student_review_status": "pending",
+  "pages": [
+    {
+      "page": 1,
+      "text": "Trước tiên hãy làm ấm phần giữa cơ thể—ngực, cổ, đầu, và háng—bằng chăn điện; hoặc tiếp xúc trực tiếp da với da bên dưới một lớp chăn, quần áo hoặc khăn khô và rộng."
+    }
+  ]
+}

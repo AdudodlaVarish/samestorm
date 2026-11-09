@@ -1,0 +1,14 @@
+{
+  "source_id": "cdc-generator-vi",
+  "method": "Codex manually transcribed the visible Vietnamese glyphs from rendered page 1 of the original agency PDF. This is transcription, not translation. The broken pypdf extraction is retained unchanged.",
+  "render": "data/sources/vi/cdc-generator-vi/rendered-page-1.png",
+  "student_review_status": "pending",
+  "pages": [
+    {
+      "page": 1,
+      "text": "MÁY PHÁT ĐIỆN XÁCH/ĐẨY TAY Đừng bao giờ dùng máy phát điện bên trong nhà hoặc nhà đậu xe, ngay cả khi mở hết các cửa ra vào và cửa sổ. Chỉ để máy phát điện bên ngoài khi dùng, cách xa nhà, cửa ra vào, và cửa sổ hơn 20 bộ (feet). THIẾT BỊ DÒ CO Gắn thiết bị dò CO chạy bằng pin hoặc pin phụ gần khu vực mọi người ngủ trong nhà. Kiểm tra thiết bị dò CO thường xuyên để bảo đảm là chúng hoạt động thích hợp."
+    }
+  ],
+  "original_pdf_sha256": "9fd960ae7f9c651aa8e67a3a7b4623bc42767faf3335bde4b761e962fac50d7c",
+  "render_sha256": "293a0969921e32bb20d3913d0bd145e6f527271125dd1073d8bbc79ed8cc5e3d"
+}

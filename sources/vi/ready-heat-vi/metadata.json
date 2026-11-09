@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-heat-vi",
+  "document_group_id": "ready-heat",
+  "lang": "vi",
+  "url": "https://www.ready.gov/sites/default/files/2024-07/ready.gov_extreme-heat_info-vietnamese.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/vi/heat",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-07/ready.gov_extreme-heat_info-vietnamese.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:25.805633+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/ready-heat-vi/source.pdf",
+  "sha256": "39931a82457da9f650be6fbd8606d4f82f4013e95d6feb3c78afe9e9017dc358",
+  "bytes": 452099
+}

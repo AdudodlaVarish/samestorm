@@ -1,0 +1,18 @@
+{
+  "source_id": "ready-tornado-web-vi",
+  "source_sha256": "15b952beadf13d9ca8e203a522087d4c55b58dbca934df37f947322b2d60694d",
+  "status": "candidate only; no two-system alignment or student acceptance",
+  "extraction": "Python HTMLParser decoded text; whitespace collapsed; navigation aid, original HTML authoritative",
+  "passages": [
+    {
+      "quote": "Không đi dưới gầm cầu vượt hoặc cầu.",
+      "navigation_offset": 3216,
+      "context": "hức tiểu bang, địa phương và bộ lạc. Đến nơi trú ẩn an toàn ngay lập tức, chẳng hạn như phòng an toàn, tầng hầm, hầm chống bão hoặc phòng bên trong nhỏ ở tầng thấp nhất của một tòa nhà kiên cố. Tránh xa cửa sổ, cửa ra vào và các bức tường bên ngoài. Không đi dưới gầm cầu vượt hoặc cầu. Quý vị an toàn hơn khi ở một vị trí thấp, bằng phẳng. Đề phòng các mảnh vỡ bay có thể gây thương tích hoặc tử vong. Sử dụng cánh tay để bảo vệ đầu và cổ của quý vị. Nếu quý vị không thể ở nhà, hãy lên kế hoạch đến một nơi trú ẩn công cộng. Chuẩn bị Sẵn sàng cho Lốc xoáy Image Bi ế t nguy c ơ l ố c "
+    },
+    {
+      "quote": "Sử dụng cánh tay để bảo vệ đầu và cổ của quý vị.",
+      "navigation_offset": 3369,
+      "context": " tầng thấp nhất của một tòa nhà kiên cố. Tránh xa cửa sổ, cửa ra vào và các bức tường bên ngoài. Không đi dưới gầm cầu vượt hoặc cầu. Quý vị an toàn hơn khi ở một vị trí thấp, bằng phẳng. Đề phòng các mảnh vỡ bay có thể gây thương tích hoặc tử vong. Sử dụng cánh tay để bảo vệ đầu và cổ của quý vị. Nếu quý vị không thể ở nhà, hãy lên kế hoạch đến một nơi trú ẩn công cộng. Chuẩn bị Sẵn sàng cho Lốc xoáy Image Bi ế t nguy c ơ l ố c xo á y ở khu v ự c c ủ a qu ý v ị . Ở Hoa Kỳ, khu vực Trung Tây và Đông Nam có nguy cơ lốc xoáy cao hơn. Bi ế t c á c d ấ u hi ệ u c ủ a m ộ t c ơ n l ố c xo á y , b"
+    }
+  ]
+}

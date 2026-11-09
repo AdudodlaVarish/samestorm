@@ -1,0 +1,33 @@
+{
+  "normalization": "Exact section heading, left symptom cell and complete right medical-help block, in declared structural order; separate crop artifacts preserve glyphs/layout. Whitespace normalization only, no lexical edits.",
+  "source_regions": [
+    {
+      "role": "heading",
+      "text": "热痉挛"
+    },
+    {
+      "role": "symptoms",
+      "crop": [
+        30,
+        210,
+        210,
+        84
+      ]
+    },
+    {
+      "role": "medical_help",
+      "crop": [
+        246,
+        210,
+        360,
+        84
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "text": "热痉挛\n留意：•大量出汗•肌肉痉挛（常见于腹部、手臂或腿部）\n出现以下情况，需立即就医：•症状越来越严重•痉挛持续超过1小时•患者正遵循低钠饮食，患有心脏疾病、高血压，或其他如哮喘或糖尿病等疾病。"
+    }
+  ]
+}

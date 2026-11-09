@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-flood-en",
+  "document_group_id": "ready-flood",
+  "lang": "en",
+  "url": "https://www.ready.gov/sites/default/files/2024-11/fema_flood-hazard-info-sheet.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "original",
+  "provenance_url": "https://www.ready.gov/collection/flood",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-11/fema_flood-hazard-info-sheet.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:24.581912+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/en/ready-flood-en/source.pdf",
+  "sha256": "14e122a5873f0cd693ab2e8276e2beddc3f3252cb33d9db5301b7f69875d26f5",
+  "bytes": 352615
+}

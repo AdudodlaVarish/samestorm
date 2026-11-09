@@ -1,0 +1,19 @@
+{
+  "source_id": "ohio-fema-alerts-zh",
+  "document_group_id": "fema-alerts-warnings",
+  "lang": "zh",
+  "url": "https://dam.assets.ohio.gov/image/upload/mha.ohio.gov/GetHelpNow/DisasterPreparedness/Alerts-and-Warnings/fema_guide-for-alerts-and-warnings_2021-zh-CN.pdf",
+  "published": "2021-08",
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "FEMA guide hosted by Ohio state agency; explicit repeated under-bridge wording candidate",
+  "resolved_url": "https://dam.assets.ohio.gov/image/upload/mha.ohio.gov/GetHelpNow/DisasterPreparedness/Alerts-and-Warnings/fema_guide-for-alerts-and-warnings_2021-zh-CN.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T23:55:03.531652+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/ohio-fema-alerts-zh/source.pdf",
+  "sha256": "ac2e2bd1a63555ecbaea97b39cceb1973b204f10640ef7ab9600f7953aec0ec3",
+  "bytes": 1668461,
+  "publication_precision": "month",
+  "publication_basis": "Printed FEMA cover, PDF page 1 visually inspected"
+}

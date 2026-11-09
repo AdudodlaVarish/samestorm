@@ -1,0 +1,15 @@
+{
+  "source_id": "ready-flood-landing",
+  "document_group_id": "ready-flood",
+  "lang": "en",
+  "url": "https://www.ready.gov/collection/flood",
+  "published": null,
+  "role": "translation_provenance",
+  "resolved_url": "https://www.ready.gov/collection/flood",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T15:31:24.386023+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/en/ready-flood-landing/source.html",
+  "sha256": "40ae6643b271fcb8634d2644b54574f7ef3269cc3d5cbc4499b31fb993c6abea",
+  "bytes": 49227
+}

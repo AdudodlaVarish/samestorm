@@ -1,0 +1,17 @@
+{
+  "source_id": "ready-heat-web-zh",
+  "document_group_id": "ready-heat",
+  "lang": "zh",
+  "url": "https://www.ready.gov/zh-hans/heat",
+  "published": null,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "unresolved-key candidate; exact extraction and fixed pair pending",
+  "resolved_url": "https://www.ready.gov/zh-hans/heat",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T23:41:08.026864+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/zh/ready-heat-web-zh/source.html",
+  "sha256": "719c369569a35dddb682d5ad5bab0f179cef3b18e2181893db3416341be08dc0",
+  "bytes": 61442
+}

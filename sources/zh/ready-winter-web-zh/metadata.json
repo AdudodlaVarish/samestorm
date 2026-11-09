@@ -1,0 +1,17 @@
+{
+  "source_id": "ready-winter-web-zh",
+  "document_group_id": "ready-winter",
+  "lang": "zh",
+  "url": "https://www.ready.gov/zh-hans/winter-weather",
+  "published": null,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "unresolved-key candidate; exact extraction and fixed pair pending",
+  "resolved_url": "https://www.ready.gov/zh-hans/winter-weather",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T23:41:07.997939+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/zh/ready-winter-web-zh/source.html",
+  "sha256": "5dc72d8ed64ee9c8a0dbbf6f17cc256c98b0e7307bc0e1c3e70d1c149bc1e2ab",
+  "bytes": 60610
+}

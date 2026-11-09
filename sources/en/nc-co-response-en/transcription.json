@@ -1,0 +1,14 @@
+{
+  "source_id": "nc-co-response-en",
+  "method": "Codex transcribed the visible English condition and four response steps from rendered page 1. This removes PDF kerning artifacts such as Ge t and excludes hidden template text. No lexical paraphrase or translation.",
+  "render": "data/sources/en/nc-co-response-en/rendered-page-1.png",
+  "original_pdf_sha256": "eb1b31e389717ff58764db36b926b414df5c8211f9f7bcf7a9db233ba6f82f5a",
+  "render_sha256": "40f7184cca2ef0e172f8457c4a1f64c955296ae4e48dfaf59adb80fdb5236fd0",
+  "student_review_status": "pending",
+  "pages": [
+    {
+      "page": 1,
+      "text": "Recognize the Signs and Symptoms of Carbon Monoxide (CO) Poisoning If you feel you may have any signs or symptoms OR your CO alarm or CO detector sounds, STEP 1: Get yourself and others outdoors to an area with clean air immediately. STEP 2: CALL 911! STEP 3: Do NOT drive a motor vehicle. STEP 4: Stay away from the area until it is determined to be safe."
+    }
+  ]
+}

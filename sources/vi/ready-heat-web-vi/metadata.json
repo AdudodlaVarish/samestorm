@@ -1,0 +1,17 @@
+{
+  "source_id": "ready-heat-web-vi",
+  "document_group_id": "ready-heat",
+  "lang": "vi",
+  "url": "https://www.ready.gov/vi/heat",
+  "published": null,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "unresolved-key candidate; exact extraction and fixed pair pending",
+  "resolved_url": "https://www.ready.gov/vi/heat",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T23:41:08.136397+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/vi/ready-heat-web-vi/source.html",
+  "sha256": "b1c4e2538e92fa50d7eb1acda212d4bd1529ccc2ec0aedc4bba85d5a3b9ea730",
+  "bytes": 64778
+}

@@ -1,0 +1,19 @@
+{
+  "source_id": "nc-co-response-zh",
+  "document_group_id": "nc-co-response",
+  "lang": "zh",
+  "url": "https://epi.dph.ncdhhs.gov/oee/docs/CO-Factsheet-1.9.20b-CDCextra-CH.pdf",
+  "published": "2020-01",
+  "publication_precision": "month",
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://epi.dph.ncdhhs.gov/oee/a_z/co.html",
+  "review_status": "pending",
+  "resolved_url": "https://epi.dph.ncdhhs.gov/oee/docs/CO-Factsheet-1.9.20b-CDCextra-CH.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T16:47:43.390432+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/nc-co-response-zh/source.pdf",
+  "sha256": "5c483bd500859cc2f8cb0ffe7e56b0d7874fa668fbfd34f1db447f6c4494b380",
+  "bytes": 777695
+}

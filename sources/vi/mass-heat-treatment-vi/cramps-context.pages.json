@@ -1,0 +1,33 @@
+{
+  "normalization": "Exact section heading, left symptom cell and complete right medical-help block, in declared structural order; separate crop artifacts preserve glyphs/layout. Whitespace normalization only, no lexical edits.",
+  "source_regions": [
+    {
+      "role": "heading",
+      "text": "Chuột rút vì nóng"
+    },
+    {
+      "role": "symptoms",
+      "crop": [
+        30,
+        210,
+        210,
+        100
+      ]
+    },
+    {
+      "role": "medical_help",
+      "crop": [
+        246,
+        210,
+        360,
+        100
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "text": "Chuột rút vì nóng\nTìm kiếm: • Đổ nhiều mồ hôi • Chuột rút cơ (thường ở bụng, cánh tay hoặc chân)\nTìm kiếm chăm sóc y tế nếu: • Các triệu chứng trở nặng hơn • Chuột rút kéo dài hơn 1 giờ • Người bệnh đang áp dụng chế độ ăn ít natri, mắc bệnh tim, huyết áp cao hoặc các tình trạng bệnh lý khác như hen suyễn hoặc tiểu đường."
+    }
+  ]
+}

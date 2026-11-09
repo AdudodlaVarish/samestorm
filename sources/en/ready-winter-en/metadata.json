@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-winter-en",
+  "document_group_id": "ready-winter",
+  "lang": "en",
+  "url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_winter-storm_info-sheet.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "original",
+  "provenance_url": "https://www.ready.gov/collection/winter-storm",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_winter-storm_info-sheet.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:23.675491+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/en/ready-winter-en/source.pdf",
+  "sha256": "503b0d44f7ff4337551e96371fed686b34f6d3f5e4bc032a2c8b703e0e3ccb61",
+  "bytes": 355037
+}

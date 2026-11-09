@@ -1,0 +1,15 @@
+{
+  "normalization": "pdftotext crop [400,420,212,110] points on PDF page 2; Chinese layout whitespace removed without lexical edits",
+  "pages": [
+    {
+      "page": 2,
+      "region_points": [
+        400,
+        420,
+        212,
+        110
+      ],
+      "text": "请注意触电风险，请勿触摸电气设备，尤其是在电气设备受潮，或者您站立于水中时。如果能够安全关闭电源，请立即关闭，以防触电。"
+    }
+  ]
+}

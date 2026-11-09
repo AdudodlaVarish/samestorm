@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-winter-es",
+  "document_group_id": "ready-winter",
+  "lang": "es",
+  "url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_winter-storm_info-sheet_spanish.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/collection/winter-storm",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_winter-storm_info-sheet_spanish.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:23.914588+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/es/ready-winter-es/source.pdf",
+  "sha256": "97a6ef25c5c5691cc05efc88d981e3ee57daa0f204b5b94fa88e14bfdaba6b11",
+  "bytes": 368899
+}

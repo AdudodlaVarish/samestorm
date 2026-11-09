@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-flood-alternate-zh",
+  "document_group_id": "ready-flood",
+  "lang": "zh",
+  "url": "https://www.ready.gov/sites/default/files/2024-07/ready.gov_flood_info-sheet_simplified-chinese.pdf",
+  "published": null,
+  "role": "resolution_candidate_not_approved",
+  "translation_provenance": "agency-published",
+  "candidate_for": [
+    "flood-no-wet-electrical/zh"
+  ],
+  "review_status": "pending acquisition, edition/condition equivalence, two-system alignment and student review",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-07/ready.gov_flood_info-sheet_simplified-chinese.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T21:49:11.998988+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/ready-flood-alternate-zh/source.pdf",
+  "sha256": "2e55f8e402354afae945ebcb2b76dceb6897c681994c89ba2142864bb0a6b2d9",
+  "bytes": 515428
+}

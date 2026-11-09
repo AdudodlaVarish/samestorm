@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-flood-vi",
+  "document_group_id": "ready-flood",
+  "lang": "vi",
+  "url": "https://www.ready.gov/sites/default/files/2024-12/fema_flood-hazard-info-sheet_vietnamese.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/collection/flood",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-12/fema_flood-hazard-info-sheet_vietnamese.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:24.911293+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/ready-flood-vi/source.pdf",
+  "sha256": "40b91bd075bcaad22b7aef03e8297cc2b2e998d9460cb2b49e0be6120be11f9d",
+  "bytes": 413544
+}

@@ -1,0 +1,22 @@
+{
+  "source_id": "ready-cert-hazard-annex-zh",
+  "document_group_id": "cert-hazard-annexes",
+  "lang": "zh",
+  "url": "https://www.ready.gov/sites/default/files/2019.CERT_.HazardAnnexes.IG_.FINAL_.Simplified%20Chinese.508c.pdf",
+  "published": "2019-08",
+  "role": "resolution_candidate_not_approved",
+  "translation_provenance": "agency-published",
+  "candidate_for": [
+    "tornado-no-overpass/zh"
+  ],
+  "review_status": "pending acquisition, printed publication-date/page verification, two-system alignment and student review",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2019.CERT_.HazardAnnexes.IG_.FINAL_.Simplified%20Chinese.508c.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T21:49:11.822644+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/ready-cert-hazard-annex-zh/source.pdf",
+  "sha256": "3e6488b0c230949ea6d683f4ef354191575dc7af04d34dfbda642beb167525c9",
+  "bytes": 21126559,
+  "publication_precision": "month",
+  "publication_evidence": "Printed footer, PDF page 93 / TO-5, visually checked; no day shown."
+}

@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-tornado-zh",
+  "document_group_id": "ready-tornado",
+  "lang": "zh",
+  "url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_tornado_info-sheet_chinese-simplified.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/collection/tornadoes",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_tornado_info-sheet_chinese-simplified.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:23.414920+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/ready-tornado-zh/source.pdf",
+  "sha256": "e7920101be1e56e9da937e263c88623a0a7b88138c95b1eed3b8cb1681ed6a22",
+  "bytes": 577856
+}

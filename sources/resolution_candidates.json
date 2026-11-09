@@ -1,0 +1,56 @@
+[
+  {
+    "source_id": "epa-co-indoor-vi",
+    "document_group_id": "epa-co-indoor",
+    "lang": "vi",
+    "url": "https://www.epa.gov/lep/tac-dong-cua-carbon-monoxide-doi-voi-chat-luong-khong-khi-trong-nha",
+    "published": null,
+    "role": "draft_replacement",
+    "translation_provenance": "agency-published",
+    "candidate_for": [
+      "co-no-indoor/vi"
+    ],
+    "review_status": "Fixed-pair checks passed for listed selected passages; switched in draft under student instruction; student evidence review pending"
+  },
+  {
+    "source_id": "ready-tornado-web-vi",
+    "document_group_id": "ready-tornado",
+    "lang": "vi",
+    "url": "https://www.ready.gov/vi/tornadoes",
+    "published": null,
+    "role": "draft_replacement",
+    "translation_provenance": "agency-published",
+    "candidate_for": [
+      "tornado-no-building-cover/vi",
+      "tornado-no-overpass/vi"
+    ],
+    "review_status": "Fixed-pair checks passed for listed selected passages; switched in draft under student instruction; student evidence review pending"
+  },
+  {
+    "source_id": "ready-cert-hazard-annex-zh",
+    "document_group_id": "cert-hazard-annexes",
+    "lang": "zh",
+    "url": "https://www.ready.gov/sites/default/files/2019.CERT_.HazardAnnexes.IG_.FINAL_.Simplified%20Chinese.508c.pdf",
+    "published": "2019-08",
+    "role": "resolution_candidate_not_approved",
+    "translation_provenance": "agency-published",
+    "candidate_for": [
+      "tornado-no-overpass/zh"
+    ],
+    "review_status": "This original overpass candidate remains rejected: crossings/junctions are ambiguous. The active Chinese overpass key was later repaired with the Ohio-hosted FEMA guide; see UNRESOLVED_CHECKS.md. The CERT manual also supplies unrelated development evidence.",
+    "publication_precision": "month"
+  },
+  {
+    "source_id": "ready-flood-alternate-zh",
+    "document_group_id": "ready-flood",
+    "lang": "zh",
+    "url": "https://www.ready.gov/sites/default/files/2024-07/ready.gov_flood_info-sheet_simplified-chinese.pdf",
+    "published": null,
+    "role": "draft_replacement",
+    "translation_provenance": "agency-published",
+    "candidate_for": [
+      "flood-no-wet-electrical/zh"
+    ],
+    "review_status": "Fixed-pair checks passed for listed selected passages; switched in draft under student instruction; student evidence review pending"
+  }
+]

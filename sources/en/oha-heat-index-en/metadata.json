@@ -1,0 +1,17 @@
+{
+  "source_id": "oha-heat-index-en",
+  "document_group_id": "oha-heat-resources",
+  "lang": "en",
+  "url": "https://www.oregon.gov/oha/PH/Preparedness/Prepare/Pages/PrepareForExtremeHeat.aspx",
+  "published": null,
+  "role": "benchmark_development_provenance",
+  "translation_provenance": "original",
+  "review_status": "Official index establishes state ownership and translated PDF links; not an action key",
+  "resolved_url": "https://www.oregon.gov/oha/PH/Preparedness/Prepare/Pages/PrepareForExtremeHeat.aspx",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T23:47:20.519961+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/en/oha-heat-index-en/source.html",
+  "sha256": "9645cd5ed1272f039b0b25acbd6fad1fe940e5c5abebb6f53faf6c44f9930acd",
+  "bytes": 114249
+}

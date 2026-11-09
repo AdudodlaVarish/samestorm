@@ -1,0 +1,18 @@
+{
+  "source_id": "oha-hypothermia-vi",
+  "document_group_id": "oha-hypothermia",
+  "lang": "vi",
+  "url": "https://sharedsystems.dhsoha.state.or.us/DHSForms/Served/lv8818i.pdf",
+  "provenance_url": "https://www.oregon.gov/oha/PH/Preparedness/Prepare/Pages/PrepareForWinterStorms.aspx",
+  "published": null,
+  "translation_provenance": "agency-published",
+  "role": "benchmark_development_candidate",
+  "review_status": "candidate; not approved",
+  "resolved_url": "https://sharedsystems.dhsoha.state.or.us/DHSForms/Served/lv8818i.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T23:43:14.516910+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/oha-hypothermia-vi/source.pdf",
+  "sha256": "891e0edffac8d73ee2c055c77a657bee8a2144db591165997af33ff54d888dd6",
+  "bytes": 237867
+}

@@ -1,0 +1,21 @@
+{
+  "source_id": "ready-cert-hazard-annex-zh",
+  "source_sha256": "3e6488b0c230949ea6d683f4ef354191575dc7af04d34dfbda642beb167525c9",
+  "status": "candidate only; no two-system alignment or student acceptance",
+  "extraction": "pdftotext.exe -layout; text is navigation only, PDF authoritative",
+  "render_path": "data/sources/zh/ready-cert-hazard-annex-zh/candidate-page-93.png",
+  "render_sha256": "790458a919f74bb2376773159205287fda66ccf9906f094b0d71834f7c1d4fc2",
+  "agent_visual_check": "Inspected this saved page. CERT prohibition is in the facts column, not the myth column; flood clause is in the right-column electrical-risk paragraph. This is not student review.",
+  "passages": [
+    {
+      "candidate_action": "overpass_prohibition",
+      "raw_span": "不要在公路立交桥或桥下寻找庇护处。",
+      "page_text_offsets": [
+        571,
+        588
+      ],
+      "pdf_page": 93,
+      "section": "Printed TO-5; table 8, facts column, row on sheltering under overpasses"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "source_id": "idph-surviving-disasters-es",
+  "document_group_id": "idph-surviving-disasters",
+  "lang": "es",
+  "url": "https://mcleancountyil.gov/DocumentCenter/View/23031/IDPHSurviving-Disasters-Booklet_Spanish_201207051545170213",
+  "resolved_url": "https://mcleancountyil.gov/DocumentCenter/View/23031/IDPHSurviving-Disasters-Booklet_Spanish_201207051545170213",
+  "published": null,
+  "publication_precision": null,
+  "retrieved": "2026-11-08T03:55:56.069527+00:00",
+  "content_type": "application/pdf",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/es/idph-surviving-disasters-es/source.pdf",
+  "sha256": "05b02868982dee5cc49c2bd1a320e1d80f9cd3c19e09d1a3230eeababe417d42",
+  "bytes": 1605971,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "publication_evidence": "Illinois Department of Public Health authorship visible. No publication date shown in selected/cover pages; numeric upload filename is not publication evidence.",
+  "extracted_text_path": "data/sources/es/idph-surviving-disasters-es/pages.json",
+  "candidate_for": [
+    "tornado-small-room/es"
+  ],
+  "acquisition_method": "Verified-TLS curl with browser User-Agent after preserved urllib 403; same official URL.",
+  "review_status": "candidate; student review pending"
+}

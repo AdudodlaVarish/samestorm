@@ -1,0 +1,18 @@
+{
+  "source_id": "ready-cert-hazard-participant-zh",
+  "document_group_id": "cert-hazard-annexes",
+  "lang": "zh",
+  "url": "https://www.ready.gov/sites/default/files/2019.CERT_.HazardAnnexes.PM_.FINAL_.Simplified%20Chinese.508c.pdf",
+  "published": "2019-08",
+  "publication_precision": "month",
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "candidate; exact facts-column check pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2019.CERT_.HazardAnnexes.PM_.FINAL_.Simplified%20Chinese.508c.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T23:43:55.133037+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/ready-cert-hazard-participant-zh/source.pdf",
+  "sha256": "49649f2ebd5a1276b5422c24df0cffa9c880a0e51d9c6616984ab0762dd5cff2",
+  "bytes": 3205652
+}

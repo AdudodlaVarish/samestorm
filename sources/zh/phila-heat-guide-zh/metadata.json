@@ -1,0 +1,19 @@
+{
+  "source_id": "phila-heat-guide-zh",
+  "document_group_id": "phila-heat-guide",
+  "lang": "zh",
+  "url": "https://www.phila.gov/zh/guides/extreme-heat-guide/how-to-stay-safe/",
+  "resolved_url": "https://www.phila.gov/zh/guides/extreme-heat-guide/how-to-stay-safe/",
+  "published": null,
+  "publication_precision": null,
+  "retrieved": "2026-11-08T03:55:56.071801+00:00",
+  "content_type": "text/html",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/zh/phila-heat-guide-zh/source.html",
+  "sha256": "42f26502418ba44bbb4c3bc3bc185bb918f2f4cea0e9e62172fb131b1bcd0ec0",
+  "bytes": 58126,
+  "role": "benchmark_development_rejected_candidate",
+  "translation_provenance": "hybrid_machine_human_unverified",
+  "review_status": "REJECTED as ground truth: site policy describes hybrid machine/human translation; this passage has no verified human-only provenance.",
+  "translation_policy_url": "https://www.phila.gov/programs/language-access-philly/translation-feedback-and-support/"
+}

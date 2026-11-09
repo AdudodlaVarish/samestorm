@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-winter-zh",
+  "document_group_id": "ready-winter",
+  "lang": "zh",
+  "url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_winter-storm_info-sheet_chinese-simplified.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/collection/winter-storm",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_winter-storm_info-sheet_chinese-simplified.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:24.291185+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/ready-winter-zh/source.pdf",
+  "sha256": "6038b336a3239008f336c5362c35143a46145fd7a569ebadd1dcfe88a8273ff2",
+  "bytes": 420647
+}

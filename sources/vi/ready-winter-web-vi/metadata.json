@@ -1,0 +1,17 @@
+{
+  "source_id": "ready-winter-web-vi",
+  "document_group_id": "ready-winter",
+  "lang": "vi",
+  "url": "https://www.ready.gov/vi/winter-weather",
+  "published": null,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "unresolved-key candidate; exact extraction and fixed pair pending",
+  "resolved_url": "https://www.ready.gov/vi/winter-weather",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T23:41:08.095921+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/vi/ready-winter-web-vi/source.html",
+  "sha256": "a63e33a66301fd0d6899ccce29e73d7c65bbacedcde0e0d785b080a6a0c39b1d",
+  "bytes": 64372
+}

@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-tornado-vi",
+  "document_group_id": "ready-tornado",
+  "lang": "vi",
+  "url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_tornado_info-sheet_vietnamese.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/collection/tornadoes",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_tornado_info-sheet_vietnamese.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:23.194386+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/ready-tornado-vi/source.pdf",
+  "sha256": "81f2b75fd7d84fd03e6eaaf06eb00594d0d0ef568bdd9e4655093b84dbbcab99",
+  "bytes": 560184
+}

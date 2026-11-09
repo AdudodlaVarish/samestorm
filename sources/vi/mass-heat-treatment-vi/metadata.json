@@ -1,0 +1,17 @@
+{
+  "source_id": "mass-heat-treatment-vi",
+  "document_group_id": "mass-heat-camps",
+  "lang": "vi",
+  "url": "https://www.mass.gov/doc/prevent-and-treat-heat-related-illness-vietnamese/download",
+  "published": null,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "candidate; exact one-hour cramps context pending",
+  "resolved_url": "https://www.mass.gov/doc/prevent-and-treat-heat-related-illness-vietnamese/download",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T23:51:25.034289+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/mass-heat-treatment-vi/source.pdf",
+  "sha256": "bf9d07daf3e93535c9677344dcf14085f1d6796ffd6469351b6c9d11f646e1b2",
+  "bytes": 438886
+}

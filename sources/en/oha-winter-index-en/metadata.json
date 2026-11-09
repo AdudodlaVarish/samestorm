@@ -1,0 +1,17 @@
+{
+  "source_id": "oha-winter-index-en",
+  "document_group_id": "oha-winter-resources",
+  "lang": "en",
+  "url": "https://www.oregon.gov/oha/PH/Preparedness/Prepare/Pages/PrepareForWinterStorms.aspx",
+  "published": null,
+  "role": "benchmark_development_provenance",
+  "translation_provenance": "original",
+  "review_status": "Official index establishes state ownership and translated PDF links; not an action key",
+  "resolved_url": "https://www.oregon.gov/oha/PH/Preparedness/Prepare/Pages/PrepareForWinterStorms.aspx",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T23:47:20.231519+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/en/oha-winter-index-en/source.html",
+  "sha256": "69592a8293e3614533ca00720125113291a7afb64be35ec3cd83934ec109c5ae",
+  "bytes": 99525
+}

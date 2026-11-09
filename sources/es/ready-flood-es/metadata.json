@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-flood-es",
+  "document_group_id": "ready-flood",
+  "lang": "es",
+  "url": "https://www.ready.gov/sites/default/files/2024-12/fema_flood-hazard-info-sheet_spanish.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/collection/flood",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-12/fema_flood-hazard-info-sheet_spanish.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:24.721896+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/es/ready-flood-es/source.pdf",
+  "sha256": "09123f17ec5689ce81afbb62ffcc89066b85459f7c3f23f7785b38e8822f162e",
+  "bytes": 244487
+}

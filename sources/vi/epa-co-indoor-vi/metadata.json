@@ -1,0 +1,20 @@
+{
+  "source_id": "epa-co-indoor-vi",
+  "document_group_id": "epa-co-indoor",
+  "lang": "vi",
+  "url": "https://www.epa.gov/lep/tac-dong-cua-carbon-monoxide-doi-voi-chat-luong-khong-khi-trong-nha",
+  "published": null,
+  "role": "resolution_candidate_not_approved",
+  "translation_provenance": "agency-published",
+  "candidate_for": [
+    "co-no-indoor/vi"
+  ],
+  "review_status": "pending acquisition, exact passage extraction, two-system alignment and student review",
+  "resolved_url": "https://www.epa.gov/lep/tac-dong-cua-carbon-monoxide-doi-voi-chat-luong-khong-khi-trong-nha",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T21:49:10.577820+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/vi/epa-co-indoor-vi/source.html",
+  "sha256": "dcf0908eba94adc9057b81d571a60e30758ccd0d7a4f4d423c12525a42a0f416",
+  "bytes": 65444
+}

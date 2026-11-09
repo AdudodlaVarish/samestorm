@@ -1,0 +1,20 @@
+{
+  "source_id": "cdc-generator-zh",
+  "document_group_id": "cdc-generator",
+  "lang": "zh",
+  "url": "https://www.cdc.gov/carbon-monoxide/media/pdfs/CO_Generator_Safety_Chinese_1.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.cdc.gov/carbon-monoxide/factsheets/generator-safety-fact-sheet.html",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.cdc.gov/carbon-monoxide/media/pdfs/CO_Generator_Safety_Chinese_1.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:57.291533+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/cdc-generator-zh/source.pdf",
+  "sha256": "957ee2376fa4b30e977f76ea61db8af2a5e6c50a6f6b9773b54de51debebb342",
+  "bytes": 172435
+}

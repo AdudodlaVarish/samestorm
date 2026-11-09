@@ -1,0 +1,19 @@
+{
+  "source_id": "nc-co-response-en",
+  "document_group_id": "nc-co-response",
+  "lang": "en",
+  "url": "https://epi.dph.ncdhhs.gov/oee/docs/CO-Factsheet-Prevention.pdf",
+  "published": "2020-01",
+  "publication_precision": "month",
+  "role": "benchmark_candidate",
+  "translation_provenance": "original",
+  "provenance_url": "https://epi.dph.ncdhhs.gov/oee/a_z/co.html",
+  "review_status": "pending",
+  "resolved_url": "https://epi.dph.ncdhhs.gov/oee/docs/CO-Factsheet-Prevention.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T16:47:28.594064+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/en/nc-co-response-en/source.pdf",
+  "sha256": "eb1b31e389717ff58764db36b926b414df5c8211f9f7bcf7a9db233ba6f82f5a",
+  "bytes": 488019
+}

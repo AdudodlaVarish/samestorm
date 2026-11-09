@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-winter-vi",
+  "document_group_id": "ready-winter",
+  "lang": "vi",
+  "url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_winter-storm_info-sheet_vietnamese.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.ready.gov/collection/winter-storm",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_winter-storm_info-sheet_vietnamese.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:24.094771+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/ready-winter-vi/source.pdf",
+  "sha256": "5ff583702728fc542beeeadf19c6a8e391664ed18c50e1fbae9487ae0e29d7f8",
+  "bytes": 385061
+}

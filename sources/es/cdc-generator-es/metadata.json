@@ -1,0 +1,20 @@
+{
+  "source_id": "cdc-generator-es",
+  "document_group_id": "cdc-generator",
+  "lang": "es",
+  "url": "https://www.cdc.gov/carbon-monoxide/media/pdfs/CO_Generator_Safety_Spanish_1.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.cdc.gov/carbon-monoxide/factsheets/generator-safety-fact-sheet.html",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.cdc.gov/carbon-monoxide/media/pdfs/CO_Generator_Safety_Spanish_1.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:57.107187+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/es/cdc-generator-es/source.pdf",
+  "sha256": "d8d0c07df670fa31298e755a61caa7a77e4ff741e58d06a0e83f9c80855fb694",
+  "bytes": 119046
+}

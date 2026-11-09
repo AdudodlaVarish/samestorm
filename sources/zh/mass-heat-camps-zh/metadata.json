@@ -1,0 +1,17 @@
+{
+  "source_id": "mass-heat-camps-zh",
+  "document_group_id": "mass-heat-camps",
+  "lang": "zh",
+  "url": "https://www.mass.gov/doc/extreme-heat-best-practices-for-farm-labor-camp-operators-chinese-simplified/download",
+  "published": null,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "candidate for strict cramps duration; not approved",
+  "resolved_url": "https://www.mass.gov/doc/extreme-heat-best-practices-for-farm-labor-camp-operators-chinese-simplified/download",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T23:50:01.817745+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/zh/mass-heat-camps-zh/source.pdf",
+  "sha256": "b68b910d862cb064e322e95a88b1462d248f0b5f3c250e4c40bb45787aec64e3",
+  "bytes": 1234675
+}

@@ -1,0 +1,13 @@
+{
+  "source_id": "epa-co-indoor-vi",
+  "source_sha256": "dcf0908eba94adc9057b81d571a60e30758ccd0d7a4f4d423c12525a42a0f416",
+  "status": "candidate only; no two-system alignment or student acceptance",
+  "extraction": "Python HTMLParser decoded text; whitespace collapsed; navigation aid, original HTML authoritative",
+  "passages": [
+    {
+      "quote": "Không bao giờ sử dụng máy phát điện trong nhà hoặc nhà để xe, ngay cả khi cửa ra vào và cửa sổ đang mở.",
+      "navigation_offset": 7948,
+      "context": "hẩm cho Người Tiêu Dùng (CPSC): Máy phát điện di động rất hữu ích khi cần nguồn điện tạm thời hoặc từ xa, nhưng chúng cũng có thể nguy hiểm. Khí thải của máy phát điện chứa carbon monoxide. Đây là một chất độc bạn không thể nhìn thấy hoặc ngửi thấy. Không bao giờ sử dụng máy phát điện trong nhà hoặc nhà để xe, ngay cả khi cửa ra vào và cửa sổ đang mở. Chỉ sử dụng máy phát điện bên ngoài và xa cửa sổ, cửa ra vào và lỗ thông hơi. Information for Individuals with Limited English Proficiency Open Sidenav Menu Close Sidenav Menu عربى 简体版 繁體版 Français Kreyòl ayisyen 한국어 Português Pусский Tagalog Tiếng Việt Contact Us about Information in Languages Oth"
+    }
+  ]
+}

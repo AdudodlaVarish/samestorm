@@ -1,0 +1,20 @@
+{
+  "source_id": "ready-tornado-en",
+  "document_group_id": "ready-tornado",
+  "lang": "en",
+  "url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_tornado_info-sheet.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "original",
+  "provenance_url": "https://www.ready.gov/collection/tornadoes",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.ready.gov/sites/default/files/2024-08/ready-gov_tornado_info-sheet.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:22.635835+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/en/ready-tornado-en/source.pdf",
+  "sha256": "571700b8e6bce2e5d83847184c4a27aba26fac72d7d86fca556ff84cef63784a",
+  "bytes": 515808
+}

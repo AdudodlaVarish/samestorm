@@ -1,0 +1,20 @@
+{
+  "source_id": "cdc-generator-vi",
+  "document_group_id": "cdc-generator",
+  "lang": "vi",
+  "url": "https://www.cdc.gov/carbon-monoxide/media/pdfs/CO_Generator_Safety_Vietnamese_1.pdf",
+  "published": null,
+  "role": "benchmark_candidate",
+  "translation_provenance": "agency-published",
+  "provenance_url": "https://www.cdc.gov/carbon-monoxide/factsheets/generator-safety-fact-sheet.html",
+  "alignment_method": null,
+  "alignment_confidence": null,
+  "review_status": "pending",
+  "resolved_url": "https://www.cdc.gov/carbon-monoxide/media/pdfs/CO_Generator_Safety_Vietnamese_1.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T15:31:57.176692+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/cdc-generator-vi/source.pdf",
+  "sha256": "9fd960ae7f9c651aa8e67a3a7b4623bc42767faf3335bde4b761e962fac50d7c",
+  "bytes": 154547
+}

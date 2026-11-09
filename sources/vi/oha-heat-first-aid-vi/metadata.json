@@ -1,0 +1,20 @@
+{
+  "source_id": "oha-heat-first-aid-vi",
+  "document_group_id": "oha-heat-first-aid",
+  "lang": "vi",
+  "url": "https://sharedsystems.dhsoha.state.or.us/DHSForms/Served/lv8817G.pdf",
+  "provenance_url": "https://www.oregon.gov/oha/PH/Preparedness/Prepare/Pages/PrepareForExtremeHeat.aspx",
+  "published": "2017-06",
+  "translation_provenance": "agency-published",
+  "role": "benchmark_development_candidate",
+  "review_status": "candidate; not approved",
+  "resolved_url": "https://sharedsystems.dhsoha.state.or.us/DHSForms/Served/lv8817G.pdf",
+  "content_type": "application/pdf",
+  "retrieved": "2026-11-07T23:43:14.547909+00:00",
+  "filename": "source.pdf",
+  "snapshot_path": "data/sources/vi/oha-heat-first-aid-vi/source.pdf",
+  "sha256": "7b15067fedb042d2b224fe42cbfcbeef45dd34a01558ccda69daae77d3527d60",
+  "bytes": 273300,
+  "publication_precision": "month",
+  "publication_basis": "Printed 6/17 footer, page 2 visually inspected"
+}

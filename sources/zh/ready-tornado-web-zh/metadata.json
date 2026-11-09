@@ -1,0 +1,17 @@
+{
+  "source_id": "ready-tornado-web-zh",
+  "document_group_id": "ready-tornado",
+  "lang": "zh",
+  "url": "https://www.ready.gov/zh-hans/tornadoes",
+  "published": null,
+  "role": "benchmark_development_candidate",
+  "translation_provenance": "agency-published",
+  "review_status": "unresolved-key candidate; exact extraction and fixed pair pending",
+  "resolved_url": "https://www.ready.gov/zh-hans/tornadoes",
+  "content_type": "text/html",
+  "retrieved": "2026-11-07T23:41:08.173101+00:00",
+  "filename": "source.html",
+  "snapshot_path": "data/sources/zh/ready-tornado-web-zh/source.html",
+  "sha256": "0632b4513d410476d02abf7cd7bbeeb19171c693ade0e5e0eb402c09fb4f6c45",
+  "bytes": 59037
+}
