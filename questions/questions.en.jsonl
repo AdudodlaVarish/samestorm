@@ -1,0 +1,48 @@
+{"item_id": "co-001-base", "question": "The power is out. Can I run a gasoline generator in my garage if I leave the garage door open?"}
+{"item_id": "co-001-p1", "question": "Would opening every door and window make it safe to use my generator in the garage?"}
+{"item_id": "co-001-p2", "question": "No power here. Is the genrator OK in the garage with the door all the way up?"}
+{"item_id": "co-001-cf1", "question": "My generator is outdoors, more than 20 feet from the house, doors, and windows, but the CO alarm is sounding and I have a headache and feel dizzy. Should I stay inside because the generator is outside?"}
+{"item_id": "winter-002-base", "question": "After being outside in the cold, my fingers are numb and the skin looks white and waxy. Should I rub them or use a heating pad?"}
+{"item_id": "winter-002-p1", "question": "My fingertips are numb, pale, and waxy after the cold. Is massaging them or using a heating pad the right way to warm up?"}
+{"item_id": "winter-002-p2", "question": "My fingers went numb and white in the cold. Should I rub them or use a heatng pad to warm them fast?"}
+{"item_id": "winter-002-cf1", "question": "Someone is shivering, confused, and slurring their speech after exposure to cold. What should I do to help warm them, and which parts of their body should be warmed first?"}
+{"item_id": "winter-003-base", "question": "A winter storm has trapped my car on the road. Should I leave it and walk away to look for help?"}
+{"item_id": "winter-003-p1", "question": "I cannot move my car because of the winter storm. Do I stay inside or start walking?"}
+{"item_id": "winter-003-p2", "question": "Car stuck in a blizard. Is getting out and walking for help what I should do?"}
+{"item_id": "winter-003-cf1", "question": "I am already indoors during the winter storm, and I do not need to travel. Should I drive out to pass the time?"}
+{"item_id": "flood-001-base", "question": "Floodwater covers the road ahead and a barrier blocks it. Can I drive around the barrier if my SUV looks tall enough?"}
+{"item_id": "flood-001-p1", "question": "Is a high SUV enough to cross a flooded road after going around the closure barrier?"}
+{"item_id": "flood-001-p2", "question": "Road is floodded but I have an SUV. Can I go around the barricade?"}
+{"item_id": "flood-001-cf1", "question": "Officials have ordered evacuation. In this scenario, the designated route is confirmed dry, open, and clear of floodwater. Should I delay leaving just because flooding is occurring elsewhere?"}
+{"item_id": "flood-002-base", "question": "Floodwater is rising inside my building and I cannot safely evacuate. Should I wait in the basement?"}
+{"item_id": "flood-002-p1", "question": "If water is entering the building and leaving is unsafe, is the basement a good place to shelter?"}
+{"item_id": "flood-002-p2", "question": "Flood water is coming in and I cant get out safely. Should I stay downstairs in the basement?"}
+{"item_id": "flood-002-cf1", "question": "Officials have ordered evacuation before water reaches my building. In this scenario I can leave on a confirmed clear route. Should I remain upstairs instead of following that order?"}
+{"item_id": "flood-003-base", "question": "The floodwater near my home has gone down, but officials have not said it is safe to return. Can I go home now?"}
+{"item_id": "flood-003-p1", "question": "Can I return to my flooded house as soon as the water recedes, before an official all-clear?"}
+{"item_id": "flood-003-p2", "question": "Water went down. Nobody official said its safe yet. Can I head home?"}
+{"item_id": "flood-003-cf1", "question": "Officials have said it is safe to return, and I am back home. The electrical equipment is still wet. Is it safe to touch it now because the area received an all-clear?"}
+{"item_id": "heat-001-base", "question": "It is a hot, sunny day. Can I leave my child alone in the parked car while I make a quick stop?"}
+{"item_id": "heat-001-p1", "question": "On a hot, sunny day, is it safe for a child to wait alone in a car if I will only be gone briefly?"}
+{"item_id": "heat-001-p2", "question": "Quick errand on a hot, sunny day. Can my kid wait alone in the parkd car?"}
+{"item_id": "heat-001-cf1", "question": "My child and I are inside an air-conditioned library during extreme heat. Should we leave the library to wait in our parked car?"}
+{"item_id": "heat-002-base", "question": "After activity in the heat, I have muscle cramps in my legs. They started a few minutes ago, and I have no other symptoms. What should I do?"}
+{"item_id": "heat-002-p1", "question": "What actions does official guidance recommend for leg cramps that just started after being active in hot weather, with no other symptoms?"}
+{"item_id": "heat-002-p2", "question": "Leg crmaps after being out in the heat, only a few minutes so far and no other symptoms. What now?"}
+{"item_id": "heat-002-cf1", "question": "The heat-related muscle cramps have lasted more than an hour. Should I keep waiting without getting medical help?"}
+{"item_id": "heat-003-base", "question": "After being out in extreme heat, a person is confused and loses consciousness. Should I wait to see if they recover before seeking emergency help?"}
+{"item_id": "heat-003-p1", "question": "Someone became confused and unconscious after heat exposure. Should emergency care wait?"}
+{"item_id": "heat-003-p2", "question": "Person confused then passed out in extreme heat. Wait it out or get emergncy help?"}
+{"item_id": "heat-003-cf1", "question": "The person is alert and has only brief muscle cramps after heat exposure, with no confusion or loss of consciousness. What initial actions does the heat-cramp guidance give?"}
+{"item_id": "tornado-001-base", "question": "A tornado warning has been issued. I can reach my basement safely. Should I stay in an upstairs room with windows?"}
+{"item_id": "tornado-001-p1", "question": "During a tornado warning, should I use the available basement or remain upstairs by a window?"}
+{"item_id": "tornado-001-p2", "question": "Tornado warnng. Basement available. Is the upstairs room with windows OK?"}
+{"item_id": "tornado-001-cf1", "question": "There is no basement or safe room in this sturdy building. What type of room and floor should I use during the tornado warning?"}
+{"item_id": "tornado-002-base", "question": "I am outdoors during a tornado warning and can safely reach a sturdy building immediately. Should I shelter under a highway overpass instead?"}
+{"item_id": "tornado-002-p1", "question": "A sturdy building is safely reachable now. Is a nearby overpass a better tornado shelter?"}
+{"item_id": "tornado-002-p2", "question": "Tornado warning outside. Building right here and safe to reach. Hide under the overpas?"}
+{"item_id": "tornado-002-cf1", "question": "I am outdoors during the tornado and cannot reach a building. How should I protect my head, neck, and body?"}
+{"item_id": "tornado-003-base", "question": "I am trapped after a tornado and there is dust around me. Should I keep shouting for help?"}
+{"item_id": "tornado-003-p1", "question": "What should I do to signal rescuers while trapped in a dusty space after a tornado?"}
+{"item_id": "tornado-003-p2", "question": "Trapped after tornaddo, lots of dust. Should I shout or signal some other way?"}
+{"item_id": "tornado-003-cf1", "question": "I am safely outside after the tornado, have no emergency, and only want to tell family I am safe. Should I make repeated phone calls or use text messages?"}
