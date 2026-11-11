@@ -1,0 +1,23 @@
+{
+  "seed": 20261107,
+  "context_tokens": 4096,
+  "decoding": {
+    "temperature": 0,
+    "top_k": 1,
+    "repeat_penalty": 1.0,
+    "max_tokens": 320
+  },
+  "thinking": false,
+  "retrieval": "closed_book",
+  "use_model_chat_template": true,
+  "precisions": [
+    "F16",
+    "Q8_0",
+    "Q6_K",
+    "Q4_K_M",
+    "Q3_K_M",
+    "Q2_K"
+  ],
+  "determinism_repeat_fraction": 0.1,
+  "reference_precision": "F16"
+}
