@@ -3,13 +3,15 @@ import hashlib
 import json
 import math
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlsplit
 
 COUNTS = {'en': 48, 'es': 48, 'vi': 48, 'zh': 40}
 COMPARISONS = {'greater_than', 'greater_or_equal', 'less_than', 'less_or_equal', 'equal'}
+ROLES = {'base': 'base', 'p1': 'paraphrase', 'p2': 'paraphrase', 'cf1': 'counterfactual'}
+HAZARDS = {'flood', 'heat', 'winter_power_co', 'tornado'}
 
 
 def load_items(path):
@@ -174,6 +176,46 @@ def validate(root):
                 for field in ['critical', 'negation_sensitive', 'quantity', 'numeric_identifier', 'grading_scope']:
                     require(translated[aid].get(field) == original[aid].get(field),
                             f'{item_id}/{lang}/{aid}: {field} differs from English key')
+    try:
+        metadata = load_items(root / 'data' / 'item_metadata.jsonl')
+    except (OSError, ValueError) as exc:
+        errors.append(str(exc))
+        return errors
+    require(metadata.keys() == english_ids, 'metadata: IDs must match English question IDs exactly')
+    metadata_families = defaultdict(list)
+    for item_id, row in metadata.items():
+        label = f'{item_id}/metadata'
+        family, _, suffix = item_id.rpartition('-')
+        require(row.get('family_id') == family, f'{label}: family_id does not match question ID')
+        role = row.get('role')
+        valid_role = isinstance(role, str) and role in ROLES.values()
+        require(valid_role and role == ROLES.get(suffix), f'{label}: role does not match question ID')
+        require(row.get('split') == 'dev', f'{label}: pilot split must be dev')
+        hazard = row.get('hazard')
+        valid_hazard = isinstance(hazard, str) and hazard in HAZARDS
+        require(valid_hazard, f'{label}: invalid hazard')
+        langs = row.get('languages_available')
+        valid_langs = (isinstance(langs, list) and all(isinstance(lang, str) for lang in langs)
+                       and len(langs) == len(set(langs)) and set(langs) <= COUNTS.keys())
+        require(valid_langs, f'{label}: languages must be a unique list of known codes')
+        if valid_langs:
+            actual = {lang for lang in COUNTS if item_id in questions.get(lang, {}) and item_id in answers.get(lang, {})}
+            require(set(langs) == actual, f'{label}: languages do not match question/answer files')
+        if row.get('family_id') == family and family and valid_role and valid_hazard and valid_langs:
+            metadata_families[family].append(row)
+    require(len(metadata_families) == 12, 'metadata: expected 12 complete families')
+    hazard_counts = Counter()
+    for family, rows in metadata_families.items():
+        require(Counter(r['role'] for r in rows) == Counter(base=1, paraphrase=2, counterfactual=1),
+                f'{family}/metadata: expected base, two paraphrases and counterfactual')
+        hazards = {r['hazard'] for r in rows}
+        require(len(hazards) == 1, f'{family}/metadata: inconsistent hazard within family')
+        require(len({tuple(sorted(r['languages_available'])) for r in rows}) == 1,
+                f'{family}/metadata: inconsistent language coverage within family')
+        if len(hazards) == 1:
+            hazard_counts.update(hazards)
+    require(hazard_counts == Counter({hazard: 3 for hazard in HAZARDS}),
+            'metadata: expected three families per hazard')
     return errors
 
 
@@ -190,7 +232,7 @@ def main():
         print(f'FAIL: {error}', file=sys.stderr)
     if errors:
         return 1
-    print('PASS: 184 question/key pairs; en=48, es=48, vi=48, zh=40. Source checksums and metadata are consistent.')
+    print('PASS: 184 question/key pairs; en=48, es=48, vi=48, zh=40. Source checksums and 48 metadata rows across 12 dev families are consistent.')
     print('Structural/source-integrity checks only; this does not validate semantics, grading accuracy or authorize experiments.')
     return 0
 

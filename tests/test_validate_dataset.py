@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from validate_dataset import COUNTS, validate
+from validate_dataset import COUNTS, ROLES, validate
 
 
 class DatasetValidation(unittest.TestCase):
@@ -37,6 +37,19 @@ class DatasetValidation(unittest.TestCase):
                             sha256=checksum)]))
             self.write('questions', lang, questions)
             self.write('answers', lang, answers)
+        self.write_metadata([dict(item_id=q['item_id'], family_id=q['item_id'].rsplit('-', 1)[0],
+            role=ROLES[q['item_id'].rsplit('-', 1)[1]], split='dev',
+            hazard=['flood', 'heat', 'winter_power_co', 'tornado'][n // 12],
+            languages_available=['en', 'es', 'vi'] + (['zh'] if n < 40 else []))
+            for n, q in enumerate(self.read('questions', 'en'))])
+
+    def write_metadata(self, rows):
+        folder = self.root / 'data'
+        folder.mkdir(exist_ok=True)
+        (folder / 'item_metadata.jsonl').write_text(''.join(json.dumps(row) + '\n' for row in rows))
+
+    def read_metadata(self):
+        return [json.loads(line) for line in (self.root / 'data/item_metadata.jsonl').read_text().splitlines()]
 
     def write(self, kind, lang, rows):
         path = self.root / kind / f'{kind}.{lang}.jsonl'
@@ -48,6 +61,50 @@ class DatasetValidation(unittest.TestCase):
 
     def test_valid_dataset(self):
         self.assertEqual(validate(self.root), [])
+
+    def test_missing_metadata_file_fails(self):
+        (self.root / 'data/item_metadata.jsonl').unlink()
+        self.assertTrue(any('item_metadata.jsonl' in error for error in validate(self.root)))
+
+    def test_missing_extra_and_duplicate_metadata_ids_fail(self):
+        original = self.read_metadata()
+        for rows, message in [(original[1:], 'IDs must match'),
+                              (original + [dict(original[0], item_id='fixture12-base')], 'IDs must match'),
+                              (original + original[:1], 'duplicate item_id')]:
+            with self.subTest(message=message, count=len(rows)):
+                self.write_metadata(rows)
+                self.assertTrue(any(message in error for error in validate(self.root)))
+
+    def test_metadata_family_role_and_test_split_fail(self):
+        rows = self.read_metadata()
+        rows[0]['family_id'] = 'another-family'
+        rows[1]['role'] = 'base'
+        rows[2]['split'] = 'test'
+        self.write_metadata(rows)
+        errors = validate(self.root)
+        for message in ['family_id does not match', 'role does not match', 'pilot split must be dev']:
+            self.assertTrue(any(message in error for error in errors), message)
+
+    def test_metadata_language_duplicates_and_missing_coverage_fail(self):
+        rows = self.read_metadata()
+        rows[0]['languages_available'].append('vi')
+        rows[1]['languages_available'].remove('zh')
+        self.write_metadata(rows)
+        errors = validate(self.root)
+        self.assertTrue(any('unique list of known codes' in error for error in errors))
+        self.assertTrue(any('languages do not match' in error for error in errors))
+
+    def test_metadata_hazard_and_family_distribution_fail(self):
+        original = self.read_metadata()
+        for affected, hazard, message in [([0], 'unknown', 'invalid hazard'),
+                                          ([0], 'heat', 'inconsistent hazard'),
+                                          (range(4), 'heat', 'three families per hazard')]:
+            with self.subTest(message=message):
+                rows = json.loads(json.dumps(original))
+                for n in affected:
+                    rows[n]['hazard'] = hazard
+                self.write_metadata(rows)
+                self.assertTrue(any(message in error for error in validate(self.root)))
 
     def test_missing_answer_and_duplicate_question_fail(self):
         self.write('answers', 'es', self.read('answers', 'es')[1:])
