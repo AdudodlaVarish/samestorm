@@ -1,0 +1,25 @@
+# Local Python environments and caches
+/.venv/
+/venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local secrets; an example without secrets can be committed
+.env
+.env.*
+!.env.example
+
+# Model weights, external tools/data, and large raw run outputs
+/models/
+/vendor/
+/external/
+/results/raw/
+/.cache/
+*.gguf
+*.safetensors
+*.imatrix
+
+# Operating-system files
+.DS_Store
+Thumbs.db

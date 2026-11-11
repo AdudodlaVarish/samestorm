@@ -1,0 +1,2 @@
+# The current dataset validator and tests use only Python's standard library.
+# No third-party packages are required at this stage.
