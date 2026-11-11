@@ -1,4 +1,3 @@
-"""Download pinned checkpoints, convert to F16, or make baseline quantizations."""
 import argparse
 import hashlib
 import json
