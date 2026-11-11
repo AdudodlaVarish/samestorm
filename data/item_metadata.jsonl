@@ -1,0 +1,48 @@
+{"item_id": "co-001-base", "family_id": "co-001", "role": "base", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "co-001-p1", "family_id": "co-001", "role": "paraphrase", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "co-001-p2", "family_id": "co-001", "role": "paraphrase", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "co-001-cf1", "family_id": "co-001", "role": "counterfactual", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "winter-002-base", "family_id": "winter-002", "role": "base", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi"]}
+{"item_id": "winter-002-p1", "family_id": "winter-002", "role": "paraphrase", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi"]}
+{"item_id": "winter-002-p2", "family_id": "winter-002", "role": "paraphrase", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi"]}
+{"item_id": "winter-002-cf1", "family_id": "winter-002", "role": "counterfactual", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi"]}
+{"item_id": "winter-003-base", "family_id": "winter-003", "role": "base", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "winter-003-p1", "family_id": "winter-003", "role": "paraphrase", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "winter-003-p2", "family_id": "winter-003", "role": "paraphrase", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "winter-003-cf1", "family_id": "winter-003", "role": "counterfactual", "hazard": "winter_power_co", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-001-base", "family_id": "flood-001", "role": "base", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-001-p1", "family_id": "flood-001", "role": "paraphrase", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-001-p2", "family_id": "flood-001", "role": "paraphrase", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-001-cf1", "family_id": "flood-001", "role": "counterfactual", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-002-base", "family_id": "flood-002", "role": "base", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-002-p1", "family_id": "flood-002", "role": "paraphrase", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-002-p2", "family_id": "flood-002", "role": "paraphrase", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-002-cf1", "family_id": "flood-002", "role": "counterfactual", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-003-base", "family_id": "flood-003", "role": "base", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-003-p1", "family_id": "flood-003", "role": "paraphrase", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-003-p2", "family_id": "flood-003", "role": "paraphrase", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "flood-003-cf1", "family_id": "flood-003", "role": "counterfactual", "hazard": "flood", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "heat-001-base", "family_id": "heat-001", "role": "base", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "heat-001-p1", "family_id": "heat-001", "role": "paraphrase", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "heat-001-p2", "family_id": "heat-001", "role": "paraphrase", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "heat-001-cf1", "family_id": "heat-001", "role": "counterfactual", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "heat-002-base", "family_id": "heat-002", "role": "base", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi"]}
+{"item_id": "heat-002-p1", "family_id": "heat-002", "role": "paraphrase", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi"]}
+{"item_id": "heat-002-p2", "family_id": "heat-002", "role": "paraphrase", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi"]}
+{"item_id": "heat-002-cf1", "family_id": "heat-002", "role": "counterfactual", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi"]}
+{"item_id": "heat-003-base", "family_id": "heat-003", "role": "base", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "heat-003-p1", "family_id": "heat-003", "role": "paraphrase", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "heat-003-p2", "family_id": "heat-003", "role": "paraphrase", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "heat-003-cf1", "family_id": "heat-003", "role": "counterfactual", "hazard": "heat", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-001-base", "family_id": "tornado-001", "role": "base", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-001-p1", "family_id": "tornado-001", "role": "paraphrase", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-001-p2", "family_id": "tornado-001", "role": "paraphrase", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-001-cf1", "family_id": "tornado-001", "role": "counterfactual", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-002-base", "family_id": "tornado-002", "role": "base", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-002-p1", "family_id": "tornado-002", "role": "paraphrase", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-002-p2", "family_id": "tornado-002", "role": "paraphrase", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-002-cf1", "family_id": "tornado-002", "role": "counterfactual", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-003-base", "family_id": "tornado-003", "role": "base", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-003-p1", "family_id": "tornado-003", "role": "paraphrase", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-003-p2", "family_id": "tornado-003", "role": "paraphrase", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
+{"item_id": "tornado-003-cf1", "family_id": "tornado-003", "role": "counterfactual", "hazard": "tornado", "split": "dev", "languages_available": ["en", "es", "vi", "zh"]}
