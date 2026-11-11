@@ -1,0 +1,10 @@
+{
+  "llama_cpp_repository": "https://github.com/ggml-org/llama.cpp",
+  "llama_cpp_commit": "f7591a6a01f9273de03331732bdc0b39721168be",
+  "build_targets": [
+    "llama-bench",
+    "llama-server",
+    "llama-quantize",
+    "llama-imatrix"
+  ]
+}

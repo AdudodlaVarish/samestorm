@@ -1,0 +1,11 @@
+# Pinned conversion/download dependencies. Model inference uses a separate runtime.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.11.0+cpu
+huggingface_hub==0.36.2
+numpy==2.4.6
+transformers==4.57.6
+tokenizers==0.22.2
+safetensors==0.8.0
+sentencepiece==0.2.3
+protobuf==4.25.9
+Jinja2==3.1.6

@@ -1,0 +1,30 @@
+{
+  "models": [
+    {
+      "id": "LiquidAI/LFM3-1.7B",
+      "revision": "1da06bec6a819da10b54c67e5c90972b46d81871",
+      "parameters": 1728801536,
+      "license": "lfm1.0",
+      "gated": false,
+      "reference": "F16",
+      "thinking": false,
+      "reference_path": "models/LFM3-1.7B/model-F16.gguf",
+      "checkpoint_path": "models/LFM3-1.7B/checkpoint",
+      "metadata_path": "configs/evidence/models/LiquidAI--LFM3-1.7B/hub_metadata.json",
+      "metadata_sha256": "27c13a5e81c7cf9f2f8833c3035481c86d96db9a05713001025c7fee5aab7ac7"
+    },
+    {
+      "id": "Qwen/Qwen3-4B-Instruct-2507",
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "parameters": 4022468096,
+      "license": "apache-2.0",
+      "gated": false,
+      "reference": "F16",
+      "thinking": false,
+      "reference_path": "models/Qwen3-4B-Instruct-2507/model-F16.gguf",
+      "checkpoint_path": "models/Qwen3-4B-Instruct-2507/checkpoint",
+      "metadata_path": "configs/evidence/models/Qwen--Qwen3-4B-Instruct-2507/hub_metadata.json",
+      "metadata_sha256": "7654baf3ab7faa11c0b3f15f8ed3036a2f36079bd42375b6aeec8b6c650489f5"
+    }
+  ]
+}
