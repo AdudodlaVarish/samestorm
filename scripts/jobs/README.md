@@ -1,4 +1,4 @@
-# Judge setup on TACC
+# Scale jobs on TACC
 
 Research prototype. Follow local officials and call 911 in an emergency.
 
@@ -90,3 +90,76 @@ raw verdicts and token IDs, checked grade records, failures and per-run input
 snapshots. Context overflow is rejected without truncation. Invalid or truncated
 verdicts are retained and make the run fail; partial outputs remain available.
 Passing a setup check or finishing inference never sets judge validation complete.
+
+## Answer generation
+
+Prepare the current prompts and model/precision matrix locally:
+
+```sh
+.venv/bin/python scripts/scale_generate.py check --run-id generation-inputs-001
+```
+
+This writes `generation_packet.json`, `readiness.json`, and a pending
+`review_template.json` into a fresh ignored run directory. It does not freeze the
+dataset or run models. The packet has 184 prompts (48 English, 48 Spanish,
+48 Vietnamese, 40 Chinese), 12 jobs and the same 19 repeat checks per job:
+2,208 primary responses plus 228 repeats. Only dev items are accepted. Answer
+keys are used for validation and review hashes; model messages contain only the
+fixed English system prompt and the question in its language.
+
+Generation requires a separate frozen review manifest containing the packet's
+exact `input_sha256` map as `artifacts`, `frozen: true`, `approved_by: "student"`,
+an actual `approved_at` record, and true flags for
+`keys_and_alignment_evidence_reviewed` and `question_translations_reviewed`.
+The generated template leaves all approval fields pending. Record approval only
+after the required student evidence review; the template itself is no approval.
+Keep a reviewed copy without overwriting old receipts. Changed questions, keys,
+official source snapshots, model selections or protocol settings block execution
+until a corresponding reviewed packet exists.
+
+Use the model-preparation tools to create the GGUFs first. Each job needs the
+matching successful conversion or quantization `manifest.json`, with its exact
+model/revision/toolchain, output path, precision and GGUF hash. A conversion receipt
+covers its reference job; a quantization receipt covers that model's five quantized
+jobs. A single receipt cannot cover the whole 12-job matrix.
+
+On scale, build a clean checkout at the commit in `configs/toolchain.json` with
+CUDA enabled for A100. The CPU quantization build is not the inference build:
+
+```sh
+cmake -S vendor/llama.cpp -B vendor/llama.cpp/build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=80
+cmake --build vendor/llama.cpp/build --target llama-server -j 4
+```
+
+The generation worker uses the GGUF reader from that pinned checkout. Its Python
+dependencies are already present in the prepared scale judge environment; it can
+reuse that environment without loading judge models. It records reader dependency
+versions, the server hash, chat-template hash, hardware, decoding settings and
+inputs in the run manifest. Hardware checks reuse the prepared LS6 expectation
+in `configs/judges.json`. Actual builds and scale execution remain untested.
+
+After execution is authorized and reviewed inputs, matching GGUFs and hardware
+are ready, configure a single job first:
+
+```sh
+export SAMESTORM_PACKET="$PWD/results/raw/generation-inputs-001/generation_packet.json"
+export SAMESTORM_REVIEW_MANIFEST=/path/to/recorded-approved-review.json
+export SAMESTORM_MODEL_MANIFEST=/path/to/matching-preparation/manifest.json
+sbatch -A YOUR_ALLOCATION --array=0 scripts/jobs/generate.sbatch
+```
+
+Set `SAMESTORM_REPO` and `SAMESTORM_PYTHON` as described above, and create
+`results/raw` before submission. Select the actual matrix index and corresponding
+model receipt. The template requests 30 minutes on the prepared three-GPU node;
+full campaign timing/cost estimates remain pending. No submission is performed
+by preparation or by this migration.
+
+Each run preserves `answers.jsonl`, raw server responses, warm-up output,
+`server.log`, temperature/clock/power/memory telemetry in `gpu.csv`, input copies
+and a manifest. `repeat_index: 0` is a primary answer; `1` is a determinism check
+and stays out of primary error rates. Truncated responses retain their text and
+are flagged separately. Empty/malformed responses, unexpected thinking, missing
+token/cache evidence and request failures are recorded as runtime failures.
+Failures are never silently retried or discarded. Startup requires complete GPU
+layer offload; server and telemetry processes are cleaned up on exit. These
+elapsed times are run diagnostics; controlled throughput measurements are stage 5.
