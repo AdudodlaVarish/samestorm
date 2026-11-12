@@ -1,0 +1,27 @@
+{"text": "Place it more than 20 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Place it 25 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Place it 6.10 meters away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Place it at least 6.1 meters away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Place it more than 20 feet (6.10 meters) away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Place it 5 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "violated"}
+{"text": "Place it 20 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "violated"}
+{"text": "Place it at least 20 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "violated"}
+{"text": "Place it 6 meters away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "violated"}
+{"text": "Place it 6.096 meters away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "violated"}
+{"text": "The phrase \"place it 5 feet away\" is unsafe.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Do not put it 5 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Place it 5 feet or 25 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Is 5 feet enough?", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Place it about 25 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Use the instructions carefully.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Place it -25 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Place it 20 1/2 feet away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Get medical help if cramps last more than 1 hour.", "quantity": {"value": 1, "unit": "hour", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Get medical help if cramps last 30 minutes.", "quantity": {"value": 1, "unit": "hour", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Get medical help now.", "quantity": {"value": 1, "unit": "hour", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Get medical help if cramps last more than 2 hours.", "quantity": {"value": 1, "unit": "hour", "source_comparison": "greater_than"}, "expected": "violated"}
+{"text": "Wait another 30 minutes before getting medical help.", "quantity": {"value": 1, "unit": "hour", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Get medical help after 30 minutes or 2 hours.", "quantity": {"value": 1, "unit": "hour", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "The cramps have lasted 2 hours. Get medical help now.", "quantity": {"value": 1, "unit": "hour", "source_comparison": "greater_than"}, "expected": "supported"}
+{"text": "Cramps have already lasted 2 hours; seek medical help.", "quantity": {"value": 1, "unit": "hour", "source_comparison": "greater_than"}, "expected": "needs_review"}
+{"text": "Place it more than 20 feet (6.095 meters) away.", "quantity": {"value": 20, "unit": "feet", "source_comparison": "greater_than"}, "expected": "needs_review"}
