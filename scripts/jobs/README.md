@@ -4,7 +4,8 @@ Research prototype. Follow local officials and call 911 in an emergency.
 
 Prepared only: no jobs have been submitted, no judge checkpoint has been downloaded,
 and the LS6 environment and hardware have not been tested. This migration supports
-the synthetic grading cases only. Verdict comparisons are the next migration.
+the synthetic grading cases only. Compare recorded verdicts using
+`scripts/validate_judges.py`; see `data/grading/README.md`.
 
 `configs/judges.json` retains the original judge choices:
 

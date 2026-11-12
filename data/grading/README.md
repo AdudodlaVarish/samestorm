@@ -42,3 +42,39 @@ submit jobs, freeze the dataset or mark grading as validated. Judges still requi
 configured scale hardware; English student ratings, two-judge checks, existing
 human-label checks and translation cross-grades remain pending. Harmful injected
 examples are English only. Forbidden-claim rules are not populated.
+
+## Compare recorded judge verdicts
+
+After the scale runs produce verdicts, compare them with the designed cases and
+your independently completed English worksheet:
+
+```sh
+.venv/bin/python scripts/validate_judges.py --run-id judge-comparison-001 \
+  --primary results/raw/PRIMARY_RUN/judgments.jsonl \
+  --secondary results/raw/SECONDARY_RUN/judgments.jsonl
+```
+
+Use `--student-review PATH` for a separate copy of your worksheet. Grade before
+looking at expected labels or judge verdicts. Blank rows remain unrated; uncertain
+rows are recorded but excluded from the 60 usable student judgments.
+
+Each judge output needs its original adjacent `manifest.json`. The command checks
+the output hash, pinned model/role/prompt and matching case/question/key inputs.
+It rechecks raw verdicts and exact evidence quotes, rather than trusting saved
+grade fields. Partial failed runs can contribute their valid records; missing,
+failed and uncertain cases stay visible.
+
+The fresh run directory contains `judge_validation_report.json`, per-case and
+per-action comparison JSONL files, input copies and a manifest. The report shows
+provisional synthetic error-detection/false-alarm bounds, judge agreement and
+agreement with your ratings. Missing/failed/unresolved cases stay in the original
+bound denominators. Student agreement uses all usable student ratings; judge
+agreement uses comparable actions and reports their count. Inspect coverage with
+every agreement value.
+
+You can omit either judge path to inspect what is still pending. With no verdicts,
+`results_present` is false; worst-case bounds from entirely missing data are not
+observed judge performance. Neither 60 student ratings nor high agreement alone
+sets `validated` or `headline_eligible` true. Existing human-label checks,
+non-English harmful cases, translation cross-grades and confirmed acceptance
+thresholds remain outstanding. No model inference or jobs run from this command.
