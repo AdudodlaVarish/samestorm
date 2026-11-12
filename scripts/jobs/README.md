@@ -254,3 +254,81 @@ agreement, disagreements and unresolved comparisons. Missing, failed or uncertai
 judgments do not count as agreement. Matching verdicts can share translation or
 judge mistakes; reports keep validation and headline eligibility false. There
 are no automatic submissions, retries, new student ratings or benchmark edits.
+
+## Tokenizer, throughput and runtime measurements
+
+The migrated measurement tools use the selected LFM3-1.7B and Qwen3-4B revisions.
+Old Qwen1.7/Llama measurements are not substituted. Check what is missing locally:
+
+```sh
+.venv/bin/python scripts/fertility.py check --run-id tokenizer-readiness-001
+.venv/bin/python scripts/throughput.py check --run-id throughput-readiness-001
+.venv/bin/python scripts/estimate_runtime.py --run-id runtime-readiness-001
+```
+
+These checks import no ML packages, run no inference and create no measurements.
+Without supplied measurements, runtime estimates remain null. Fresh run IDs,
+source/input hashes and failed-run receipts are retained.
+
+`fertility.py measure` loads only a tokenizer from a local pinned checkpoint
+directory. Model weights are not required. The tokenizer/config/template files
+must match upstream hashes; use the prepared scale Python environment, or an
+environment with the same pinned Transformers/tokenizers packages:
+
+```sh
+"$SAMESTORM_PYTHON" scripts/fertility.py measure --run-id lfm3-token-counts \
+  --model-id LiquidAI/LFM3-1.7B --tokenizer-dir models/LFM3-1.7B/checkpoint
+```
+
+Repeat for Qwen/Qwen3-4B-Instruct-2507 and its own directory. A tokenizer-only
+directory containing the pinned files also works. Results contain plain-question
+tokens, full chat-prompt tokens with thinking disabled, character/whitespace-unit
+counts and context-overflow checks for all 184 prompts. Each language is compared
+with its matching English item IDs: Chinese uses its corresponding 40 English
+questions. Whitespace units are not Vietnamese/Chinese linguistic word counts.
+These are pilot-question counts, not a migrated FLORES experiment. HF chat counts
+still need verification against the converted GGUF/llama.cpp prompt formatting.
+
+For throughput, build `llama-bench` alongside the CUDA server at the pinned commit:
+
+```sh
+cmake --build vendor/llama.cpp/build --target llama-bench -j 4
+export SAMESTORM_MODEL_MANIFEST=/path/to/matching-preparation/manifest.json
+sbatch -A YOUR_ALLOCATION --array=0 scripts/jobs/measure.sbatch
+```
+
+Set the scale environment/repository variables as above. Each job selects one
+current model/precision cell and verifies its preparation receipt, GGUF hash/type,
+toolchain and allocated A100 hardware. It runs synthetic prefill512 and decode128
+with five repetitions, four CPU threads, complete GPU layer offload and built-in
+warm-up enabled. These are synthetic tokens, not benchmark answer generation.
+No dataset freeze is performed or required for that synthetic workload.
+
+The run retains raw `bench.jsonl`, `stderr.log`, GPU clock/temperature/power/memory
+samples, a checked `measurement.json` and a manifest. Failed outputs remain
+available. One-second telemetry can miss memory peaks. The synthetic 512/128
+contexts do not prove memory fit at 4096 tokens, and clock/thermal stability is
+not automatically confirmed. These are measurements on the recorded scale
+hardware, not phone latency or energy measurements.
+
+Estimate generation resource time after collecting real measurements:
+
+```sh
+.venv/bin/python scripts/estimate_runtime.py --run-id generation-budget-001 \
+  --tokenization-run results/raw/LFM_TOKEN_COUNTS \
+  --tokenization-run results/raw/QWEN_TOKEN_COUNTS \
+  --throughput-run results/raw/ONE_THROUGHPUT_RUN
+```
+
+Repeat `--throughput-run` for each of the 12 cells. The estimator checks hashes,
+current model revisions, input coverage, toolchain and recorded hardware. It sums
+chat input tokens divided by measured prefill rate plus the 320-token response
+cap divided by decode rate, including the 19 repeats per job. Allocated A100-hours
+count all GPUs reserved by the node, regardless of utilization. Context-overflow
+cases block a complete estimate; missing measurements never become zero cost.
+
+The result is a provisional output-cap scenario. Synthetic rates may not scale
+linearly; model loading, warm-up, HTTP overhead, failures and queue time are
+excluded. Judge and translation costs remain separate unknowns, so this tool
+does not claim a complete campaign budget. Measure those stages and obtain any
+required approval before launching jobs expected to exceed 20 A100-hours.
