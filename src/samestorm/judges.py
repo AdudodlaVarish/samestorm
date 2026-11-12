@@ -74,7 +74,7 @@ def verify_checkpoint(root, spec, directory):
     verified = {}
     for entry in metadata['siblings']:
         name = entry['rfilename']
-        if not (name.endswith(('.safetensors', '.json', '.model', '.tiktoken', '.jinja'))
+        if not (name.endswith(('.safetensors', '.bin', '.json', '.model', '.tiktoken', '.jinja'))
                 or name in {'merges.txt'}):
             continue
         path = (directory / name).resolve()

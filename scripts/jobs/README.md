@@ -4,8 +4,8 @@ Research prototype. Follow local officials and call 911 in an emergency.
 
 Prepared only: no jobs have been submitted, no judge checkpoint has been downloaded,
 and the LS6 environment and hardware have not been tested. This migration supports
-the synthetic grading cases only. Compare recorded verdicts using
-`scripts/validate_judges.py`; see `data/grading/README.md`.
+synthetic grading cases and verified response cross-grades. Compare synthetic
+verdicts with `scripts/validate_judges.py`; see `data/grading/README.md`.
 
 `configs/judges.json` retains the original judge choices:
 
@@ -163,3 +163,94 @@ token/cache evidence and request failures are recorded as runtime failures.
 Failures are never silently retried or discarded. Startup requires complete GPU
 layer offload; server and telemetry processes are cleaned up on exit. These
 elapsed times are run diagnostics; controlled throughput measurements are stage 5.
+
+## Response translation and grading cross-checks
+
+`configs/crossgrades.json` preserves the original prospective pairs: Spanish and
+Chinese use NLLB-1.3B plus MADLAD-3B; Vietnamese uses VinAI plus MADLAD-3B.
+Only answers are translated. Native responses use official same-language keys;
+English response translations use official English keys. No translated key is
+created. Translation quality and grader accuracy remain unvalidated.
+
+Prepare tasks from actual generation outputs, repeating `--answers` for more runs:
+
+```sh
+.venv/bin/python scripts/crossgrades.py prepare --run-id response-mt-inputs \
+  --answers results/raw/GENERATION_RUN/answers.jsonl
+```
+
+Generation hashes, frozen review inputs, model IDs and example IDs must match.
+Repeats and runtime failures are retained in `excluded_answers.jsonl` and excluded
+from primary grading. Non-English successful primary responses get two fixed
+translation tasks. The output includes a combined task list and one task file
+per translator. Omitting `--answers` produces an empty pending preparation report;
+it does not invent responses or translations.
+
+Provision the official translator checkpoint directories at the exact revisions
+in the configuration. Their upstream metadata and file hashes are saved locally;
+no model cards or duplicate tokenizer/config snapshots are needed in Git. The
+worker verifies actual checkpoint files, including original `.bin` weights,
+before local-only loading with `weights_only=True` and remote code disabled.
+Use the separate pinned scale environment from judge setup. Its actual runtime
+remains untested on LS6. Run one translator per job after submission is authorized:
+
+```sh
+export SAMESTORM_TASKS="$PWD/results/raw/response-mt-inputs/translation_tasks-nllb13b.jsonl"
+export SAMESTORM_TRANSLATOR_DIR=/path/to/pinned/nllb13b/checkpoint
+sbatch -A YOUR_ALLOCATION scripts/jobs/translate.sbatch nllb13b
+```
+
+Repeat with the MADLAD and VinAI task files and their own checkpoint directories.
+The worker runs on scale, translates every sentence separately, and preserves
+all source segments, outputs, output token IDs and failures. Beam count, token
+limits, seed and dtypes are fixed. Oversized input is rejected without truncation;
+failed or output-limit translations stay unresolved. No favorable translator is
+selected per response. Each 30-minute template uses the inherited three-GPU node;
+total translation cost still needs measurement before a campaign is submitted.
+
+Collect the actual translation run directories (repeat `--translation-run`):
+
+```sh
+.venv/bin/python scripts/crossgrades.py collect --run-id response-crossgrades \
+  --prepared results/raw/response-mt-inputs \
+  --translation-run results/raw/NLLB_RUN \
+  --translation-run results/raw/MADLAD_RUN \
+  --translation-run results/raw/VINAI_RUN
+```
+
+This verifies revisions, file/input/output hashes, task identities and complete
+sentence coverage. `translation_coverage.jsonl` keeps missing/failed partners
+visible; available translations are preserved without claiming pair agreement.
+Native and English-translated packets go into `primary_judge_tasks.jsonl`.
+The secondary file uses the original fixed-seed 20% stratified sample of source
+answers and includes each selected answer's native and available translated
+versions, so comparisons stay paired. A complete generation campaign would
+select 442 native answers for the secondary judge.
+
+Use the corresponding pinned judge checkpoint and role-specific packet file:
+
+```sh
+export SAMESTORM_TASK_KIND=crossgrade
+export SAMESTORM_TASKS="$PWD/results/raw/response-crossgrades/primary_judge_tasks.jsonl"
+sbatch -A YOUR_ALLOCATION scripts/jobs/judges.sbatch judge primary
+```
+
+Set `SAMESTORM_TASK_KIND=validation` for synthetic practice cases. Keep upstream
+run directories available at their repository-relative paths on scale: the judge
+worker re-verifies source responses and translations before accepting packets.
+The target model identity and precision remain outside the judge messages.
+
+After actual judge runs, compare native and translated verdicts:
+
+```sh
+.venv/bin/python scripts/crossgrades.py compare --run-id response-crossgrade-report \
+  --collected results/raw/response-crossgrades \
+  --judge-run results/raw/PRIMARY_JUDGE_RUN \
+  --judge-run results/raw/SECONDARY_JUDGE_RUN
+```
+
+The report and `grade_comparisons.jsonl` show harmful-verdict and complete-action
+agreement, disagreements and unresolved comparisons. Missing, failed or uncertain
+judgments do not count as agreement. Matching verdicts can share translation or
+judge mistakes; reports keep validation and headline eligibility false. There
+are no automatic submissions, retries, new student ratings or benchmark edits.

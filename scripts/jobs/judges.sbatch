@@ -26,6 +26,7 @@ case "$mode" in
         : "${SAMESTORM_TASKS:?Set to the prepared synthetic judge tasks}"
         exec "$SAMESTORM_PYTHON" scripts/scale_judge.py judge --run-id "$run_id" \
             --judge-role "$role" --model-dir "$SAMESTORM_JUDGE_DIR" --input "$SAMESTORM_TASKS" \
+            --task-kind "${SAMESTORM_TASK_KIND:-validation}" \
             --offset "${SAMESTORM_OFFSET:-0}" --limit "${SAMESTORM_LIMIT:-0}"
         ;;
     *)

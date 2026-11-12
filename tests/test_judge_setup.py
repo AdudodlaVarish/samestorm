@@ -73,6 +73,7 @@ class JudgeSetup(unittest.TestCase):
             checkpoint.mkdir()
             entries = []
             for name, body in [('model.safetensors', b'synthetic weights'),
+                               ('pytorch_model.bin', b'synthetic binary weights'),
                                ('model.safetensors.index.json', b'{}'), ('merges.txt', b'merge fixture')]:
                 (checkpoint / name).write_bytes(body)
                 entry = dict(rfilename=name)

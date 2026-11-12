@@ -102,7 +102,13 @@ def run_judge(args, run, record, config, torch):
     if args.input is None or args.model_dir is None:
         raise ValueError('Judge execution requires prepared tasks and an exact local checkpoint directory.')
     spec = config[args.judge_role]
-    tasks = validation_tasks(ROOT, args.input, spec, args.offset, args.limit)
+    if getattr(args, 'task_kind', 'validation') == 'crossgrade':
+        from crossgrades import judge_tasks
+        if sha256(args.input) != record['inputs']['tasks.input.jsonl']:
+            raise ValueError('Cross-grade tasks changed after the run input copy.')
+        tasks = judge_tasks(ROOT, args.input, args.judge_role, args.offset, args.limit)
+    else:
+        tasks = validation_tasks(ROOT, args.input, spec, args.offset, args.limit)
     record.update(model_id=spec['model_id'], model_revision=spec['revision'], judge_role=args.judge_role,
                   precision='BF16', prompt_sha256=spec['prompt_sha256'],
                   decoding_settings=spec['generation'], seed=spec['seed'], expected_tasks=len(tasks),
@@ -125,9 +131,12 @@ def run_judge(args, run, record, config, torch):
     for task in tasks:
         record['current_case_id'] = task['case_id']
         save(run / 'manifest.json', record)
-        row = dict(case_id=task['case_id'], synthetic=True, judge_role=args.judge_role,
+        row = dict(case_id=task['case_id'], synthetic=task['synthetic'], judge_role=args.judge_role,
                    model_id=spec['model_id'], model_revision=spec['revision'],
                    judge_failure=True)
+        row.update({k: task[k] for k in ['answer_id', 'original_lang', 'cross_grade', 'target_model_id',
+                    'target_model_revision', 'quantization_type', 'example_id', 'translation_system_id',
+                    'translation_run_id', 'translation_input_sha256', 'translation_output_sha256'] if k in task})
         try:
             tokens = tokenizer.apply_chat_template(task['messages'], add_generation_prompt=True,
                        tokenize=True, return_tensors='pt', enable_thinking=False).to(device)
@@ -165,6 +174,7 @@ def main():
     parser.add_argument('mode', choices=['check', 'probe', 'judge'])
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--judge-role', choices=['primary', 'secondary'], default='primary')
+    parser.add_argument('--task-kind', choices=['validation', 'crossgrade'], default='validation')
     parser.add_argument('--model-dir', type=Path)
     parser.add_argument('--input', type=Path)
     parser.add_argument('--offset', type=int, default=0)
@@ -172,7 +182,7 @@ def main():
     args = parser.parse_args()
     run = new_run_dir(args.run_id)
     record = manifest(args.run_id, 'judge-' + args.mode, [], status='running',
-                      judge_validation_complete=False, headline_eligible=False)
+                      task_kind=args.task_kind, judge_validation_complete=False, headline_eligible=False)
     save(run / 'manifest.json', record)
     try:
         if min(args.offset, args.limit) < 0:
@@ -184,6 +194,10 @@ def main():
                  ROOT / 'requirements-judges.lock.txt',
                  ROOT / 'data/grading/cases.jsonl']
         paths += sorted((ROOT / 'configs/evidence/judges').rglob('*'))
+        if args.task_kind == 'crossgrade':
+            paths += [ROOT / 'scripts/crossgrades.py', ROOT / 'scripts/scale_generate.py',
+                      ROOT / 'scripts/plan_runs.py', ROOT / 'scripts/prepare_model.py',
+                      ROOT / 'scripts/validate_experiment.py', ROOT / 'configs/crossgrades.json']
         paths += [ROOT / kind / f'{kind}.{lang}.jsonl' for kind in ['questions', 'answers'] for lang in COUNTS]
         for path in paths:
             if path.is_dir():
@@ -195,7 +209,8 @@ def main():
         if args.input is not None:
             shutil.copy2(args.input, run / 'tasks.input.jsonl')
             record['inputs']['tasks.input.jsonl'] = sha256(run / 'tasks.input.jsonl')
-            args.input = run / 'tasks.input.jsonl'
+            if args.task_kind == 'validation':
+                args.input = run / 'tasks.input.jsonl'
         config = load_config(ROOT)
         if args.mode == 'check':
             report = dict(configuration_valid=True, runtime_verified=False, checkpoints_verified=False,
@@ -203,7 +218,12 @@ def main():
                           judges={role: dict(model_id=config[role]['model_id'], revision=config[role]['revision'])
                                   for role in ['primary', 'secondary']}, hardware=config['hardware'])
             if args.input is not None:
-                report['valid_tasks'] = len(validation_tasks(ROOT, args.input, config[args.judge_role], args.offset, args.limit))
+                if args.task_kind == 'crossgrade':
+                    from crossgrades import judge_tasks
+                    tasks = judge_tasks(ROOT, args.input, args.judge_role, args.offset, args.limit)
+                else:
+                    tasks = validation_tasks(ROOT, args.input, config[args.judge_role], args.offset, args.limit)
+                report['valid_tasks'] = len(tasks)
             save(run / 'setup_report.json', report)
             print('PASS: pinned judge configuration. Hardware, environment and checkpoint execution remain unverified.')
         else:

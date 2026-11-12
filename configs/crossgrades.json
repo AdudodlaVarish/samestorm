@@ -1,0 +1,92 @@
+{
+  "pairs": {
+    "es": [
+      "nllb13b",
+      "madlad3b"
+    ],
+    "vi": [
+      "vinai_vi2en",
+      "madlad3b"
+    ],
+    "zh": [
+      "nllb13b",
+      "madlad3b"
+    ]
+  },
+  "generation": {
+    "num_beams": 4,
+    "do_sample": false,
+    "max_new_tokens": 256
+  },
+  "source_token_limit": 512,
+  "segmentation": "sentence_v1",
+  "seed": 20261107,
+  "validation_complete": false,
+  "systems": [
+    {
+      "system_id": "nllb13b",
+      "model_id": "facebook/nllb-200-distilled-1.3B",
+      "revision": "7be3e24664b38ce1cac29b8aeed6911aa0cf0576",
+      "license": "cc-by-nc-4.0",
+      "language_codes": {
+        "en": "eng_Latn",
+        "es": "spa_Latn",
+        "vi": "vie_Latn",
+        "zh": "zho_Hans"
+      },
+      "model_kind": "nllb",
+      "batch_size": 1,
+      "runtime_dtype": "bfloat16",
+      "metadata_path": "configs/evidence/translations/nllb13b/hub_metadata.json",
+      "metadata_sha256": "46e9957adb6a8d78071af5cff1978bd5d867342ec377f32a1db64d2d3ee1dc88",
+      "metadata_url": "https://huggingface.co/api/models/facebook/nllb-200-distilled-1.3B/revision/7be3e24664b38ce1cac29b8aeed6911aa0cf0576?blobs=true",
+      "weight_sha256": {
+        "pytorch_model.bin": "7e40f838a5aad3d60e9254632ab876bda44340386ca7ebad3e099db7432b04e1"
+      }
+    },
+    {
+      "system_id": "madlad3b",
+      "model_id": "google/madlad400-3b-mt",
+      "revision": "fa184c675da0b5c9e1c8694fccd4e12e2d422094",
+      "license": "apache-2.0",
+      "language_codes": {
+        "en": "en",
+        "es": "es",
+        "vi": "vi",
+        "zh": "zh"
+      },
+      "model_kind": "madlad",
+      "batch_size": 1,
+      "runtime_dtype": "bfloat16",
+      "metadata_path": "configs/evidence/translations/madlad3b/hub_metadata.json",
+      "metadata_sha256": "4aaf9939f3148e43b6d6c5a2a36561cbc6b026723c7e4c3b39cab3807b9bb434",
+      "metadata_url": "https://huggingface.co/api/models/google/madlad400-3b-mt/revision/fa184c675da0b5c9e1c8694fccd4e12e2d422094?blobs=true",
+      "weight_sha256": {
+        "model.safetensors": "66ff5f8fcaf92291da486fdfbd4d5233cec90e1359348a56e3172c978b3a76d4"
+      }
+    },
+    {
+      "system_id": "vinai_vi2en",
+      "model_id": "vinai/vinai-translate-vi2en-v2",
+      "revision": "ae7baa85da07dbe8e23ac26a9f5ef560c17e2138",
+      "license": "agpl-3.0",
+      "language_codes": {
+        "vi": "vi_VN",
+        "en": "en_XX"
+      },
+      "model_kind": "mbart",
+      "batch_size": 1,
+      "runtime_dtype": "float32",
+      "languages": [
+        "vi"
+      ],
+      "metadata_path": "configs/evidence/translations/vinai_vi2en/hub_metadata.json",
+      "metadata_sha256": "4a9da0ac7fa60edf5efc0bb3501b6b7b1b18784134b5edeecd807007f4baa490",
+      "metadata_url": "https://huggingface.co/api/models/vinai/vinai-translate-vi2en-v2/revision/ae7baa85da07dbe8e23ac26a9f5ef560c17e2138?blobs=true",
+      "weight_sha256": {
+        "pytorch_model.bin": "cd3762c85e4c09e84aac3eec2dabcbc2db9160f13ddd806f44ca283e5cb4acd8"
+      }
+    }
+  ],
+  "secondary_judge_fraction": 0.2
+}
