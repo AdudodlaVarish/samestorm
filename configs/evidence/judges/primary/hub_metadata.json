@@ -1,0 +1,359 @@
+{
+  "_id": "6798dbe54a10be7109f954f2",
+  "id": "mistralai/Mistral-Small-24B-Instruct-2501",
+  "private": false,
+  "library_name": "vllm",
+  "tags": [
+    "vllm",
+    "safetensors",
+    "mistral",
+    "en",
+    "fr",
+    "de",
+    "es",
+    "it",
+    "pt",
+    "zh",
+    "ja",
+    "ru",
+    "ko",
+    "base_model:mistralai/Mistral-Small-24B-Base-2501",
+    "base_model:finetune:mistralai/Mistral-Small-24B-Base-2501",
+    "license:apache-2.0",
+    "eval-results",
+    "region:us"
+  ],
+  "downloads": 93514,
+  "likes": 991,
+  "modelId": "mistralai/Mistral-Small-24B-Instruct-2501",
+  "author": "mistralai",
+  "sha": "9527884be6e5616bdd54de542f9ae13384489724",
+  "lastModified": "2025-07-28T17:26:22.000Z",
+  "gated": false,
+  "disabled": false,
+  "model-index": null,
+  "config": {
+    "architectures": [
+      "MistralForCausalLM"
+    ],
+    "model_type": "mistral",
+    "tokenizer_config": {
+      "use_default_system_prompt": false,
+      "bos_token": "<s>",
+      "eos_token": "</s>",
+      "unk_token": "<unk>",
+      "chat_template": "{%- set today = strftime_now(\"%Y-%m-%d\") %}\n{%- set default_system_message = \"You are Mistral Small 3, a Large Language Model (LLM) created by Mistral AI, a French startup headquartered in Paris.\\nYour knowledge base was last updated on 2023-10-01. The current date is \" + today + \".\\n\\nWhen you're not sure about some information, you say that you don't have the information and don't make up anything.\\nIf the user's question is not clear, ambiguous, or does not provide enough context for you to accurately answer the question, you do not try to answer it right away and you rather ask the user to clarify their request (e.g. \\\"What are some good restaurants around me?\\\" => \\\"Where are you?\\\" or \\\"When is the next flight to Tokyo\\\" => \\\"Where do you travel from?\\\")\" %}\n\n{{- bos_token }}\n\n{%- if messages[0]['role'] == 'system' %}\n    {%- set system_message = messages[0]['content'] %}\n    {%- set loop_messages = messages[1:] %}\n{%- else %}\n    {%- set system_message = default_system_message %}\n    {%- set loop_messages = messages %}\n{%- endif %}\n{{- '[SYSTEM_PROMPT]' + system_message + '[/SYSTEM_PROMPT]' }}\n\n{%- for message in loop_messages %}\n    {%- if message['role'] == 'user' %}\n        {{- '[INST]' + message['content'] + '[/INST]' }}\n    {%- elif message['role'] == 'system' %}\n        {{- '[SYSTEM_PROMPT]' + message['content'] + '[/SYSTEM_PROMPT]' }}\n    {%- elif message['role'] == 'assistant' %}\n        {{- message['content'] + eos_token }}\n    {%- else %}\n        {{- raise_exception('Only user, system and assistant roles are supported!') }}\n    {%- endif %}\n{%- endfor %}"
+    }
+  },
+  "cardData": {
+    "library_name": "vllm",
+    "language": [
+      "en",
+      "fr",
+      "de",
+      "es",
+      "it",
+      "pt",
+      "zh",
+      "ja",
+      "ru",
+      "ko"
+    ],
+    "license": "apache-2.0",
+    "inference": false,
+    "base_model": [
+      "mistralai/Mistral-Small-24B-Base-2501"
+    ],
+    "extra_gated_description": "If you want to learn more about how we process your personal data, please read our <a href=\"https://mistral.ai/terms/\">Privacy Policy</a>.",
+    "tags": [
+      "vllm"
+    ]
+  },
+  "siblings": [
+    {
+      "rfilename": ".gitattributes",
+      "blobId": "0d4cb185280917cac60ef7195f2a6250b2b90d83",
+      "size": 1618
+    },
+    {
+      "rfilename": "README.md",
+      "blobId": "df08ca880560c5edd87fd9cbb4a59d137beecf80",
+      "size": 14757
+    },
+    {
+      "rfilename": "SYSTEM_PROMPT.txt",
+      "blobId": "71547ac274705598b36bee46a4070e9a4e10031e",
+      "size": 997
+    },
+    {
+      "rfilename": "config.json",
+      "blobId": "c4f8f50ccc8cf615ddee9ffc4aa32b496fe39e9e",
+      "size": 623
+    },
+    {
+      "rfilename": "consolidated.safetensors",
+      "blobId": "466a88844ab6df64d56852bb4b152d214e25d8f7",
+      "size": 47144846024,
+      "lfs": {
+        "sha256": "82718244a767b5b3545a46736801a0dfbdc4aacb581f7cfd9c08a2bdfdd4333e",
+        "size": 47144846024,
+        "pointerSize": 136
+      }
+    },
+    {
+      "rfilename": "generation_config.json",
+      "blobId": "1f1821243a48f73a94037f10d9dd562978886c21",
+      "size": 160
+    },
+    {
+      "rfilename": "model-00001-of-00010.safetensors",
+      "blobId": "52cd1b3f82ae2b613d4e86db50406a495256a345",
+      "size": 4781571736,
+      "lfs": {
+        "sha256": "75a14c708eea501700a723dc74bc886cf36a1393686a3fb098ee106b160da32f",
+        "size": 4781571736,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00002-of-00010.safetensors",
+      "blobId": "a2ee8185a423301a13dabf61f9544f0ae71c9a31",
+      "size": 4781592784,
+      "lfs": {
+        "sha256": "1ff40fbfd9e042b7dab3f3c9442f870a4701f53e394dda769807a160ba40f32a",
+        "size": 4781592784,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00003-of-00010.safetensors",
+      "blobId": "ff8e4fd54e72e252dee5def7db4d3a1213badf24",
+      "size": 4781592800,
+      "lfs": {
+        "sha256": "4cc2d059fded71efd2947a414f32053b4ed3fa84383edf97b6d91fd9f04e4235",
+        "size": 4781592800,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00004-of-00010.safetensors",
+      "blobId": "0c6b2037eb9bcae57015d228af9aa2126810020a",
+      "size": 4886471600,
+      "lfs": {
+        "sha256": "aa0e9acacf161c45ae0d71ca3f7e4ec9ee55dae2153398da52f81ee4f9e1b8d2",
+        "size": 4886471600,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00005-of-00010.safetensors",
+      "blobId": "e871025420aa59fc9ec19055fd0e13fbd9e752e3",
+      "size": 4781592824,
+      "lfs": {
+        "sha256": "dafb696763d31a1fda58010b73ecc05c19d395da8ec2c24aa9c41da33f2230d3",
+        "size": 4781592824,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00006-of-00010.safetensors",
+      "blobId": "7a4edece1f6eb676dd2cd7dad2dd0c84be33eb93",
+      "size": 4781592816,
+      "lfs": {
+        "sha256": "d9a433b19fd4d6986660a616a0d6fc7d02d9e8c0ab3c9b98940217ee6bd4e053",
+        "size": 4781592816,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00007-of-00010.safetensors",
+      "blobId": "29321be309a0b959fd6b2c7956db918fe005126b",
+      "size": 4886471600,
+      "lfs": {
+        "sha256": "5ac5c7b042491f917016c3e9635583177058f736be5fa315019b959fc3c43b63",
+        "size": 4886471600,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00008-of-00010.safetensors",
+      "blobId": "f3cd2a43122cccff88fe266cdd9d72fc520865e7",
+      "size": 4781592824,
+      "lfs": {
+        "sha256": "3c460c5b957ab3ac81f03bb20c0348820225dd9b819fa4487ae733b1e696e573",
+        "size": 4781592824,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00009-of-00010.safetensors",
+      "blobId": "913756831d5ac55c57c2559b459a061da1a8e531",
+      "size": 4781592816,
+      "lfs": {
+        "sha256": "304f66de1aeb55f0b4e1181885e3d15b65b485d5ce5c93b4adcdf7dd2c2d8cc5",
+        "size": 4781592816,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model-00010-of-00010.safetensors",
+      "blobId": "023f5a203c310f52d745ccb504f18bcdf4d826a1",
+      "size": 3900777072,
+      "lfs": {
+        "sha256": "c4c3bcedc02f4dd7e04c8b0fe1199f4f27de7a37790d1510a8772ffe05093543",
+        "size": 3900777072,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "model.safetensors.index.json",
+      "blobId": "fea625e56294eba8231f10d76c291f8fc78a3dbd",
+      "size": 29894
+    },
+    {
+      "rfilename": "params.json",
+      "blobId": "08ac609f2021b9ccc31bc3f04612d04cc42adcc5",
+      "size": 270
+    },
+    {
+      "rfilename": "special_tokens_map.json",
+      "blobId": "642b1b50c2ed17cd03114ad8af688a4854da558a",
+      "size": 21311
+    },
+    {
+      "rfilename": "tekken.json",
+      "blobId": "f973db926da6d78888478d81db4de30cfbbfb3fa",
+      "size": 14801223,
+      "lfs": {
+        "sha256": "c4b90a968dbc67ef3975129d0b78a2e3cbb6bea340ab9205f22e8a0308b1ffc5",
+        "size": 14801223,
+        "pointerSize": 133
+      }
+    },
+    {
+      "rfilename": "tokenizer.json",
+      "blobId": "4135d4bbc86571775430fa644e1bd376590cb74b",
+      "size": 17078037,
+      "lfs": {
+        "sha256": "b76085f9923309d873994d444989f7eb6ec074b06f25b58f1e8d7b7741070949",
+        "size": 17078037,
+        "pointerSize": 133
+      }
+    },
+    {
+      "rfilename": "tokenizer_config.json",
+      "blobId": "a20398005bd56cc879ebcea8c364afe0b6a428bc",
+      "size": 199695
+    }
+  ],
+  "spaces": [
+    "pliny-the-prompter/obliteratus",
+    "ginigen-ai/open-router-leaderboard",
+    "Agents-MCP-Hackathon/KGB-mcp",
+    "McLoviniTtt/Reasoner4All",
+    "mmcgovern574/Mistral-Small-24B-Instruct-2501",
+    "ChrisNguyenAI/Chat-multi-models",
+    "ReallyFloppyPenguin/SynthGen",
+    "ReallyFloppyPenguin/AICodepen",
+    "dumbordumber/obliteratus",
+    "Kodacoda/obliteratus",
+    "LOGESH04/Chatbot_using_Python_MistralAI",
+    "aashu13/FinanceAssistant",
+    "kevinkal/stx",
+    "monsimas/do-i-really-need-a-huge-llm",
+    "Xyro123/ZeppFusion",
+    "dromero14521/obliteratus",
+    "rbinrs/obliteratus",
+    "kicfk/obliteratus",
+    "aaahmet/obliteratus",
+    "nitishkarvekar/AI-Text-Humanizer",
+    "Deadmon/obliteratus",
+    "Ngixdev/obliteratus",
+    "Peterase/rag-api-node-1",
+    "noahmclaughlin/Are.na_Pairings",
+    "ENC-PSL/lrec2026-llm-annotator",
+    "Harshit-2425/Indian-Judgemental",
+    "RavichandranJ/obliteratus",
+    "S-Dreamer/obliteratus",
+    "AlanaSky/asgaard",
+    "marchkamal51/obliteratus",
+    "khamuxxumahk04/my-fastapi-app",
+    "Genrius-AI/llm-vram-calculator",
+    "BostjanSpar/remote",
+    "bchud/neiro",
+    "bchud/pizda",
+    "bchud/neiroset",
+    "tonybur/null",
+    "Bhaskar2611/Mistral_24B",
+    "Davi-Co/demo-quote-generator",
+    "AashitaK/Trial2",
+    "nubostrel/test",
+    "ShabalinAnton/First_agent_template",
+    "Waredocs/model1",
+    "nicklysenyi/First_agent_template",
+    "arthrod/Reasoner4All",
+    "gbv/First_agent_template",
+    "Sharan1712/PitchPerfect",
+    "frenchtext/First_agent_template",
+    "krishanwalia30/First_agent_template",
+    "odrori/First_agent_template",
+    "Erik/First_agent_template",
+    "BICORP/Lake-Chatbot",
+    "FranckAbgrall/mistralai-Mistral-Small-24B-Instruct-2501",
+    "Unclejunkie/mistralai-Mistral-Small-24B-Instruct-2501",
+    "Dev1559/quizbot",
+    "dhananjayl/First_agent_template",
+    "spanev/First_Agent",
+    "espasiko/mistralai-Mistral-Small-24B",
+    "5m4ck3r/quizbot",
+    "wanbliwayaka/mistralai-Mistral-Small-24B-Instruct-2501",
+    "HMC-CIS/Mistral-Chatbot",
+    "PyScoutAI/PyscoutAI",
+    "bittzzbrew/mistralai-Mistral-Small-24B-Instruct-2501",
+    "igmeMarcial/leaderboard_yourbench_igmeMarcial_yourbench",
+    "AE1999/leaderboard_yourbench_AE1999_yourbench_test2",
+    "LiangGou/leaderboard_yourbench_LeonGou_yourbench",
+    "AndrewNanu-app/leaderboard_yourbench_AndrewNanu-app_brushy-creek",
+    "jakal24/leaderboard_yourbench_jakal24_yourbench",
+    "stevevaius/leaderboard_yourbench_stevevaius_yourbench",
+    "chatfinanz/mistralai-Mistral-Small-24B-Instruct-2501x",
+    "chatfinanz/mistralai-Mistral-Small-24B-Instruct-2501",
+    "JoseVillanueva/mistralai-Mistral-Small-24B-Instruct-2501",
+    "JoseVillanueva/CanWeTalk_Main",
+    "heboya8/demo",
+    "dongXL/leaderboard_yourbench_dongXL_yourbench",
+    "DR4G4NS/leaderboard_yourbench_DR4G4NS_RoxBench",
+    "sveninho/mistralai-Mistral-Small-24B-Instruct-2501",
+    "YT410/leaderboard_yourbench_YT410_SME-UG-StudyQA",
+    "porinhaoriginal/leaderboard_yourbench_porinhaoriginal_skriptbench",
+    "Trelis/leaderboard_yourbench_Trelis_touch-rugby-yourbench",
+    "carlos123santos/leaderboard_yourbench_carlos123santos_yourbench",
+    "flash-36/leaderboard_yourbench_flash-36_yourbench",
+    "osl-ai/leaderboard_yourbench_osl-ai_Artscape",
+    "LPX55/leaderboard_yourbench_LPX55_test",
+    "Rival0023/leaderboard_yourbench_Rival0023_yourbench",
+    "Vijay6167/PdfChatBot",
+    "Vijay6167/pdfchatbot2",
+    "hasan-trash/leaderboard_yourbench_hasan-trash_yourbench",
+    "Trelis/leaderboard_yourbench_Trelis_yourbench-touch-rugby-2",
+    "maxbsdv/leaderboard_yourbench_maxbsdv_yourbench",
+    "juanmackie/YourBench",
+    "LunaticHipster/leaderboard_yourbench_LunaticHipster_Codes_and_Stds",
+    "Vijay6167/GeminiBot",
+    "Merlintxu/leaderboard_yourbench_Merlintxu_yourbench",
+    "tsphan/llm-token-counter",
+    "Laurie/leaderboard_yourbench_Laurie_yourbench",
+    "fangyali/leaderboard_yourbench_fangyali_yourbench",
+    "ronanarraig/leaderboard_yourbench_ronanarraig_yourbench",
+    "Trelis/leaderboard_yourbench_Trelis_yourbench-ait",
+    "Trelis/leaderboard_yourbench_Trelis_yourbench-ait2"
+  ],
+  "createdAt": "2025-01-28T13:30:13.000Z",
+  "safetensors": {
+    "parameters": {
+      "BF16": 23572403200
+    },
+    "total": 23572403200
+  },
+  "usedStorage": 94321574156
+}
