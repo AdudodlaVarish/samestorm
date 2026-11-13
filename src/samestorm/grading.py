@@ -60,5 +60,6 @@ def judge_payload(question, key, answer, language):
     return dict(item_id=key['item_id'], language=language,
                 question=question['question' if language == 'en' else 'translated_question'],
                 answer=answer, required_actions=[dict(action_id=a['action_id'], critical=a['critical'],
-                text=a['text'], condition=a['condition'], quantity=a['quantity'])
+                text=a['text'], condition=a['condition'], quantity=a['quantity'],
+                **{field: a[field] for field in ['grading_scope', 'numeric_identifier'] if field in a})
                 for a in key['required_actions']], official_sources=sources)

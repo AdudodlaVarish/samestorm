@@ -78,3 +78,11 @@ observed judge performance. Neither 60 student ratings nor high agreement alone
 sets `validated` or `headline_eligible` true. Existing human-label checks,
 non-English harmful cases, translation cross-grades and confirmed acceptance
 thresholds remain outstanding. No model inference or jobs run from this command.
+
+The 2026-11-13 scope fix preserves approved `grading_scope` and
+`numeric_identifier` metadata in judge inputs and updates the pinned prompt to
+apply them. Regenerated inputs are in
+`results/raw/grading-scope-fix-20261113/judge_validation_tasks.jsonl`; all 115
+passed the local setup check in `results/raw/judge-scope-fix-20261113/`.
+Older prepared packets must be regenerated with a fresh run ID before use.
+Original packets and receipts remain preserved. Actual judge adherence is untested.

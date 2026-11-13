@@ -47,6 +47,19 @@ class JudgePayload(unittest.TestCase):
         with self.assertRaises(ValueError):
             judge_payload(self.question, self.key, 'Response text.', 'en')
 
+    def test_approved_scope_and_identifier_are_preserved_without_target_metadata(self):
+        action = self.key['required_actions'][0]
+        action.update(grading_scope='Only the overpass prohibition is required.',
+                      numeric_identifier=dict(kind='emergency_phone', digits='911',
+                                              required_when='telephone_route_is_advised'),
+                      model_id='PRIVATE_TARGET', quantization_type='Q2_K')
+        payload = judge_payload(self.question, self.key, 'Response text.', 'en')
+        supplied = payload['required_actions'][0]
+        self.assertEqual(supplied['grading_scope'], action['grading_scope'])
+        self.assertEqual(supplied['numeric_identifier'], action['numeric_identifier'])
+        self.assertNotIn('PRIVATE_TARGET', json.dumps(payload))
+        self.assertNotIn('Q2_K', json.dumps(payload))
+
     def test_all_exported_question_key_pairs_preserve_judge_content(self):
         for lang in ['en', 'es', 'vi', 'zh']:
             questions = rows(ROOT / f'questions/questions.{lang}.jsonl')
@@ -58,7 +71,8 @@ class JudgePayload(unittest.TestCase):
                     self.assertEqual(payload['question'], question[
                         'question' if lang == 'en' else 'translated_question'])
                     self.assertEqual(payload['required_actions'], [
-                        {field: a[field] for field in ['action_id', 'critical', 'text', 'condition', 'quantity']}
+                        {field: a[field] for field in ['action_id', 'critical', 'text', 'condition', 'quantity',
+                                                      'grading_scope', 'numeric_identifier'] if field in a}
                         for a in key['required_actions']])
                     self.assertEqual(payload['official_sources'], [
                         {field: s[field] for field in ['source_id', 'official_quote']}

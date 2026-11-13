@@ -10,6 +10,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
+PROJECT_CONTEXT.md
 
 # Model weights, external tools/data, and large raw run outputs
 /models/

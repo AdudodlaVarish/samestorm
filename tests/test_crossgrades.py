@@ -33,7 +33,9 @@ class CrossGradePipeline(unittest.TestCase):
         rows = []
         for lang in ['en', 'es', 'vi', 'zh']:
             key = dict(item_id='fixture-base', lang=lang, required_actions=[dict(
-                action_id='a', critical=True, text=f'Official {lang} instruction.', condition='', quantity=None)],
+                action_id='a', critical=True, text=f'Official {lang} instruction.', condition='', quantity=None,
+                grading_scope=f'Approved {lang} scope.', numeric_identifier=dict(
+                    kind='emergency_phone', digits='911', required_when='telephone_route_is_advised'))],
                 sources=[dict(source_id='source-' + lang, lang=lang, official_quote=f'Official {lang} passage.')])
             question = dict(item_id='fixture-base', question='English question?') if lang == 'en' else dict(
                 item_id='fixture-base', lang=lang, translated_question=f'Question {lang}?')
@@ -113,6 +115,10 @@ class CrossGradePipeline(unittest.TestCase):
             payload = json.loads(task['messages'][1]['content'])
             self.assertNotIn('target_model_id', payload)
             self.assertNotIn('quantization_type', payload)
+            action = payload['required_actions'][0]
+            self.assertEqual(action['grading_scope'], f"Approved {payload['language']} scope.")
+            self.assertEqual(action['numeric_identifier'], dict(
+                kind='emergency_phone', digits='911', required_when='telephone_route_is_advised'))
             if task['cross_grade']:
                 self.assertEqual(payload['language'], 'en')
                 self.assertEqual(payload['required_actions'][0]['text'], 'Official en instruction.')

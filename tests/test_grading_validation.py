@@ -11,6 +11,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'scripts'), str(ROOT / 'src')]
 import validate_grading as validation
+from scale_judge import validation_tasks
+from samestorm.judges import load_config
 from samestorm.provenance import sha256
 
 
@@ -44,6 +46,29 @@ class GradingValidation(unittest.TestCase):
         self.assertEqual([c['passed'] for c in checks], [False, False, True])
         self.assertTrue(all('error' in c for c in checks[:2]))
         self.assertEqual([t['case_id'] for t in tasks], [cases[2]['case_id']])
+
+    def test_scoped_packets_reach_worker_and_old_packets_are_rejected(self):
+        _, tasks = validation.check_cases(self.cases, self.questions, self.keys)
+        prompt = (ROOT / 'configs/prompts/judge_v1.txt').read_text()
+        selected = []
+        for field in ['grading_scope', 'numeric_identifier']:
+            task = next(t for t in tasks if any(field in a for a in t['payload']['required_actions']))
+            selected.append(dict(case_id=task['case_id'], synthetic=True,
+                                 messages=validation.build_messages(task['payload'], prompt)))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'tasks.jsonl'
+            validation.write_rows(path, selected)
+            for role in ['primary', 'secondary']:
+                self.assertEqual(len(validation_tasks(ROOT, path, load_config(ROOT)[role])), 2)
+            for field, task in zip(['grading_scope', 'numeric_identifier'], selected):
+                old = copy.deepcopy(task)
+                payload = json.loads(old['messages'][1]['content'])
+                for action in payload['required_actions']:
+                    action.pop(field, None)
+                old['messages'][1]['content'] = json.dumps(payload)
+                validation.write_rows(path, [old])
+                with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'differs'):
+                    validation_tasks(ROOT, path, load_config(ROOT)['primary'])
 
     def test_empty_duplicate_or_unmarked_cases_are_rejected(self):
         for cases in [[], [self.cases[0], self.cases[0]]]:
