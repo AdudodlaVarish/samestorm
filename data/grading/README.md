@@ -8,13 +8,18 @@ critical omissions, a supporting omission, reversals, wrong quantities or wrong
 conditions. Expected annotations and labels describe the synthetic injection
 design. They are not independent human judgments or model-generated responses.
 
-`student_review.csv` contains 92 shuffled English action rows, with rating fields
-blank. Only the student fills them in. Review the question, response and required
-action; enter `correct`, `missing`, `reversal`, `quantity_error`, `condition_error`
-or `uncertain` in `status`. Quote exact response text in `evidence_quote` for a
-positive finding; a missing action must have an empty quote. Record uncertainty
-in `comment`. Do not copy the designed labels as student judgments. The approved
-plan calls for at least 60 usable student judgments.
+## validation thresholds
+
+| Check | Threshold |
+| --- | --- |
+| Critical-error recall | At least 90% |
+| False-alarm rate | At most 10% |
+| Agreement with student action judgments | At least 85% |
+
+Report counts, coverage and uncertainty alongside percentages. Recall and false
+alarms must be checked per language; English-only harmful cases cannot establish
+non-English recall. Student agreement covers the student's English action ratings.
+This records student acceptance;
 
 The 27 numerical cases remain in `tests/fixtures/numeric_cases.jsonl`.
 `configs/prompts/judge_v1.txt` contains the judge's grading instructions.
@@ -39,7 +44,7 @@ Use a fresh run ID each time. Outputs go into `results/raw/<run-id>/`:
 Existing runs and the student review sheet are never overwritten. Failed runs
 retain their inputs and available diagnostics. The command does not load a model,
 submit jobs, freeze the dataset or mark grading as validated. Judges still require
-configured scale hardware; English student ratings, two-judge checks, existing
+configured scale hardware; comparisons with English student ratings, two-judge checks, existing
 human-label checks and translation cross-grades remain pending. Harmful injected
 examples are English only. Forbidden-claim rules are not populated.
 
@@ -76,8 +81,9 @@ You can omit either judge path to inspect what is still pending. With no verdict
 `results_present` is false; worst-case bounds from entirely missing data are not
 observed judge performance. Neither 60 student ratings nor high agreement alone
 sets `validated` or `headline_eligible` true. Existing human-label checks,
-non-English harmful cases, translation cross-grades and confirmed acceptance
-thresholds remain outstanding. No model inference or jobs run from this command.
+non-English harmful cases, translation cross-grades and recorded PI confirmation
+of the student-accepted thresholds remain outstanding. No model inference or jobs
+run from this command.
 
 The 2026-11-13 scope fix preserves approved `grading_scope` and
 `numeric_identifier` metadata in judge inputs and updates the pinned prompt to
