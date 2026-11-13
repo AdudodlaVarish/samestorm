@@ -1,4 +1,3 @@
-"""Prepare response translations and verified native/English cross-grade judge packets."""
 import argparse
 import hashlib
 import json
@@ -259,9 +258,8 @@ def grade_comparisons(packets, judgments, config):
     return rows
 
 
-def compare_judges(root, collected, judge_dirs):
+def verified_judgments(root, collected, judge_dirs):
     packets = read_collected(root, collected)
-    config = load_config(root)
     judges = judge_config(root)
     keys = {lang: load_items(root / f'answers/answers.{lang}.jsonl') for lang in COUNTS}
     judgments = dict(primary={}, secondary={})
@@ -295,7 +293,12 @@ def compare_judges(root, collected, judge_dirs):
                 except (ValueError, KeyError, TypeError) as exc:
                     result['error'] = str(exc)
             judgments[role][cid] = result
-    rows = grade_comparisons(packets, judgments, config)
+    return packets, judgments
+
+
+def compare_judges(root, collected, judge_dirs):
+    packets, judgments = verified_judgments(root, collected, judge_dirs)
+    rows = grade_comparisons(packets, judgments, load_config(root))
     return rows, dict(recorded_verdicts=sum(len(v) for v in judgments.values()), comparisons=len(rows),
                       comparable=sum(r['state'] == 'comparable' for r in rows),
                       harmful_agreed=sum(r['harmful_agreement'] is True for r in rows),

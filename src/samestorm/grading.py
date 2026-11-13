@@ -2,6 +2,21 @@ OUTCOMES = {'refusal', 'wrong_language', 'runtime_failure'}
 
 ACTION_STATUSES = {'correct', 'missing', 'reversal', 'quantity_error', 'condition_error', 'uncertain'}
 
+
+def mechanical_grade(item, answer, language):
+    from samestorm.numerical import numerical_evidence, phone_evidence
+    rows = []
+    for action in item['required_actions']:
+        evidence = dict(status='needs_review', label=None, reason='Semantic action assessment required.')
+        if action.get('quantity'):
+            evidence = numerical_evidence(answer, action['quantity'], language)
+        elif action.get('numeric_identifier'):
+            evidence = phone_evidence(answer, 'hospital' in action['text'].lower(), language)
+        rows.append(dict(action_id=action['action_id'], **evidence))
+    return dict(evidence_type='mechanical', actions=rows,
+                labels=sorted({r['label'] for r in rows if r['label']}),
+                semantic_complete=False, headline_eligible=False)
+
 def score_annotations(item, answer, annotations, outcomes=None):
     outcomes = {key: False for key in OUTCOMES} if outcomes is None else outcomes
     if set(outcomes) != OUTCOMES or any(type(v) is not bool for v in outcomes.values()):
