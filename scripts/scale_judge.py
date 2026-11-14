@@ -69,14 +69,17 @@ def expected_versions(root):
 
 def probe(config, record):
     # Reject laptop execution before importing torch or inspecting judge checkpoints.
+    partition = os.environ.get('SLURM_JOB_PARTITION')
     if (not os.environ.get('SLURM_JOB_ID') or
-            os.environ.get('SLURM_JOB_PARTITION') != config['hardware']['partition']):
+            partition not in {config['hardware']['partition'], 'gpu-a100-dev'}):
         raise ValueError('A configured Slurm GPU allocation is required; local judge inference is forbidden.')
+    # The development queue must satisfy the same physical GPU requirements.
+    expected = dict(config['hardware'], partition=partition)
     output = subprocess.check_output(['nvidia-smi', '--query-gpu=name,memory.total',
                                       '--format=csv,noheader,nounits'], text=True)
     gpus = [dict(name=line.rsplit(',', 1)[0].strip(), memory_gib=float(line.rsplit(',', 1)[1]) / 1024)
             for line in output.splitlines() if line.strip()]
-    scale_hardware_guard(gpus, os.environ, config['hardware'])
+    scale_hardware_guard(gpus, os.environ, expected)
     hardware = dict(hostname=socket.gethostname(), gpus=gpus, job_id=os.environ['SLURM_JOB_ID'],
                     partition=os.environ['SLURM_JOB_PARTITION'],
                     cluster=os.environ.get('SLURM_CLUSTER_NAME'))
@@ -91,7 +94,7 @@ def probe(config, record):
     torch_gpus = [dict(name=torch.cuda.get_device_properties(n).name,
                        memory_gib=torch.cuda.get_device_properties(n).total_memory / 1024**3)
                   for n in range(torch.cuda.device_count())]
-    scale_hardware_guard(torch_gpus, os.environ, config['hardware'])
+    scale_hardware_guard(torch_gpus, os.environ, expected)
     hardware.update(torch_cuda=torch.version.cuda, torch_gpus=torch_gpus)
     record['environment'] = sorted(f'{d.metadata["Name"]}=={d.version}'
                                    for d in importlib.metadata.distributions())

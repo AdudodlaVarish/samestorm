@@ -111,6 +111,31 @@ unchanged. Weights stay outside Git; there is no checkpoint fallback.
 
 ## Prepared job template
 
+For short validation/formatting tests, the worker also accepts `gpu-a100-dev`.
+Both queues must pass the same three-A100, per-GPU memory, CUDA and package checks;
+the actual partition is recorded. The configured default remains `gpu-a100`.
+The shared judge/translator probe accepts the dev queue; target generation and
+controlled throughput paths remain unchanged. Check current `qlimits` on LS6:
+the dev queue has a documented two-hour limit and no guaranteed shorter wait.
+
+After updating the worker, an existing pending one-hour job can be made eligible
+for both queues without cancelling it or submitting another job:
+
+```sh
+scontrol update JobId=YOUR_JOB_ID Partition=gpu-a100,gpu-a100-dev
+squeue -j YOUR_JOB_ID -o "%i|%P|%T|%R"
+```
+
+This retains the job ID and avoids a duplicate submission; priority can be
+recalculated for the eligible partitions. Slurm selects one partition when the job
+runs. Updates require the job to be pending and may be restricted by site policy.
+If the update is denied, retain the pending job and inspect the error before
+cancelling anything. For a new short test, use
+`sbatch -p gpu-a100-dev --time=01:00:00 -A YOUR_ALLOCATION scripts/jobs/judges.sbatch validate`
+with `SAMESTORM_LIMIT=10` and the other documented variables set.
+See [Slurm's partition update guidance](https://slurm.schedmd.com/faq.html) and
+[LS6 queues](https://docs.tacc.utexas.edu/hpc/lonestar6/).
+
 The inherited hardware expectation is one `gpu-a100` node with three A100 GPUs,
 each at least 37 GiB. This is historical preparation, not a verified allocation.
 The worker checks Slurm partition, GPU count/name/memory, CUDA visibility and the

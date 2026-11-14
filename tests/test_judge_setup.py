@@ -62,11 +62,40 @@ class JudgeSetup(unittest.TestCase):
                 scale_hardware_guard(gpus, environment, expected)
 
     def test_local_probe_fails_before_any_gpu_command(self):
-        with patch.dict(os.environ, {}, clear=True), \
-                patch.object(scale_judge.subprocess, 'check_output') as command:
-            with self.assertRaisesRegex(ValueError, 'local judge inference is forbidden'):
+        for environment in [{}, dict(SLURM_JOB_ID='fixture', SLURM_JOB_PARTITION='gpu-a100-small'),
+                            dict(SLURM_JOB_ID='fixture', SLURM_JOB_PARTITION='gpu-h100')]:
+            with patch.dict(os.environ, environment, clear=True), \
+                    patch.object(scale_judge.subprocess, 'check_output') as command:
+                with self.assertRaisesRegex(ValueError, 'local judge inference is forbidden'):
+                    scale_judge.probe(self.config, {})
+                command.assert_not_called()
+
+    def test_development_probe_keeps_gpu_and_package_guards(self):
+        torch = MagicMock()
+        torch.version.cuda = '12.8'
+        torch.cuda.is_available.return_value = True
+        torch.cuda.device_count.return_value = 3
+        torch.cuda.get_device_properties.return_value = types.SimpleNamespace(
+            name='NVIDIA A100', total_memory=40 * 1024**3)
+        versions = scale_judge.expected_versions(ROOT)
+        environment = dict(SLURM_JOB_ID='fixture', SLURM_JOB_PARTITION='gpu-a100-dev')
+        with patch.dict(os.environ, environment, clear=True), patch.dict(sys.modules, torch=torch), \
+                patch.object(scale_judge.subprocess, 'check_output', return_value='NVIDIA A100, 40960\n' * 3) as gpu_query, \
+                patch.object(scale_judge.importlib.metadata, 'version', side_effect=versions.__getitem__) as version, \
+                patch.object(scale_judge.importlib.metadata, 'distributions', return_value=[]):
+            record = {}
+            self.assertIs(scale_judge.probe(self.config, record), torch)
+            self.assertEqual(record['hardware']['partition'], 'gpu-a100-dev')
+            self.assertEqual(self.config['hardware']['partition'], 'gpu-a100')
+            for output in ['NVIDIA A100, 40960\n' * 2, 'NVIDIA A100, 20480\n' * 3,
+                           'NVIDIA H100, 81920\n' * 3]:
+                gpu_query.return_value = output
+                with self.subTest(output=output), self.assertRaises(ValueError):
+                    scale_judge.probe(self.config, {})
+            gpu_query.return_value = 'NVIDIA A100, 40960\n' * 3
+            version.side_effect = lambda name: 'wrong' if name == 'torch' else versions[name]
+            with self.assertRaisesRegex(ValueError, 'package pins'):
                 scale_judge.probe(self.config, {})
-            command.assert_not_called()
 
     def test_checkpoint_hashes_include_weights_index_and_tokenizer(self):
         with tempfile.TemporaryDirectory() as directory:
