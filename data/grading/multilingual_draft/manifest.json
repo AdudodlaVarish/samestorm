@@ -1,0 +1,199 @@
+{
+  "created": "2026-11-14",
+  "expanded": "2026-11-14",
+  "status": "draft_language_review_pending_revision_proposed",
+  "author": "AI assistant",
+  "purpose": "Additional synthetic development cases; not independent human gold or held-out evaluation.",
+  "case_count": 180,
+  "pair_count": 90,
+  "cases_by_language": {
+    "es": 60,
+    "vi": 60,
+    "zh": 60
+  },
+  "proposed_harmful": 90,
+  "proposed_acceptable": 90,
+  "coverage_by_language": {
+    "es": {
+      "total": 60,
+      "proposed_harmful": 30,
+      "proposed_acceptable": 30,
+      "harmful_labels": {
+        "omission_critical": 10,
+        "quantity_error": 5,
+        "reversal": 8,
+        "condition_error": 7
+      }
+    },
+    "vi": {
+      "total": 60,
+      "proposed_harmful": 30,
+      "proposed_acceptable": 30,
+      "harmful_labels": {
+        "omission_critical": 10,
+        "quantity_error": 5,
+        "reversal": 8,
+        "condition_error": 7
+      }
+    },
+    "zh": {
+      "total": 60,
+      "proposed_harmful": 30,
+      "proposed_acceptable": 30,
+      "harmful_labels": {
+        "omission_critical": 10,
+        "quantity_error": 5,
+        "reversal": 8,
+        "condition_error": 7
+      }
+    }
+  },
+  "families": [
+    "co-001",
+    "flood-001",
+    "flood-002",
+    "flood-003",
+    "heat-001",
+    "heat-003",
+    "tornado-001",
+    "tornado-002",
+    "tornado-003",
+    "winter-003"
+  ],
+  "cases_by_family": {
+    "co-001": 36,
+    "flood-001": 24,
+    "flood-002": 18,
+    "flood-003": 24,
+    "heat-001": 18,
+    "heat-003": 18,
+    "tornado-001": 18,
+    "tornado-002": 6,
+    "tornado-003": 12,
+    "winter-003": 6
+  },
+  "previous_revision": {
+    "local_archive": "results/raw/multilingual-draft-v1-preserved-20261114",
+    "case_count": 24,
+    "manifest_sha256": "d86e6b278348213df4370b9f6550bfb9c7c638c9268e43e2b02437403059c20a",
+    "outputs": {
+      "cases.jsonl": "7fc2541559e485af6ce367e6b20e03400b1e24216efdcf715118ed9936940b5c",
+      "REVIEW.md": "cd629241cda5a0abb5fba459e0e96626e5b4c3e65706093c35557e2bfc283d18"
+    },
+    "original_case_rows_preserved": true
+  },
+  "checks": {
+    "annotation_mapping_passed": 180,
+    "unique_ids": true,
+    "paired_cases": true,
+    "distinct_answers_within_language": true,
+    "exact_evidence_quotes": true,
+    "official_snapshot_hashes_match": true,
+    "expected_labels_excluded_from_payload": true,
+    "baseline_inputs_unchanged": true,
+    "original_24_cases_unchanged": true
+  },
+  "limitations": [
+    "Checks verify structure, hashes and supplied annotation mapping, not answer meaning or language fidelity.",
+    "AI-authored English explanations are not independent translations or human ratings.",
+    "Repeated designs across 10 development families are correlated; 30 harmful and 30 acceptable cases per language do not establish independent-trial reliability bounds.",
+    "Some unchanged clauses reuse official key text; these are constructed cases, not naturally generated target-model responses.",
+    "condition_error may overlap reversal; no rubric, previous annotation or metric was changed.",
+    "Chinese heat-002 and winter-002 remain excluded; no forbidden-claim or separate outcome coverage.",
+    "No new human judgments, model inference, TACC submissions or validation approval.",
+    "Current job/validation CLIs still select the baseline; this draft is not wired into jobs."
+  ],
+  "inputs": {
+    "data/grading/cases.jsonl": "1631abe0cfb55b67309a3133fa5bd2fb53537c655f458d8853cb1e59f4daeca0",
+    "data/grading/student_review.csv": "b074c5a951e1fb31194bd91d6b93f12b68abfa0690d72c13f4b302f9329d3d90",
+    "configs/prompts/judge_v1.txt": "3d016892497e98638710c09458002f24f64803862313833c57b8e946e65d49ba",
+    "answers/answers.en.jsonl": "6c039dad9a7ea9684199039e5f294735653eec407474c08b10094ad957a34016",
+    "questions/questions.en.jsonl": "f78ce156e6ec18b734c9315732b3b2a1f0f593d30414b113ab2e3648e733d4e4",
+    "answers/answers.es.jsonl": "6e43188d8ef35cdd9dd133fabbfb44d4bb23cff29871b71629ccee6381aa4e2d",
+    "questions/questions.es.jsonl": "a561ca5c7634d6c61707d6008082495a0d1dbc511c544741ab53633e5e632eb2",
+    "answers/answers.vi.jsonl": "020e9757818b36aefa5b64ae3d81a5b97e71da3cb1549f341478898178490525",
+    "questions/questions.vi.jsonl": "7ffbeec34c2ccd65d476ab23850491e5c0f6092aea917e319804f75e10d4187d",
+    "answers/answers.zh.jsonl": "841b3f5263f66f7164f5c8fd542d2fb344437be93d834aeb97fbc0538c50e4c5",
+    "questions/questions.zh.jsonl": "2a5fbee7e13982de9ac32a2e71621916e1a08ac723d1babed46961bb408c08d2",
+    "sources/es/cdc-generator-es/source.pdf": "d8d0c07df670fa31298e755a61caa7a77e4ff741e58d06a0e83f9c80855fb694",
+    "sources/es/ready-winter-es/source.pdf": "97a6ef25c5c5691cc05efc88d981e3ee57daa0f204b5b94fa88e14bfdaba6b11",
+    "sources/es/ready-flood-es/source.pdf": "09123f17ec5689ce81afbb62ffcc89066b85459f7c3f23f7785b38e8822f162e",
+    "sources/vi/epa-co-indoor-vi/source.html": "dcf0908eba94adc9057b81d571a60e30758ccd0d7a4f4d423c12525a42a0f416",
+    "sources/vi/cdc-generator-vi/source.pdf": "9fd960ae7f9c651aa8e67a3a7b4623bc42767faf3335bde4b761e962fac50d7c",
+    "sources/vi/ready-winter-vi/source.pdf": "5ff583702728fc542beeeadf19c6a8e391664ed18c50e1fbae9487ae0e29d7f8",
+    "sources/vi/ready-flood-vi/source.pdf": "40b91bd075bcaad22b7aef03e8297cc2b2e998d9460cb2b49e0be6120be11f9d",
+    "sources/zh/cdc-generator-zh/source.pdf": "957ee2376fa4b30e977f76ea61db8af2a5e6c50a6f6b9773b54de51debebb342",
+    "sources/zh/ready-winter-zh/source.pdf": "6038b336a3239008f336c5362c35143a46145fd7a569ebadd1dcfe88a8273ff2",
+    "sources/zh/ready-flood-zh/source.pdf": "0b59a55fc21c222255776e16c8290c05d555b50df8c8629ec049201d57cae46d",
+    "scripts/validate_grading.py": "13a0650d841e4cb5d9ff720f95b763515bd71c1e05dbfc7ce0c588fb3a0177e9",
+    "src/samestorm/grading.py": "ca20fd5fae46ad82b5d9c2f870575eb161467fb125ca56475fb56d0298b2bc39",
+    "sources/es/ready-heat-es/source.pdf": "10be8ea4ccaa146fa18f2e28bb95bdddbe197077d6812fe6ed85a3b46764acd1",
+    "sources/es/ready-tornado-es/source.pdf": "639c659946897d9fd6daf650534c0da460a473c16da5196bcf017aeb98de09e9",
+    "sources/vi/ready-heat-vi/source.pdf": "39931a82457da9f650be6fbd8606d4f82f4013e95d6feb3c78afe9e9017dc358",
+    "sources/vi/ready-tornado-vi/source.pdf": "81f2b75fd7d84fd03e6eaaf06eb00594d0d0ef568bdd9e4655093b84dbbcab99",
+    "sources/vi/ready-tornado-web-vi/source.html": "15b952beadf13d9ca8e203a522087d4c55b58dbca934df37f947322b2d60694d",
+    "sources/zh/ready-cert-hazard-participant-zh/source.pdf": "49649f2ebd5a1276b5422c24df0cffa9c880a0e51d9c6616984ab0762dd5cff2",
+    "sources/zh/ready-flood-alternate-zh/source.pdf": "2e55f8e402354afae945ebcb2b76dceb6897c681994c89ba2142864bb0a6b2d9",
+    "sources/zh/ready-heat-zh/source.pdf": "756e19ed7dd90390e5fd5f4c008bb54a5450b1000fcaa48f4027e554cb534aa0",
+    "sources/zh/ready-tornado-zh/source.pdf": "e7920101be1e56e9da937e263c88623a0a7b88138c95b1eed3b8cb1681ed6a22",
+    "sources/zh/ohio-fema-alerts-zh/source.pdf": "ac2e2bd1a63555ecbaea97b39cceb1973b204f10640ef7ab9600f7953aec0ec3"
+  },
+  "outputs": {
+    "cases.jsonl": "b23713c91647fabacd2530b5ebad07a56b155940cb55c3a266c6b8e5dab80697",
+    "REVIEW.md": "497703d353ee5c678e3fa9c08fb821ab6372a292c6a8dfb201d90ca50118bd8b",
+    "LANGUAGE_REVIEW.md": "7bac03b90bb5895c0e8899b59b3f7da917f58c5c5df728f5a14c6df1913d0f3b",
+    "LANGUAGE_REVIEW.csv": "9cb0215b56afe3f05f54384fd7e655f795c259ec3498149f1ab80cb60f6e5118"
+  },
+  "student_design_review": {
+    "pair_count": 90,
+    "decision_counts": {
+      "needs language review": 89,
+      "revise": 1
+    },
+    "accepted_pairs": 0,
+    "review_file": "REVIEW.md",
+    "review_mode": "open-label design review; not blind human action ratings",
+    "review_status_note": "Case readiness remains pending; student decisions/notes in REVIEW.md are preserved verbatim.",
+    "language_review_pending_pairs": 90,
+    "proposed_revision_pair": "ml-draft-zh-flood-wet-electrical-reversal",
+    "revision_acceptance_pending": true,
+    "before_revision_archive": "results/raw/multilingual-draft-student-review-20261114",
+    "preservation_receipt_sha256": "08dcc2201b5e8cba84e69bfc7e6c8b44166cb3008081d5ad597f92db021703f8"
+  },
+  "agent_revisions": {
+    "date": "2026-11-14",
+    "answer_changes": [
+      "ml-draft-zh-flood-wet-electrical-reversal-safe"
+    ],
+    "summary": "Chinese acceptable electrical-equipment answer repeats official key wording; English 1 feet corrected to 1 foot in three review aids. Expected labels unchanged.",
+    "student_decisions_and_notes_preserved": true
+  },
+  "language_evidence": {
+    "status": "translations_complete_student_review_pending",
+    "case_count": 180,
+    "translations": 360,
+    "pending_review_pairs": 90,
+    "worksheet": "LANGUAGE_REVIEW.md",
+    "csv": "LANGUAGE_REVIEW.csv",
+    "raw_run": "results/raw/draft-backtranslations-20261114-001",
+    "raw_manifest_sha256": "243f933de1123573c9b7e3c6e99c179ebe62c9db8fa1ed0ea6dc67f3c2f2c88e",
+    "evidence_receipt_sha256": "e85e02c950f162ee80acd177f1341a883217f14cb63ef44b3f64fa6f95cf72c4",
+    "translation_systems": {
+      "es": [
+        "nllb13b",
+        "madlad3b"
+      ],
+      "vi": [
+        "vinai_vi2en",
+        "madlad3b"
+      ],
+      "zh": [
+        "nllb13b",
+        "madlad3b"
+      ]
+    },
+    "native_language_human_validation": false,
+    "automatic_case_acceptance": false,
+    "observed_discrepancy": "First Spanish generator safe answer: NLLB says no more than 20 feet; MADLAD says more than 20 feet. Both retained for review."
+  }
+}

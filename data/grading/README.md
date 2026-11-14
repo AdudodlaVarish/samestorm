@@ -2,6 +2,28 @@
 
 Research prototype. Follow local officials and call 911 in an emergency.
 
+The completed 115-case baseline remains unchanged. The next design review is the
+separate [multilingual draft](multilingual_draft/REVIEW.md): 180 AI-authored answers,
+with 30 proposed acceptable and 30 deliberately flawed answers in each of Spanish,
+Vietnamese and Chinese. It covers 10 existing development families; related cases
+are not independent trials. Its labels are proposed test expectations, with student
+review pending. It is not yet connected to the job scripts and must not be pooled
+with baseline results. The first 24 draft cases remain unchanged; that earlier
+revision is also preserved locally under
+`results/raw/multilingual-draft-v1-preserved-20261114/`.
+
+Both back-translations are now available for all 180 draft answers in
+[the English evidence worksheet](multilingual_draft/LANGUAGE_REVIEW.md), with a
+[CSV alternative](multilingual_draft/LANGUAGE_REVIEW.csv). All 360 outputs were
+generated locally using the existing pinned MT systems. Compare both outputs with
+the intended meaning and record discrepancies or uncertainty; no pair is accepted
+automatically. A successful translation run does not establish language accuracy.
+
+Student design decisions are recorded for all 90 pairs: 89 need language review
+and one needs revision. The Chinese electrical-equipment pair has a proposed
+wording revision awaiting student re-review. All 90 pairs still need language
+review; none are accepted. These decisions do not add blind human action ratings.
+
 `cases.jsonl` contains 115 controlled examples: 92 faithful-action examples across
 English, Spanish, Vietnamese and Chinese, plus 23 English examples containing
 critical omissions, a supporting omission, reversals, wrong quantities or wrong
