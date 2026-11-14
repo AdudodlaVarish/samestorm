@@ -14,6 +14,18 @@ Both use BF16, the pinned grading prompt, greedy decoding, a 4096-token context,
 The Qwen judge shares a family with the Qwen target; agreement can share correlated
 errors and must not be treated as independent proof of correctness.
 
+The primary tokenizer is loaded with `fix_mistral_regex=True`, recorded as
+`tokenizer_kwargs` in its manifest. The pinned Hugging Face tokenizer's regex
+differs from the pinned native `tekken.json` pattern; the Transformers correction
+matches the native pattern. Qwen loading is unchanged. Source files and their
+hashes remain intact. See the [Mistral explanation](https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84)
+and [pinned Transformers implementation](https://github.com/huggingface/transformers/blob/v4.57.6/src/transformers/tokenization_utils_base.py).
+
+Verdict parsing accepts a single complete outer JSON code fence while retaining
+strict schema/evidence/truncation checks and raw output preservation. Earlier
+format failures can be [rechecked without inference](../../data/grading/README.md#recheck-saved-format-failures-without-inference).
+That does not correct tokenization in an earlier run or make the judges validated.
+
 Check the configuration locally without importing ML packages or loading weights:
 
 ```sh
@@ -27,13 +39,14 @@ grader accuracy. All runs use fresh IDs and retain manifests and input snapshots
 
 ## Separate scale environment
 
-Use a separate environment on the allocated scale system. All judge dependency
-pins are in `requirements-judges.lock.txt`. The laptop environment is unchanged.
+Use a separate Python 3.14.7 environment on LS6. All judge dependency pins are in
+`requirements-judges.lock.txt`. The laptop environment is unchanged. The `python3`
+below must be the selected 3.14.7 interpreter, not LS6's default Python 3.9.7.
 
 ```sh
 python3 -m venv .venv-judges
-.venv-judges/bin/python -m pip install --index-url https://download.pytorch.org/whl/cu128 'torch==2.11.0+cu128'
-.venv-judges/bin/python -m pip install -r requirements-judges.lock.txt
+.venv-judges/bin/python -m pip install --only-binary=:all: --index-url https://download.pytorch.org/whl/cu128 'torch==2.11.0+cu128'
+.venv-judges/bin/python -m pip install --only-binary=:all: -r requirements-judges.lock.txt
 ```
 
 These installation commands have not been run on LS6. Python/wheel/driver
@@ -43,12 +56,58 @@ the full installed package list. CUDA-wheel dependencies are not independently
 hash-locked by these inherited files. Preserve installation failures rather than
 silently substituting package versions.
 
-Provision exact checkpoint snapshots on scale into separate local directories
-using the revisions above. Preserve all recorded weight files and tokenizer/config
-files. The worker verifies their upstream LFS SHA256 or Git blob hashes, including
-the shard index, before loading; no automatic downloads or checkpoint fallback.
-The primary pin includes both consolidated weights and sharded weights, so a full
-snapshot requires substantial disk space. Weights stay outside Git.
+`--only-binary=:all:` rejects source builds. TACC permits lightweight preparation,
+file management and compilation on login nodes, but its policy does not explicitly
+address pip installation. Treating a modest, sequential wheel-only install as
+preparation is an interpretation, not specific TACC approval. Use a compute
+allocation for heavy installation work, model inference and research workloads.
+See [TACC conduct policy](https://docs.tacc.utexas.edu/basics/conduct/) and
+[pip's binary-only option](https://pip.pypa.io/en/stable/cli/pip_install/).
+
+Provision the pinned Hugging Face sharded checkpoints in separate directories.
+Both judges require `model.safetensors.index.json`, all its pinned shards and
+the recorded tokenizer/config files. The unused primary `consolidated.safetensors`
+copy is excluded. Required files total about 47 GB for primary and 66 GB for
+secondary (about 113 GB combined), saving about 47 GB from the old full-snapshot
+requirement. Allow extra space for environments, caches and outputs.
+
+Use the same file selector for downloads and verification. After setting the
+checkpoint directory variables and provisioning the judge environment, run from
+the repository directory:
+
+```sh
+"$SAMESTORM_PYTHON" - <<'PY'
+import json
+import os
+from pathlib import Path
+import sys
+from huggingface_hub import snapshot_download
+
+sys.path.insert(0, str(Path('src').resolve()))
+from samestorm.judges import checkpoint_files, load_config
+
+root = Path.cwd()
+config = load_config(root)
+for role in ['primary', 'secondary']:
+    spec = config[role]
+    metadata = json.loads((root / spec['metadata_path']).read_text())
+    snapshot_download(
+        repo_id=spec['model_id'], revision=spec['revision'],
+        local_dir=os.environ[f'SAMESTORM_{role.upper()}_JUDGE_DIR'],
+        allow_patterns=[e['rfilename'] for e in checkpoint_files(metadata, spec)],
+        max_workers=4,
+    )
+PY
+```
+
+This replaces the older download block that selected every weight file by suffix.
+The worker verifies all selected upstream LFS SHA256 or Git blob hashes before
+loading and checks that the verified index references exactly the pinned shards.
+Judge loading explicitly uses safetensors. A competing `model.safetensors` or
+`pytorch_model.bin` is rejected to prevent loading unverified weights instead of
+the checked shards. An unused consolidated copy, if already present, is ignored;
+no existing files are automatically deleted. Translator file requirements remain
+unchanged. Weights stay outside Git; there is no checkpoint fallback.
 
 ## Prepared job template
 

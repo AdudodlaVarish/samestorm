@@ -37,8 +37,9 @@ class JudgeComparison(unittest.TestCase):
                        outcomes=dict(refusal=False, wrong_language=False, runtime_failure=False))))
         return dict(row, **changes)
 
-    def checked(self, rows, role='primary'):
-        return validation.checked_judgments(rows, role, self.spec, self.cases, self.keys)
+    def checked(self, rows, role='primary', recheck_failed=False):
+        return validation.checked_judgments(rows, role, self.spec, self.cases, self.keys,
+                                           recheck_failed=recheck_failed)
 
     def student_row(self, cid='safe', status='correct', **changes):
         row = dict(case_id=cid, item_id=cid, action_id=cid + '-a', question='Fixture question?',
@@ -65,6 +66,25 @@ class JudgeComparison(unittest.TestCase):
                      [self.verdict('safe', role='secondary')], [self.verdict('safe', model_revision='main')]]:
             with self.subTest(rows=rows), self.assertRaises(ValueError):
                 self.checked(rows)
+
+    def test_explicit_recheck_recovers_only_valid_complete_raw_outputs(self):
+        row = self.verdict('safe', judge_failure=True, hit_generation_limit=False,
+                           error='Expecting value: line 1 column 1 (char 0)')
+        row['raw_judgment'] = '```json\n' + row['raw_judgment'] + '\n```'
+        original = json.dumps(row)
+        self.assertEqual(self.checked([row])['safe']['state'], 'failed')
+        result = self.checked([row], recheck_failed=True)['safe']
+        self.assertEqual(result['state'], 'valid')
+        self.assertTrue(result['rechecked_failure'])
+        self.assertEqual(result['original_error'], row['error'])
+        self.assertEqual(json.dumps(row), original)
+        for changes in [dict(hit_generation_limit=True), dict(hit_generation_limit=None),
+                        dict(judge_runtime_failure=True), dict(raw_judgment='```json\n{}\n```'),
+                        dict(raw_judgment=row['raw_judgment'].replace('Response text.', 'Invented quote'))]:
+            with self.subTest(changes=changes):
+                result = self.checked([{**row, **changes}], recheck_failed=True)['safe']
+                self.assertEqual(result['state'], 'failed')
+                self.assertIsNone(result['grade'])
 
     def test_missing_failed_and_uncertain_cases_remain_in_original_bound_denominators(self):
         primary = self.checked([self.verdict('harm', 'reversal'), self.verdict('safe', 'reversal')])
@@ -145,6 +165,43 @@ class JudgeComparison(unittest.TestCase):
 
 
 class JudgeComparisonCommand(unittest.TestCase):
+    def test_recheck_command_preserves_failed_run_and_records_recovery(self):
+        config = validation.load_config(ROOT)
+        spec = config['primary']
+        case = validation.read_rows(ROOT / 'data/grading/cases.jsonl')[0]
+        raw = '```json\n' + json.dumps(dict(actions=case['expected_annotations'], outcomes=dict(
+            refusal=False, wrong_language=False, runtime_failure=False))) + '\n```'
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'original-failed'
+            source.mkdir()
+            path = source / 'judgments.jsonl'
+            path.write_text(json.dumps(dict(case_id=case['case_id'], synthetic=True, judge_role='primary',
+                model_id=spec['model_id'], model_revision=spec['revision'], judge_failure=True,
+                hit_generation_limit=False, raw_judgment=raw, error='Expecting value')) + '\n')
+            inputs = ['data/grading/cases.jsonl', 'configs/judges.json', spec['prompt_path']]
+            inputs += [f'{kind}/{kind}.{lang}.jsonl' for kind in ['questions', 'answers'] for lang in validation.COUNTS]
+            record = dict(stage='judge-judge', status='failed', judge_role='primary',
+                model_id=spec['model_id'], model_revision=spec['revision'], prompt_sha256=spec['prompt_sha256'],
+                outputs={'judgments.jsonl': sha256(path)}, inputs={p: sha256(ROOT / p) for p in inputs})
+            (source / 'manifest.json').write_text(json.dumps(record))
+            original = {p.name: p.read_bytes() for p in source.iterdir()}
+            run = Path(directory) / 'recheck'
+            run.mkdir()
+            with patch.object(validation, 'new_run_dir', return_value=run), \
+                    patch.object(sys, 'argv', ['validate_judges.py', '--run-id', 'recheck',
+                        '--primary', str(path), '--recheck-failed-verdicts']), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(validation.main(), 0)
+            report = json.loads((run / 'judge_validation_report.json').read_text())
+            self.assertEqual(report['recovered_failed_verdicts'], dict(primary=1, secondary=0))
+            self.assertEqual(report['input_run_status'], dict(primary='failed', secondary='not_supplied'))
+            self.assertFalse(report['validated'])
+            manifest = json.loads((run / 'manifest.json').read_text())
+            self.assertTrue(manifest['recheck_failed_verdicts'])
+            for relative, digest in manifest['outputs'].items():
+                self.assertEqual(sha256(run / relative), digest)
+            self.assertEqual({p.name: p.read_bytes() for p in source.iterdir()}, original)
+
     def test_no_results_report_preserves_pending_state_and_student_sheet(self):
         original = (ROOT / 'data/grading/student_review.csv').read_bytes()
         usable_rows = sum(row['status'].strip() not in {'', 'uncertain'}

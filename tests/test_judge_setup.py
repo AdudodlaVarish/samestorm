@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'scripts'), str(ROOT / 'src')]
 import scale_judge
 from samestorm.grading import judge_payload
-from samestorm.judges import grade_judgment, load_config, scale_hardware_guard, verify_checkpoint
+from samestorm.judges import checkpoint_files, grade_judgment, load_config, scale_hardware_guard, verify_checkpoint
 from samestorm.provenance import sha256
 
 
@@ -39,6 +39,8 @@ class JudgeSetup(unittest.TestCase):
             for section, field, value in [
                     ('primary', 'revision', 'main'), ('primary', 'model_id', 'wrong/model'),
                     ('primary', 'metadata_sha256', '0' * 64), ('secondary', 'prompt_sha256', '0' * 64),
+                    ('primary', 'weight_index', 'other.index.json'),
+                    ('primary', 'weight_sha256', {}),
                     ('secondary', 'thinking', True), ('hardware', 'gpu_name_contains', '4060')]:
                 with self.subTest(section=section, field=field):
                     config = copy.deepcopy(self.config)
@@ -99,6 +101,49 @@ class JudgeSetup(unittest.TestCase):
             with self.assertRaises(ValueError):
                 verify_checkpoint(root, spec, checkpoint)
 
+    def test_sharded_judge_requires_index_and_all_shards_without_consolidated_copy(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            names = ['model-00001-of-00002.safetensors', 'model-00002-of-00002.safetensors']
+            bodies = {name: name.encode() for name in names}
+            bodies.update({'config.json': b'{}', 'tokenizer.json': b'{}',
+                           'model.safetensors.index.json': json.dumps(dict(
+                               weight_map={'tensor.a': names[0], 'tensor.b': names[1]})).encode()})
+            entries = []
+            for name, body in bodies.items():
+                (root / name).write_bytes(body)
+                entries.append(dict(rfilename=name, lfs=dict(sha256=hashlib.sha256(body).hexdigest())))
+            entries.append(dict(rfilename='consolidated.safetensors', lfs=dict(sha256='0' * 64)))
+            metadata = root / 'metadata.json'
+            metadata.write_text(json.dumps(dict(siblings=entries)))
+            spec = dict(metadata_path='metadata.json', weight_index='model.safetensors.index.json',
+                        weight_sha256={name: hashlib.sha256(bodies[name]).hexdigest() for name in names})
+            self.assertEqual({e['rfilename'] for e in checkpoint_files(dict(siblings=entries), spec)}, set(bodies))
+            self.assertEqual(set(verify_checkpoint(root, spec, root)), set(bodies))
+            # An unused consolidated copy is not part of the selected layout.
+            (root / 'consolidated.safetensors').write_bytes(b'unused')
+            self.assertEqual(set(verify_checkpoint(root, spec, root)), set(bodies))
+            for name, body in bodies.items():
+                (root / name).unlink()
+                with self.subTest(missing=name), self.assertRaises(ValueError):
+                    verify_checkpoint(root, spec, root)
+                (root / name).write_bytes(b'changed')
+                with self.subTest(changed=name), self.assertRaises(ValueError):
+                    verify_checkpoint(root, spec, root)
+                (root / name).write_bytes(body)
+            # Transformers otherwise prefers this single file over the verified index.
+            (root / 'model.safetensors').write_bytes(b'unpinned alternative')
+            with self.assertRaisesRegex(ValueError, 'alternate'):
+                verify_checkpoint(root, spec, root)
+            (root / 'model.safetensors').unlink()
+            index = dict(weight_map={'tensor.a': names[0]})
+            body = json.dumps(index).encode()
+            (root / spec['weight_index']).write_bytes(body)
+            next(e for e in entries if e['rfilename'] == spec['weight_index'])['lfs']['sha256'] = hashlib.sha256(body).hexdigest()
+            metadata.write_text(json.dumps(dict(siblings=entries)))
+            with self.assertRaisesRegex(ValueError, 'index'):
+                verify_checkpoint(root, spec, root)
+
     def test_judge_verdicts_require_real_quotes_and_explicit_outcomes(self):
         key = dict(required_actions=[dict(action_id='a', critical=True)])
         valid = dict(actions=[dict(action_id='a', status='correct', evidence_quote='Yes')],
@@ -112,6 +157,28 @@ class JudgeSetup(unittest.TestCase):
                 grade_judgment(key, 'Yes', json.dumps(annotation))
         with self.assertRaises(ValueError):
             grade_judgment(key, 'Yes', json.dumps(valid), truncated=True)
+
+    def test_single_complete_json_fence_preserves_all_verdict_checks(self):
+        key = dict(required_actions=[dict(action_id='a', critical=True)])
+        verdict = dict(actions=[dict(action_id='a', status='correct', evidence_quote='Yes')],
+                       outcomes=dict(refusal=False, wrong_language=False, runtime_failure=False))
+        raw = json.dumps(verdict)
+        expected = grade_judgment(key, 'Yes', raw)
+        for fenced in ['```json\n' + raw + '\n```', '\n```\n' + raw + '\n```\n',
+                       '```json\r\n' + raw + '\r\n```']:
+            with self.subTest(fenced=fenced):
+                self.assertEqual(grade_judgment(key, 'Yes', fenced), expected)
+                with self.assertRaises(ValueError):
+                    grade_judgment(key, 'Yes', fenced, truncated=True)
+                with self.assertRaises(ValueError):
+                    grade_judgment(key, 'Different response', fenced)
+                with self.assertRaises(ValueError):
+                    grade_judgment(dict(required_actions=[dict(action_id='unknown', critical=True)]), 'Yes', fenced)
+        for bad in ['```json\n' + raw, 'Explanation\n```json\n' + raw + '\n```',
+                    '```json\n' + raw + '\n```\nExtra text', '```python\n' + raw + '\n```',
+                    '```json\n' + raw + '\n' + raw + '\n```', '```json\n{}\n```']:
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                grade_judgment(key, 'Yes', bad)
 
 
 class JudgeWorker(unittest.TestCase):
@@ -191,6 +258,9 @@ class JudgeWorker(unittest.TestCase):
                     else:
                         with self.assertRaises((ValueError, RuntimeError)):
                             scale_judge.run_judge(args, run, record, self.config, torch)
+                self.assertIs(runtime.AutoModelForCausalLM.from_pretrained.call_args.kwargs['use_safetensors'], True)
+                self.assertIs(runtime.AutoTokenizer.from_pretrained.call_args.kwargs['fix_mistral_regex'], True)
+                self.assertEqual(record['tokenizer_kwargs'], dict(fix_mistral_regex=True))
                 row = json.loads((run / 'judgments.jsonl').read_text())
                 self.assertEqual(row['judge_failure'], mode != 'valid')
                 self.assertNotIn('runtime_failure', row)

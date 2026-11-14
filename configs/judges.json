@@ -4,8 +4,8 @@
     "revision": "9527884be6e5616bdd54de542f9ae13384489724",
     "license": "apache-2.0",
     "runtime_dtype": "bfloat16",
+    "weight_index": "model.safetensors.index.json",
     "weight_sha256": {
-      "consolidated.safetensors": "82718244a767b5b3545a46736801a0dfbdc4aacb581f7cfd9c08a2bdfdd4333e",
       "model-00001-of-00010.safetensors": "75a14c708eea501700a723dc74bc886cf36a1393686a3fb098ee106b160da32f",
       "model-00002-of-00010.safetensors": "1ff40fbfd9e042b7dab3f3c9442f870a4701f53e394dda769807a160ba40f32a",
       "model-00003-of-00010.safetensors": "4cc2d059fded71efd2947a414f32053b4ed3fa84383edf97b6d91fd9f04e4235",
@@ -37,6 +37,7 @@
     "revision": "9216db5781bf21249d130ec9da846c4624c16137",
     "license": "apache-2.0",
     "runtime_dtype": "bfloat16",
+    "weight_index": "model.safetensors.index.json",
     "weight_sha256": {
       "model-00001-of-00017.safetensors": "52562b2ff97b61764260273e71bf5b4cf8a66f569399398f26dec0300fcf1316",
       "model-00002-of-00017.safetensors": "e26764b2c6878e3fb7198895fa833ec62838d84a19665e6abfbae43c6daf02b3",

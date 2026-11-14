@@ -92,3 +92,29 @@ apply them. Regenerated inputs are in
 passed the local setup check in `results/raw/judge-scope-fix-20261113/`.
 Older prepared packets must be regenerated with a fresh run ID before use.
 Original packets and receipts remain preserved. Actual judge adherence is untested.
+
+## Recheck saved format failures without inference
+
+The verdict parser accepts a plain JSON object or one complete outer Markdown
+fence (with a `json` tag or no tag). It still rejects extra prose, multiple JSON
+objects, incomplete fences, truncation, invalid action IDs and fabricated evidence.
+Raw outputs are retained exactly as generated.
+
+Use this explicit option to recheck complete raw verdicts from an earlier failed
+run under the updated parser:
+
+```sh
+"$SAMESTORM_PYTHON" scripts/validate_judges.py \
+  --run-id judge-format-recheck-001 \
+  --primary results/raw/FAILED_PRIMARY_RUN/judgments.jsonl \
+  --recheck-failed-verdicts
+```
+
+This checks the original run/input/output hashes and all verdict rules, then writes
+a fresh comparison receipt. It does not run models or alter the original failed
+manifest or verdict file. Recovery requires an explicitly false generation-limit
+flag and no recorded runtime failure. The report records recovered counts and
+original run statuses; per-case details retain the original rejection reason.
+An absent secondary remains absent, and untested cases remain in the report's
+missing/abstention counts. Rechecking formatting does not repair original
+tokenization, establish semantic accuracy or complete grading validation.

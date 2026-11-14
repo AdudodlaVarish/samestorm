@@ -114,12 +114,15 @@ def run_judge(args, run, record, config, torch):
                   decoding_settings=spec['generation'], seed=spec['seed'], expected_tasks=len(tasks),
                   completed_tasks=0, invalid_judgments=0,
                   weight_sha256=verify_checkpoint(ROOT, spec, args.model_dir))
+    record['tokenizer_kwargs'] = (dict(fix_mistral_regex=True)
+        if spec['model_id'] == 'mistralai/Mistral-Small-24B-Instruct-2501' else {})
     save(run / 'manifest.json', record)
     from transformers import AutoModelForCausalLM, AutoTokenizer
     torch.manual_seed(spec['seed'])
-    tokenizer = AutoTokenizer.from_pretrained(args.model_dir, local_files_only=True, trust_remote_code=False)
+    tokenizer = AutoTokenizer.from_pretrained(args.model_dir, local_files_only=True, trust_remote_code=False,
+                                             **record['tokenizer_kwargs'])
     model = AutoModelForCausalLM.from_pretrained(args.model_dir, local_files_only=True, trust_remote_code=False,
-              torch_dtype=torch.bfloat16, device_map='auto', max_memory={**{
+              use_safetensors=True, torch_dtype=torch.bfloat16, device_map='auto', max_memory={**{
                   n: int(torch.cuda.get_device_properties(n).total_memory * .85)
                   for n in range(torch.cuda.device_count())}, 'cpu': 0})
     if any(str(v) in {'cpu', 'disk'} for v in model.hf_device_map.values()):

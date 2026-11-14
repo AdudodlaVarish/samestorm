@@ -40,8 +40,11 @@ def load_config(root):
         metadata = json.loads(path.read_text())
         if metadata['id'] != spec['model_id'] or metadata['sha'] != spec['revision']:
             raise ValueError('Judge metadata does not match model/revision.')
+        if (spec.get('weight_index') != 'model.safetensors.index.json'
+                or spec['weight_index'] not in {e['rfilename'] for e in metadata['siblings']}):
+            raise ValueError('Judges require the pinned Hugging Face shard index.')
         weights = {e['rfilename']: e['lfs']['sha256'] for e in metadata['siblings']
-                   if e['rfilename'].endswith('.safetensors')}
+                   if re.fullmatch(r'model-\d{5}-of-\d{5}\.safetensors', e['rfilename'])}
         if not weights or weights != spec['weight_sha256']:
             raise ValueError('Judge weight pins differ from the recorded checkpoint metadata.')
         if sha256(local_path(root, spec['prompt_path'])) != spec['prompt_sha256']:
@@ -68,15 +71,27 @@ def scale_hardware_guard(gpus, environment, expected):
             raise ValueError('Unapproved GPU model or memory; laptop judge inference is forbidden.')
 
 
+def checkpoint_files(metadata, spec):
+    """Select pinned judge shards, retaining existing translator file requirements."""
+    return [e for e in metadata['siblings']
+            if (e['rfilename'].endswith(('.safetensors', '.bin', '.json', '.model', '.tiktoken', '.jinja'))
+                or e['rfilename'] == 'merges.txt')
+            and (not spec.get('weight_index')
+                 or not e['rfilename'].endswith(('.safetensors', '.bin'))
+                 or e['rfilename'] in spec['weight_sha256'])]
+
+
 def verify_checkpoint(root, spec, directory):
     metadata = json.loads(local_path(root, spec['metadata_path']).read_text())
     directory = Path(directory).resolve()
     verified = {}
-    for entry in metadata['siblings']:
+    if spec.get('weight_index'):
+        # Transformers prefers a single-file checkpoint over the shard index.
+        for name in ['model.safetensors', 'pytorch_model.bin']:
+            if (directory / name).exists() or (directory / name).is_symlink():
+                raise ValueError('Unexpected alternate weight layout: ' + name)
+    for entry in checkpoint_files(metadata, spec):
         name = entry['rfilename']
-        if not (name.endswith(('.safetensors', '.bin', '.json', '.model', '.tiktoken', '.jinja'))
-                or name in {'merges.txt'}):
-            continue
         path = (directory / name).resolve()
         if Path(name).is_absolute() or not path.is_relative_to(directory) or not path.is_file():
             raise ValueError('Missing checkpoint file or escaping path: ' + name)
@@ -88,16 +103,26 @@ def verify_checkpoint(root, spec, directory):
             expected = entry['blobId']
         if actual != expected:
             raise ValueError('Pinned judge checkpoint file changed: ' + name)
-        verified[name] = sha256(path)
-    if not set(spec['weight_sha256']).issubset(verified):
+        verified[name] = actual if 'lfs' in entry else sha256(path)
+    if any(verified.get(name) != digest for name, digest in spec['weight_sha256'].items()):
         raise ValueError('Not all pinned judge weights were verified.')
+    if spec.get('weight_index'):
+        if spec['weight_index'] not in verified:
+            raise ValueError('Missing verified judge shard index.')
+        index = json.loads((directory / spec['weight_index']).read_text())
+        mapping = index.get('weight_map') if isinstance(index, dict) else None
+        if (not isinstance(mapping, dict) or not mapping
+                or not all(isinstance(name, str) for name in mapping.values())
+                or set(mapping.values()) != set(spec['weight_sha256'])):
+            raise ValueError('Judge shard index must reference exactly the pinned shards.')
     return verified
 
 
 def grade_judgment(key, answer, raw, truncated=False):
     if truncated:
         raise ValueError('Judge hit its generation limit.')
-    annotation = json.loads(raw)
+    fence = re.fullmatch(r'\s*```(?:json)?[ \t]*\r?\n(.*?)\r?\n```\s*', raw, flags=re.DOTALL)
+    annotation = json.loads(fence.group(1) if fence else raw)
     if not isinstance(annotation, dict) or set(annotation) != {'actions', 'outcomes'}:
         raise ValueError('Judge must return exactly actions and outcomes.')
     actions, outcomes = annotation['actions'], annotation['outcomes']

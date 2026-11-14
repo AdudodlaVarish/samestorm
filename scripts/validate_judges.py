@@ -18,7 +18,7 @@ def read_rows(path):
     return [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
 
 
-def checked_judgments(rows, role, spec, cases, keys):
+def checked_judgments(rows, role, spec, cases, keys, recheck_failed=False):
     checked = {}
     for row in rows:
         cid = row['case_id']
@@ -28,7 +28,9 @@ def checked_judgments(rows, role, spec, cases, keys):
                 or row.get('model_revision') != spec['revision'] or row.get('synthetic') is not True):
             raise ValueError('Judge role/model/revision or synthetic scope does not match.')
         result = dict(state='failed', grade=None, error=row.get('error'))
-        if row.get('judge_failure') is False and not row.get('judge_runtime_failure'):
+        retry = (recheck_failed and row.get('judge_failure') is True
+                 and row.get('hit_generation_limit') is False and isinstance(row.get('raw_judgment'), str))
+        if (row.get('judge_failure') is False or retry) and not row.get('judge_runtime_failure'):
             case = cases[cid]
             try:
                 grade = grade_judgment(keys[case['lang']][case['item_id']], case['answer'],
@@ -36,13 +38,15 @@ def checked_judgments(rows, role, spec, cases, keys):
                 if 'grade' in row and row['grade'] != grade:
                     raise ValueError('Saved grade differs from the checked raw verdict.')
                 result = dict(state='valid', grade=grade)
+                if retry:
+                    result.update(rechecked_failure=True, original_error=row.get('error'))
             except (KeyError, TypeError, ValueError) as exc:
                 result['error'] = str(exc)
         checked[cid] = result
     return checked
 
 
-def read_judge_run(path, role, spec, cases, keys, root):
+def read_judge_run(path, role, spec, cases, keys, root, recheck_failed=False):
     record = json.loads((path.parent / 'manifest.json').read_text())
     if (record.get('stage') != 'judge-judge' or record.get('judge_role') != role
             or record.get('model_id') != spec['model_id'] or record.get('model_revision') != spec['revision']
@@ -55,7 +59,7 @@ def read_judge_run(path, role, spec, cases, keys, root):
     for relative in inputs:
         if record.get('inputs', {}).get(relative) != sha256(root / relative):
             raise ValueError('Judge run used different or unrecorded inputs: ' + relative)
-    return checked_judgments(read_rows(path), role, spec, cases, keys), record['status']
+    return checked_judgments(read_rows(path), role, spec, cases, keys, recheck_failed), record['status']
 
 
 def student_ratings(rows, cases, questions, keys):
@@ -167,9 +171,12 @@ def main():
     parser.add_argument('--primary', type=Path)
     parser.add_argument('--secondary', type=Path)
     parser.add_argument('--student-review', type=Path, default=ROOT / 'data/grading/student_review.csv')
+    parser.add_argument('--recheck-failed-verdicts', action='store_true',
+                        help='Revalidate saved complete raw outputs previously rejected by the parser; no inference.')
     args = parser.parse_args()
     run = new_run_dir(args.run_id)
-    record = manifest(args.run_id, 'judge-validation-comparison', [], status='running', validated=False)
+    record = manifest(args.run_id, 'judge-validation-comparison', [], status='running', validated=False,
+                      recheck_failed_verdicts=args.recheck_failed_verdicts)
     output = run / 'manifest.json'
     output.write_text(json.dumps(record, indent=2) + '\n')
     try:
@@ -202,18 +209,28 @@ def main():
         judgments, statuses = {}, {}
         for role in ['primary', 'secondary']:
             path = getattr(args, role)
-            judgments[role], statuses[role] = (read_judge_run(path, role, config[role], cases, keys, ROOT)
+            judgments[role], statuses[role] = (read_judge_run(path, role, config[role], cases, keys, ROOT,
+                                                           recheck_failed=args.recheck_failed_verdicts)
                                                if path is not None else ({}, 'not_supplied'))
         with (run / 'student_review.csv').open(newline='', encoding='utf-8') as stream:
             students = student_ratings(list(csv.DictReader(stream)), cases, questions, keys)
         report, details, actions = compare(cases, keys, judgments, students)
         report['input_run_status'] = statuses
         report['results_present'] = any(judgments.values())
+        report['recheck_failed_verdicts'] = args.recheck_failed_verdicts
+        report['recovered_failed_verdicts'] = {
+            role: sum(bool(r.get('rechecked_failure')) for r in judgments[role].values())
+            for role in ['primary', 'secondary']}
+        if args.recheck_failed_verdicts:
+            report['limitations'].append(
+                'Rechecking raw verdicts changes parsing only; original generation/tokenization issues remain.')
         (run / 'judge_validation_report.json').write_text(json.dumps(report, indent=2) + '\n')
         for name, values in [('case_comparisons.jsonl', details), ('action_comparisons.jsonl', actions)]:
             (run / name).write_text(''.join(json.dumps(r, ensure_ascii=False) + '\n' for r in values), encoding='utf-8')
         record.update(status='complete', results_present=report['results_present'])
         print(f"REPORT: {sum(len(j) for j in judgments.values())} judge records; {len(students)} student ratings. Grading remains unvalidated.")
+        if args.recheck_failed_verdicts:
+            print('Recovered complete raw verdicts:', report['recovered_failed_verdicts'])
         print(run / 'judge_validation_report.json')
         return 0
     except Exception as exc:
