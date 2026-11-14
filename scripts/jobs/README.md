@@ -1,13 +1,8 @@
 # Scale jobs on TACC
 
-Research prototype. Follow local officials and call 911 in an emergency.
-
-Prepared only: no jobs have been submitted, no judge checkpoint has been downloaded,
-and the LS6 environment and hardware have not been tested. This migration supports
+This migration supports
 synthetic grading cases and verified response cross-grades. Compare synthetic
 verdicts with `scripts/validate_judges.py`; see `data/grading/README.md`.
-
-`configs/judges.json` retains the original judge choices:
 
 | Role | Model | Exact revision |
 | --- | --- | --- |
@@ -90,6 +85,45 @@ raw verdicts and token IDs, checked grade records, failures and per-run input
 snapshots. Context overflow is rejected without truncation. Invalid or truncated
 verdicts are retained and make the run fail; partial outputs remain available.
 Passing a setup check or finishing inference never sets judge validation complete.
+
+### Both validation judges in one allocation
+
+Use `validate` to run both judges sequentially and then compare their verdicts
+with the student worksheet. Each worker performs its hardware/runtime probe before
+loading, so this route does not require a separately submitted probe job. Only one
+judge model is loaded at a time; its process exits before the next starts.
+Prepare the pinned environment, both checkpoint directories and the validation
+packet before submitting. From the repository directory on LS6:
+
+```sh
+mkdir -p results/raw
+export SAMESTORM_REPO="$PWD"
+export SAMESTORM_PYTHON="$PWD/.venv-judges/bin/python"
+export SAMESTORM_PRIMARY_JUDGE_DIR=/path/to/pinned/primary/checkpoint
+export SAMESTORM_SECONDARY_JUDGE_DIR=/path/to/pinned/secondary/checkpoint
+export SAMESTORM_TASKS="$PWD/results/raw/grading-scope-fix-20261113/judge_validation_tasks.jsonl"
+export SAMESTORM_TASK_KIND=validation
+export SAMESTORM_LIMIT=10
+sbatch -A YOUR_ALLOCATION scripts/jobs/judges.sbatch validate
+```
+
+This example checks the same ten practice cases with each judge. Set
+`SAMESTORM_LIMIT=0` for all cases; `SAMESTORM_OFFSET` defaults to zero.
+The subset is a formatting/timing check, not complete validation. For either mode,
+the 30-minute limit covers both judges, including checkpoint verification/loading
+and comparison. Actual runtime is unknown; choose a measured wall-time request
+before a full validation run. Override it with `sbatch --time=HH:MM:SS` if needed.
+
+Outputs retain separate run directories:
+
+- `results/raw/judge-JOBID-judge-primary/`
+- `results/raw/judge-JOBID-judge-secondary/`
+- `results/raw/judge-JOBID-comparison/`
+
+Both judge runs must succeed before comparison starts. A failure stops later
+stages and preserves existing receipts and partial outputs. The combined mode
+accepts synthetic validation packets; response cross-grades still use the separate
+role-specific commands above/below. All validation and headline flags stay pending.
 
 ## Answer generation
 

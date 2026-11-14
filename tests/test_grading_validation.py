@@ -1,5 +1,6 @@
 import contextlib
 import copy
+import csv
 import io
 import json
 import sys
@@ -101,6 +102,8 @@ class GradingValidation(unittest.TestCase):
     def test_failed_run_preserves_checks_inputs_and_does_not_edit_review_sheet(self):
         original_read_rows = validation.read_rows
         original_sheet = (ROOT / 'data/grading/student_review.csv').read_bytes()
+        rated_rows = sum(bool(row['status'].strip())
+                         for row in csv.DictReader(io.StringIO(original_sheet.decode('utf-8'))))
 
         def changed_cases(path):
             rows = original_read_rows(path)
@@ -123,7 +126,7 @@ class GradingValidation(unittest.TestCase):
             self.assertFalse(report['semantic_judge_accuracy_validated'])
             self.assertFalse(report['headline_eligible'])
             self.assertEqual(report['annotation_mapping_passed'], 114)
-            self.assertEqual(report['student_rows_with_status'], 0)
+            self.assertEqual(report['student_rows_with_status'], rated_rows)
             self.assertEqual(len(original_read_rows(run / 'annotation_checks.jsonl')), 115)
             self.assertEqual(len(original_read_rows(run / 'numeric_checks.jsonl')), 27)
             self.assertEqual((run / 'inputs/data/grading/student_review.csv').read_bytes(), original_sheet)

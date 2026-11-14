@@ -147,6 +147,8 @@ class JudgeComparison(unittest.TestCase):
 class JudgeComparisonCommand(unittest.TestCase):
     def test_no_results_report_preserves_pending_state_and_student_sheet(self):
         original = (ROOT / 'data/grading/student_review.csv').read_bytes()
+        usable_rows = sum(row['status'].strip() not in {'', 'uncertain'}
+                          for row in csv.DictReader(io.StringIO(original.decode('utf-8'))))
         with tempfile.TemporaryDirectory() as directory:
             run = Path(directory)
             with patch.object(validation, 'new_run_dir', return_value=run), \
@@ -157,7 +159,7 @@ class JudgeComparisonCommand(unittest.TestCase):
             self.assertFalse(report['results_present'])
             self.assertFalse(report['validated'])
             self.assertFalse(report['headline_eligible'])
-            self.assertEqual(report['usable_student_ratings'], 0)
+            self.assertEqual(report['usable_student_ratings'], usable_rows)
             self.assertEqual(report['input_run_status'], dict(primary='not_supplied', secondary='not_supplied'))
             self.assertEqual(len(validation.read_rows(run / 'case_comparisons.jsonl')), 115)
             self.assertEqual((run / 'student_review.csv').read_bytes(), original)
