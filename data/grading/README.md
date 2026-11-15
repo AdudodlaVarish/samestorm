@@ -37,7 +37,11 @@ all 180 answers, including 28 r2 replacements, with all unresolved flags visible
 Preparation, judging and comparison now accept the same repository-relative
 `--cases` path; the combined job takes it from `SAMESTORM_CASES`. The default remains
 the original 115-case baseline. The stress directory documents local checks and
-the next combined TACC command. No new judge job has been submitted.
+the combined TACC command. The [first stress results](multilingual_stress_v1/RESULTS.md)
+have been reproduced from the imported original runs; neither judge meets both
+recorded per-language targets under conservative counting. The completed
+[case-level audit](multilingual_stress_v1/VERDICT_AUDIT.md) separates quote failures,
+distance and polarity mistakes, subtype overlap and ambiguous omission designs.
 
 Student design decisions are recorded for all 90 pairs: 89 need language review
 and one needs revision. The Chinese electrical-equipment pair has a proposed
