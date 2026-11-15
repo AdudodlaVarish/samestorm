@@ -1,6 +1,6 @@
 # Multilingual validation draft — student design review
 
-English back-translation evidence is now available in [LANGUAGE_REVIEW.md](LANGUAGE_REVIEW.md) and [CSV](LANGUAGE_REVIEW.csv). Both systems ran on all 180 answers; their English outputs still need student review. Existing design decisions and notes below remain unchanged.
+English back-translation evidence is available in [LANGUAGE_REVIEW.md](LANGUAGE_REVIEW.md) and [CSV](LANGUAGE_REVIEW.csv). The student reviewed all 90 pairs: 45 consistent English evidence, 36 discrepancy and 9 uncertain. See [the follow-up list](LANGUAGE_REVIEW_FOLLOWUP.md) for the 45 flagged pairs. English review completion does not establish native-language accuracy or acceptance. Existing design decisions and notes below remain unchanged.
 
 Research prototype. Follow local officials and call 911 in an emergency.
 

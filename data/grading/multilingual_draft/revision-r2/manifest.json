@@ -1,0 +1,53 @@
+{
+  "status": "proposed_r2_pending_student_and_language_review",
+  "purpose": "Separate source/intent repairs after open-label development review; not held-out evidence.",
+  "original_case_count": 180,
+  "proposed_case_count": 28,
+  "proposed_pair_count": 14,
+  "native_answer_changes": 11,
+  "english_explanation_changes": 16,
+  "fresh_translations": 24,
+  "reused_unchanged_source_translations": 32,
+  "accepted_pairs": 0,
+  "independent_human_gold": false,
+  "raw_run": "results/raw/draft-language-investigation-20261114-001",
+  "source_cases_sha256": "b23713c91647fabacd2530b5ebad07a56b155940cb55c3a266c6b8e5dab80697",
+  "source_student_review_sha256": "359d957c30abd43a60446132f67bb37a0bb398805c51fc5000fe5ed4eb5f5242",
+  "evidence_sha256": "12dde0292b10434559ec7a85f8984d3f8cde2abfd901abe0920a37abc392628a",
+  "translation_runs": {
+    "nllb13b": {
+      "path": "results/raw/draft-language-investigation-20261114-001/nllb13b",
+      "manifest_sha256": "03cbfcc6d08abb1de2365ee4068d13e99923c666d5d5f1bd050ac5716843fcdd",
+      "outputs_sha256": "35fec3fb8bfa76582f7784c91d8f506875ab5d279b6c994704e116513a57b2f4",
+      "completed_tasks": 6,
+      "peak_gpu_allocated_mib": 2692.92919921875,
+      "elapsed_seconds": 26.110456939999494
+    },
+    "madlad3b": {
+      "path": "results/raw/draft-language-investigation-20261114-001/madlad3b",
+      "manifest_sha256": "68b5d85ed6af71b4c5a9ec2b547a7eff4223900cd604a772ee4e5eb6c5733d3a",
+      "outputs_sha256": "addbdd3f530e71bd92acab389d7abfb7053463acec9c126ea86766d0256165be",
+      "completed_tasks": 12,
+      "peak_gpu_allocated_mib": 5733.39208984375,
+      "elapsed_seconds": 43.00521099300022
+    },
+    "vinai_vi2en": {
+      "path": "results/raw/draft-language-investigation-20261114-001/vinai_vi2en",
+      "manifest_sha256": "610499d306d88b45159f2f3069bb64b0966333005543f7c728ad17312bb424b8",
+      "outputs_sha256": "21741c9ac6592e836e14147a2f42d97f9f9c319d69d625032c658454bc26b3fa",
+      "completed_tasks": 6,
+      "peak_gpu_allocated_mib": 1677.37548828125,
+      "elapsed_seconds": 12.13184674400145
+    }
+  },
+  "outputs": {
+    "cases.jsonl": "ccddecd5e12591aa87bcafda21c6e89e5294381ad9eff45f4ed7fcddc585beb5",
+    "REVIEW.md": "6231e4d874df1288cea1220ca73165f62ffea6b9a04fd9e3b5a8dafccc3f3a53"
+  },
+  "tokenizer_diagnostics_sha256": "92150bed3e73806b78350acde0ce8ceb76b6b146b54f09b10a7824a4fad155d2",
+  "observations": [
+    "Spanish clauses retained after punctuation proposal; NLLB locked-attic/penthouse wording persists.",
+    "MADLAD adds Do not to the deliberately affirmative Vietnamese warm-car reversal; output retained and not accepted.",
+    "Both fresh Chinese delayed-care outputs mention hospital; timing/condition still requires review."
+  ]
+}

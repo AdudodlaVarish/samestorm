@@ -1,7 +1,7 @@
 {
   "created": "2026-11-14",
   "expanded": "2026-11-14",
-  "status": "draft_language_review_pending_revision_proposed",
+  "status": "draft_investigation_complete_r2_proposed_review_pending",
   "author": "AI assistant",
   "purpose": "Additional synthetic development cases; not independent human gold or held-out evaluation.",
   "case_count": 180,
@@ -140,9 +140,14 @@
   },
   "outputs": {
     "cases.jsonl": "b23713c91647fabacd2530b5ebad07a56b155940cb55c3a266c6b8e5dab80697",
-    "REVIEW.md": "497703d353ee5c678e3fa9c08fb821ab6372a292c6a8dfb201d90ca50118bd8b",
-    "LANGUAGE_REVIEW.md": "7bac03b90bb5895c0e8899b59b3f7da917f58c5c5df728f5a14c6df1913d0f3b",
-    "LANGUAGE_REVIEW.csv": "9cb0215b56afe3f05f54384fd7e655f795c259ec3498149f1ab80cb60f6e5118"
+    "REVIEW.md": "f25a9e64cf2e7d6a11275a4cf78820076202304a12d8f2f3c6742c44695706ea",
+    "LANGUAGE_REVIEW.md": "359d957c30abd43a60446132f67bb37a0bb398805c51fc5000fe5ed4eb5f5242",
+    "LANGUAGE_REVIEW.csv": "43d6ba526c5220b669a52dad89e4b4f19827ec78ddd63e3c70e566f4a4342f21",
+    "LANGUAGE_REVIEW_FOLLOWUP.md": "16b5a2d7298ac7cf94df64e024fe997e4d3985b1054133edec9e95555d5cef9d",
+    "LANGUAGE_INVESTIGATION.md": "f76221705e5d072dc0664939cf7b7f9b0d5d2fc5db64ed978dc36ffdf0da35eb",
+    "revision-r2/cases.jsonl": "ccddecd5e12591aa87bcafda21c6e89e5294381ad9eff45f4ed7fcddc585beb5",
+    "revision-r2/REVIEW.md": "6231e4d874df1288cea1220ca73165f62ffea6b9a04fd9e3b5a8dafccc3f3a53",
+    "revision-r2/manifest.json": "111b79052bd11056b05004b94c38ee3346c65293e1cb616409dc94cc426fa99d"
   },
   "student_design_review": {
     "pair_count": 90,
@@ -169,10 +174,10 @@
     "student_decisions_and_notes_preserved": true
   },
   "language_evidence": {
-    "status": "translations_complete_student_review_pending",
+    "status": "translations_reviewed_discrepancies_unresolved",
     "case_count": 180,
     "translations": 360,
-    "pending_review_pairs": 90,
+    "pending_review_pairs": 0,
     "worksheet": "LANGUAGE_REVIEW.md",
     "csv": "LANGUAGE_REVIEW.csv",
     "raw_run": "results/raw/draft-backtranslations-20261114-001",
@@ -194,6 +199,60 @@
     },
     "native_language_human_validation": false,
     "automatic_case_acceptance": false,
-    "observed_discrepancy": "First Spanish generator safe answer: NLLB says no more than 20 feet; MADLAD says more than 20 feet. Both retained for review."
+    "observed_discrepancy": "First Spanish generator safe answer: NLLB says no more than 20 feet; MADLAD says more than 20 feet. Both retained for review.",
+    "reviewed_pairs": 90,
+    "student_pair_decision_counts": {
+      "discrepancy": 36,
+      "consistent English evidence": 45,
+      "uncertain": 9
+    },
+    "student_decisions_by_language": {
+      "es": {
+        "discrepancy": 9,
+        "consistent English evidence": 19,
+        "uncertain": 2
+      },
+      "vi": {
+        "consistent English evidence": 18,
+        "discrepancy": 9,
+        "uncertain": 3
+      },
+      "zh": {
+        "discrepancy": 18,
+        "consistent English evidence": 8,
+        "uncertain": 4
+      }
+    },
+    "flagged_pairs": 45,
+    "candidate_consistent_pairs": 45,
+    "review_audit_run": "results/raw/draft-language-review-audit-20261114-001",
+    "review_audit_manifest_sha256": "753c0d8642b2b2802fa1555d156f3972619015c6efb25e7ed0304d8b78fee623",
+    "follow_up": "LANGUAGE_REVIEW_FOLLOWUP.md",
+    "csv_review_unit": "pair; each decision/notes repeated on its two answer rows",
+    "note": "All 90 English evidence reviews are recorded. This does not close design revision, native-language verification or judge-validation requirements."
+  },
+  "agent_investigation": {
+    "status": "complete_provisional_findings",
+    "flagged_pairs": 45,
+    "finding_counts": {
+      "mt_change_supported_by_source": 18,
+      "draft_revision_proposed": 14,
+      "context_or_terminology_unresolved": 13
+    },
+    "independent_human_adjudication": false,
+    "student_decisions_changed": false,
+    "original_case_acceptance": false,
+    "run": "results/raw/draft-language-investigation-20261114-001",
+    "manifest_sha256": "5b9ccc576a857f3e33db00fda7160e9adacee5386b10df8092fab74e24a52ae0",
+    "report": "LANGUAGE_INVESTIGATION.md",
+    "proposal_directory": "revision-r2",
+    "proposed_pairs": 14,
+    "proposed_records": 28,
+    "native_answer_changes": 11,
+    "english_explanation_changes": 16,
+    "fresh_proposal_translations": 24,
+    "reused_unchanged_source_outputs": 32,
+    "proposed_pairs_accepted": 0,
+    "original_answers_labels_keys_and_judge_settings_unchanged": true
   }
 }

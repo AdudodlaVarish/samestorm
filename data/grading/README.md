@@ -2,27 +2,39 @@
 
 Research prototype. Follow local officials and call 911 in an emergency.
 
-The completed 115-case baseline remains unchanged. The next design review is the
-separate [multilingual draft](multilingual_draft/REVIEW.md): 180 AI-authored answers,
+The completed 115-case baseline remains unchanged. The separate
+[multilingual draft](multilingual_draft/REVIEW.md) contains 180 AI-authored answers,
 with 30 proposed acceptable and 30 deliberately flawed answers in each of Spanish,
 Vietnamese and Chinese. It covers 10 existing development families; related cases
-are not independent trials. Its labels are proposed test expectations, with student
-review pending. It is not yet connected to the job scripts and must not be pooled
-with baseline results. The first 24 draft cases remain unchanged; that earlier
+are not independent trials. Its labels are proposed test expectations; language
+and design issues remain unresolved. It is not yet connected to the job scripts
+and must not be pooled with baseline results. The first 24 draft cases remain unchanged; that earlier
 revision is also preserved locally under
 `results/raw/multilingual-draft-v1-preserved-20261114/`.
 
 Both back-translations are now available for all 180 draft answers in
 [the English evidence worksheet](multilingual_draft/LANGUAGE_REVIEW.md), with a
 [CSV alternative](multilingual_draft/LANGUAGE_REVIEW.csv). All 360 outputs were
-generated locally using the existing pinned MT systems. Compare both outputs with
-the intended meaning and record discrepancies or uncertainty; no pair is accepted
-automatically. A successful translation run does not establish language accuracy.
+generated locally using the existing pinned MT systems. The student reviewed all
+90 pairs: 45 consistent English evidence, 36 discrepancy and 9 uncertain. See the
+[follow-up list](multilingual_draft/LANGUAGE_REVIEW_FOLLOWUP.md) for all 45 flagged
+pairs. The CSV mirrors pair-level decisions on both answer rows, using explicitly
+named pair-review columns; this is not 180 separate answer ratings. No pair is
+accepted automatically, and English consistency does not establish native-language
+accuracy.
+
+The [source investigation](multilingual_draft/LANGUAGE_INVESTIGATION.md) covers all
+45 flagged pairs. A separate [r2 worksheet](multilingual_draft/revision-r2/REVIEW.md)
+contains 14 proposed correction pairs, with 24 fresh and 32 explicitly reused MT
+outputs. The original 180 answers and student decisions remain unchanged. Several
+MT discrepancies persist, including a translator adding a prohibition to a
+deliberately unsafe answer; the proposals remain pending review.
 
 Student design decisions are recorded for all 90 pairs: 89 need language review
 and one needs revision. The Chinese electrical-equipment pair has a proposed
-wording revision awaiting student re-review. All 90 pairs still need language
-review; none are accepted. These decisions do not add blind human action ratings.
+wording revision awaiting student re-review. The subsequent English evidence
+review is complete; native-language accuracy and design acceptance remain
+unresolved. These decisions do not add blind human action ratings.
 
 `cases.jsonl` contains 115 controlled examples: 92 faithful-action examples across
 English, Spanish, Vietnamese and Chinese, plus 23 English examples containing
