@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from samestorm.grading import ACTION_STATUSES, score_annotations
-from samestorm.judges import grade_judgment, load_config, local_path
+from samestorm.judges import config_paths, grade_judgment, load_config, local_path
 from samestorm.provenance import manifest, new_run_dir, sha256
 from validate_dataset import COUNTS, load_items
 from validate_grading import check_cases
@@ -60,6 +60,8 @@ def read_judge_run(path, role, spec, cases, keys, root, recheck_failed=False,
     if record.get('cases_path', 'data/grading/cases.jsonl') != cases_path:
         raise ValueError('Judge run used a different case file.')
     inputs = [cases_path, 'configs/judges.json', spec['prompt_path']]
+    if 'prompt_revision_path' in spec:
+        inputs.append(spec['prompt_revision_path'])
     inputs += [f'{kind}/{kind}.{lang}.jsonl' for kind in ['questions', 'answers'] for lang in COUNTS]
     for relative in inputs:
         if record.get('inputs', {}).get(relative) != sha256(root / relative):
@@ -187,6 +189,7 @@ def compare(cases, keys, judgments, students):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-id', required=True)
+    parser.add_argument('--prompt-version', choices=['v1', 'v2'], default='v1')
     parser.add_argument('--primary', type=Path)
     parser.add_argument('--secondary', type=Path)
     parser.add_argument('--student-review', type=Path,
@@ -198,10 +201,12 @@ def main():
     args = parser.parse_args()
     run = new_run_dir(args.run_id)
     record = manifest(args.run_id, 'judge-validation-comparison', [], status='running', validated=False,
+                      prompt_version='judge_' + args.prompt_version,
                       recheck_failed_verdicts=args.recheck_failed_verdicts)
     output = run / 'manifest.json'
     output.write_text(json.dumps(record, indent=2) + '\n')
     try:
+        config = load_config(ROOT, args.prompt_version)
         cases_path = local_path(ROOT, args.cases)
         args.cases = str(cases_path.relative_to(ROOT))
         record['cases_path'] = args.cases
@@ -210,9 +215,9 @@ def main():
         paths = [Path(__file__), ROOT / 'scripts/validate_dataset.py', ROOT / 'scripts/validate_grading.py',
                  ROOT / 'src/samestorm/grading.py', ROOT / 'src/samestorm/numerical.py',
                  ROOT / 'src/samestorm/judges.py', ROOT / 'src/samestorm/provenance.py',
-                 cases_path, ROOT / 'configs/judges.json', ROOT / 'configs/prompts/judge_v1.txt',
+                 cases_path,
                  ROOT / 'configs/toolchain.json', ROOT / 'configs/grading.json']
-        paths += [ROOT / f'configs/evidence/judges/{role}/hub_metadata.json' for role in ['primary', 'secondary']]
+        paths += config_paths(ROOT, config)
         paths += [ROOT / kind / f'{kind}.{lang}.jsonl' for kind in ['questions', 'answers'] for lang in COUNTS]
         for source in paths:
             target = run / 'inputs' / source.relative_to(ROOT)
@@ -227,7 +232,6 @@ def main():
                 if name.endswith('.jsonl'):
                     shutil.copy2(source.parent / 'manifest.json', run / (name + '.manifest.json'))
                     record['inputs'][name + '.manifest.json'] = sha256(run / (name + '.manifest.json'))
-        config = load_config(ROOT)
         rows = read_rows(cases_path)
         cases = {c['case_id']: c for c in rows}
         if not cases or len(cases) != len(rows):
@@ -250,6 +254,11 @@ def main():
                 students = student_ratings(list(csv.DictReader(stream)), cases, questions, keys)
         report, details, actions = compare(cases, keys, judgments, students)
         report['input_run_status'] = statuses
+        report['prompt_version'] = record['prompt_version']
+        report['prompt_sha256'] = config['primary']['prompt_sha256']
+        if args.prompt_version == 'v2':
+            report['limitations'].append(
+                'Prompt v2 was developed using the stress audit; reused cases measure development regression, not independent validation.')
         report['results_present'] = any(judgments.values())
         report['cases_path'] = args.cases
         report['cases_sha256'] = record['inputs'][args.cases]

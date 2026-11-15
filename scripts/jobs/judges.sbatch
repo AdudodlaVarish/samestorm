@@ -13,6 +13,7 @@ cd "${SAMESTORM_REPO:-$SLURM_SUBMIT_DIR}"
 mode="${1:?Choose probe, judge or validate}"
 role="${2:-primary}"
 cases="${SAMESTORM_CASES:-data/grading/cases.jsonl}"
+prompt_version="${SAMESTORM_JUDGE_PROMPT_VERSION:-v1}"
 run_id="judge-${SLURM_JOB_ID}-${mode}-${role}"
 export PYTHONDONTWRITEBYTECODE=1
 export HF_HUB_OFFLINE=1
@@ -32,11 +33,13 @@ case "$mode" in
         exec "$SAMESTORM_PYTHON" scripts/validate_judges.py \
             --run-id "judge-${SLURM_JOB_ID}-comparison" \
             --cases "$cases" \
+            --prompt-version "$prompt_version" \
             --primary "results/raw/judge-${SLURM_JOB_ID}-judge-primary/judgments.jsonl" \
             --secondary "results/raw/judge-${SLURM_JOB_ID}-judge-secondary/judgments.jsonl"
         ;;
     probe)
-        exec "$SAMESTORM_PYTHON" scripts/scale_judge.py probe --run-id "$run_id"
+        exec "$SAMESTORM_PYTHON" scripts/scale_judge.py probe --run-id "$run_id" \
+            --prompt-version "$prompt_version"
         ;;
     judge)
         : "${SAMESTORM_JUDGE_DIR:?Set to the exact pinned local judge checkpoint}"
@@ -44,6 +47,7 @@ case "$mode" in
         exec "$SAMESTORM_PYTHON" scripts/scale_judge.py judge --run-id "$run_id" \
             --judge-role "$role" --model-dir "$SAMESTORM_JUDGE_DIR" --input "$SAMESTORM_TASKS" \
             --cases "$cases" \
+            --prompt-version "$prompt_version" \
             --task-kind "${SAMESTORM_TASK_KIND:-validation}" \
             --offset "${SAMESTORM_OFFSET:-0}" --limit "${SAMESTORM_LIMIT:-0}"
         ;;

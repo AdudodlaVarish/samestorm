@@ -31,6 +31,7 @@ if '--judge-role' in sys.argv and sys.argv[sys.argv.index('--judge-role') + 1] =
             SAMESTORM_SECONDARY_JUDGE_DIR='/pinned secondary',
             SAMESTORM_TASKS='/validation packets.jsonl', SAMESTORM_TASK_KIND='validation',
             SAMESTORM_CASES='data/grading/cases.jsonl',
+            SAMESTORM_JUDGE_PROMPT_VERSION='v1',
             SAMESTORM_OFFSET='2', SAMESTORM_LIMIT='10', TEST_CALLS=str(self.calls), TEST_FAIL_ROLE='')
 
     def execute(self, **changes):
@@ -48,9 +49,11 @@ if '--judge-role' in sys.argv and sys.argv[sys.argv.index('--judge-role') + 1] =
                 '--run-id', f'judge-fixture-judge-{role}', '--judge-role', role,
                 '--model-dir', '/pinned ' + role, '--input', '/validation packets.jsonl',
                 '--cases', 'data/grading/cases.jsonl',
+                '--prompt-version', 'v1',
                 '--task-kind', 'validation', '--offset', '2', '--limit', '10'])
         self.assertEqual(calls[2], ['scripts/validate_judges.py', '--run-id', 'judge-fixture-comparison',
             '--cases', 'data/grading/cases.jsonl',
+            '--prompt-version', 'v1',
             '--primary', 'results/raw/judge-fixture-judge-primary/judgments.jsonl',
             '--secondary', 'results/raw/judge-fixture-judge-secondary/judgments.jsonl'])
 
@@ -60,6 +63,12 @@ if '--judge-role' in sys.argv and sys.argv[sys.argv.index('--judge-role') + 1] =
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(calls), 3)
         self.assertTrue(all(call[call.index('--cases') + 1] == selected for call in calls))
+
+    def test_selected_prompt_reaches_both_judges_and_comparison(self):
+        result, calls = self.execute(SAMESTORM_JUDGE_PROMPT_VERSION='v2')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(calls), 3)
+        self.assertTrue(all(call[call.index('--prompt-version') + 1] == 'v2' for call in calls))
 
     def test_failure_stops_later_stages(self):
         for role, expected in [('primary', 1), ('secondary', 2)]:

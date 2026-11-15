@@ -1,0 +1,9 @@
+{
+  "version": "v2",
+  "prompt_path": "configs/prompts/judge_v2.txt",
+  "prompt_sha256": "31bafb2bd8bd3855aa7f8634c102e463f00c762beeb117932b90467aef08117e",
+  "status": "prospective_development_revision_not_empirically_validated",
+  "authorization": "2026-11-15: student approved prospective grader clarification after multilingual stress audit",
+  "developed_using": "data/grading/multilingual_stress_v1/VERDICT_AUDIT.md",
+  "evaluation_use": "Reused stress cases are development regression only; fresh evidence required for validation."
+}

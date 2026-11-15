@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from samestorm.grading import judge_payload
-from samestorm.judges import grade_judgment, load_config, local_path, scale_hardware_guard, verify_checkpoint
+from samestorm.judges import config_paths, grade_judgment, load_config, local_path, scale_hardware_guard, verify_checkpoint
 from samestorm.provenance import manifest, new_run_dir, sha256
 from validate_dataset import COUNTS, load_items
 
@@ -185,6 +185,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=['check', 'probe', 'judge'])
     parser.add_argument('--run-id', required=True)
+    parser.add_argument('--prompt-version', choices=['v1', 'v2'], default='v1')
     parser.add_argument('--judge-role', choices=['primary', 'secondary'], default='primary')
     parser.add_argument('--task-kind', choices=['validation', 'crossgrade'], default='validation')
     parser.add_argument('--model-dir', type=Path)
@@ -196,9 +197,13 @@ def main():
     args = parser.parse_args()
     run = new_run_dir(args.run_id)
     record = manifest(args.run_id, 'judge-' + args.mode, [], status='running',
+                      prompt_version='judge_' + args.prompt_version,
                       task_kind=args.task_kind, judge_validation_complete=False, headline_eligible=False)
     save(run / 'manifest.json', record)
     try:
+        if args.task_kind == 'crossgrade' and args.prompt_version != 'v1':
+            raise ValueError('Response cross-grading currently supports only the v1 prompt.')
+        config = load_config(ROOT, args.prompt_version)
         if min(args.offset, args.limit) < 0:
             raise ValueError('Offset and limit must be nonnegative.')
         cases_path = local_path(ROOT, args.cases)
@@ -208,10 +213,10 @@ def main():
         record['cases_path'] = args.cases
         paths = [Path(__file__), ROOT / 'src/samestorm/judges.py', ROOT / 'src/samestorm/grading.py',
                  ROOT / 'src/samestorm/provenance.py', ROOT / 'scripts/validate_dataset.py',
-                 ROOT / 'configs/judges.json', ROOT / 'configs/prompts/judge_v1.txt',
                  ROOT / 'configs/toolchain.json', ROOT / 'configs/grading.json',
                  ROOT / 'requirements-judges.lock.txt',
                  cases_path]
+        paths += config_paths(ROOT, config)
         paths += sorted((ROOT / 'configs/evidence/judges').rglob('*'))
         if args.task_kind == 'crossgrade':
             paths += [ROOT / 'scripts/crossgrades.py', ROOT / 'scripts/scale_generate.py',
@@ -230,9 +235,10 @@ def main():
             record['inputs']['tasks.input.jsonl'] = sha256(run / 'tasks.input.jsonl')
             if args.task_kind == 'validation':
                 args.input = run / 'tasks.input.jsonl'
-        config = load_config(ROOT)
         if args.mode == 'check':
             report = dict(configuration_valid=True, runtime_verified=False, checkpoints_verified=False,
+                          prompt_version=record['prompt_version'],
+                          prompt_sha256=config[args.judge_role]['prompt_sha256'],
                           judge_validation_complete=False, submission_performed=False,
                           judges={role: dict(model_id=config[role]['model_id'], revision=config[role]['revision'])
                                   for role in ['primary', 'secondary']}, hardware=config['hardware'])

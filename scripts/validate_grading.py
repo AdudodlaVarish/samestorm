@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from samestorm.grading import judge_payload, score_annotations
-from samestorm.judges import local_path
+from samestorm.judges import config_paths, load_config, local_path
 from samestorm.numerical import numerical_evidence
 from samestorm.provenance import manifest, new_run_dir, sha256
 from validate_dataset import COUNTS, load_items, validate as validate_dataset
@@ -73,6 +73,8 @@ def build_messages(payload, prompt):
 def main():
     parser = argparse.ArgumentParser(description='Check grading software and prepare synthetic judge tasks; no inference.')
     parser.add_argument('--run-id', required=True)
+    parser.add_argument('--prompt-version', choices=['v1', 'v2'], default='v1',
+                        help='Explicit prospective judge prompt; v1 preserves the original baseline.')
     parser.add_argument('--cases', default='data/grading/cases.jsonl',
                         help='Repository-relative synthetic case file; defaults to the original baseline.')
     args = parser.parse_args()
@@ -81,15 +83,18 @@ def main():
               ROOT / 'src/samestorm/grading.py', ROOT / 'src/samestorm/numerical.py',
               ROOT / 'src/samestorm/judges.py',
               ROOT / 'src/samestorm/provenance.py', ROOT / 'configs/grading.json',
-              ROOT / 'configs/toolchain.json', ROOT / 'configs/prompts/judge_v1.txt',
+              ROOT / 'configs/toolchain.json',
               ROOT / 'data/grading/student_review.csv',
               ROOT / 'tests/fixtures/numeric_cases.jsonl', ROOT / 'data/item_metadata.jsonl']
     inputs += [ROOT / kind / f'{kind}.{lang}.jsonl' for kind in ['questions', 'answers'] for lang in COUNTS]
     record = manifest(args.run_id, 'grading-software-validation', [], status='running',
+                      prompt_version='judge_' + args.prompt_version,
                       semantic_judge_accuracy_validated=False, headline_eligible=False)
     manifest_path = run / 'manifest.json'
     manifest_path.write_text(json.dumps(record, indent=2) + '\n')
     try:
+        config = load_config(ROOT, args.prompt_version)
+        inputs += config_paths(ROOT, config)
         cases_path = local_path(ROOT, args.cases)
         record['cases_path'] = str(cases_path.relative_to(ROOT))
         inputs.append(cases_path)
@@ -107,7 +112,7 @@ def main():
         keys = {lang: load_items(ROOT / f'answers/answers.{lang}.jsonl') for lang in COUNTS}
         annotation_checks, tasks = check_cases(cases, questions, keys)
         numeric_checks = check_numbers(read_rows(ROOT / 'tests/fixtures/numeric_cases.jsonl'))
-        prompt_path = ROOT / 'configs/prompts/judge_v1.txt'
+        prompt_path = ROOT / config['primary']['prompt_path']
         prompt = prompt_path.read_text(encoding='utf-8')
         for task in tasks:
             task['messages'] = build_messages(task.pop('payload'), prompt)
@@ -121,6 +126,7 @@ def main():
                       annotation_mapping_passed=sum(c['passed'] for c in annotation_checks),
                       numerical_cases=len(numeric_checks), numerical_passed=sum(c['passed'] for c in numeric_checks),
                       judge_tasks=len(tasks), cases_path=record['cases_path'],
+                      prompt_version=record['prompt_version'], prompt_sha256=sha256(prompt_path),
                       cases_sha256=record['inputs'][record['cases_path']],
                       cases_by_language=dict(Counter(c['lang'] for c in cases)),
                       cases_by_category=dict(Counter(c['category'] for c in cases)),

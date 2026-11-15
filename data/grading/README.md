@@ -42,6 +42,9 @@ have been reproduced from the imported original runs; neither judge meets both
 recorded per-language targets under conservative counting. The completed
 [case-level audit](multilingual_stress_v1/VERDICT_AUDIT.md) separates quote failures,
 distance and polarity mistakes, subtype overlap and ambiguous omission designs.
+The [prospective v2 prompt](JUDGE_V2.md) addresses these findings through an
+explicit version selection; v1 and its results are preserved. The v2 packet is
+prepared and checked locally, but its development GPU rerun has not been submitted.
 
 Student design decisions are recorded for all 90 pairs: 89 need language review
 and one needs revision. The Chinese electrical-equipment pair has a proposed

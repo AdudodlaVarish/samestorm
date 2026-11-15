@@ -37,6 +37,13 @@ to validate prepared packets against the current keys, questions, synthetic case
 and pinned rubric. This check does not verify checkpoint availability, CUDA or
 grader accuracy. All runs use fresh IDs and retain manifests and input snapshots.
 
+Synthetic validation also supports an explicitly selected prospective v2 prompt:
+use `--prompt-version v2` for preparation, worker checks and comparison, and set
+`SAMESTORM_JUDGE_PROMPT_VERSION=v2` for batch execution. The default remains v1;
+packets and runs from different prompt versions cannot be combined. See the
+[v2 protocol and LS6 steps](../../data/grading/JUDGE_V2.md). V2 is development-only
+and currently rejected for actual-response crossgrade tasks.
+
 ## Separate scale environment
 
 Use a separate Python 3.14.7 environment on LS6. All judge dependency pins are in

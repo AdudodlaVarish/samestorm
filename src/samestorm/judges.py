@@ -19,8 +19,18 @@ def local_path(root, relative):
     return path
 
 
-def load_config(root):
+def load_config(root, prompt_version='v1'):
+    if prompt_version not in {'v1', 'v2'}:
+        raise ValueError('Unknown judge prompt version.')
     config = json.loads((Path(root) / 'configs/judges.json').read_text())
+    if prompt_version == 'v2':
+        revision_path = 'configs/judge_prompt_v2.json'
+        revision = json.loads(local_path(root, revision_path).read_text())
+        if revision['version'] != 'v2':
+            raise ValueError('Judge prompt revision does not match the selected version.')
+        for role in ['primary', 'secondary']:
+            config[role].update(prompt_path=revision['prompt_path'], prompt_sha256=revision['prompt_sha256'],
+                                prompt_revision_path=revision_path)
     if config['local_judge_inference_allowed'] is not False or config['serve_precision'] != 'BF16':
         raise ValueError('Judges require scale hardware and BF16.')
     if config['validation_complete'] is not False or config['cross_grade_validation_complete'] is not False:
@@ -58,6 +68,16 @@ def load_config(root):
     if config['primary']['model_id'] == config['secondary']['model_id']:
         raise ValueError('Two distinct judge models are required.')
     return config
+
+
+def config_paths(root, config):
+    paths = ['configs/judges.json']
+    for role in ['primary', 'secondary']:
+        spec = config[role]
+        paths += [spec['prompt_path'], spec['metadata_path']]
+        if 'prompt_revision_path' in spec:
+            paths.append(spec['prompt_revision_path'])
+    return [local_path(root, path) for path in dict.fromkeys(paths)]
 
 
 def scale_hardware_guard(gpus, environment, expected):
