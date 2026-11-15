@@ -9,9 +9,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from samestorm.grading import ACTION_STATUSES, score_annotations
-from samestorm.judges import grade_judgment, load_config
+from samestorm.judges import grade_judgment, load_config, local_path
 from samestorm.provenance import manifest, new_run_dir, sha256
 from validate_dataset import COUNTS, load_items
+from validate_grading import check_cases
 
 
 def read_rows(path):
@@ -46,7 +47,8 @@ def checked_judgments(rows, role, spec, cases, keys, recheck_failed=False):
     return checked
 
 
-def read_judge_run(path, role, spec, cases, keys, root, recheck_failed=False):
+def read_judge_run(path, role, spec, cases, keys, root, recheck_failed=False,
+                   cases_path='data/grading/cases.jsonl'):
     record = json.loads((path.parent / 'manifest.json').read_text())
     if (record.get('stage') != 'judge-judge' or record.get('judge_role') != role
             or record.get('model_id') != spec['model_id'] or record.get('model_revision') != spec['revision']
@@ -54,7 +56,10 @@ def read_judge_run(path, role, spec, cases, keys, root, recheck_failed=False):
         raise ValueError('Judge run manifest does not match the pinned role/model/prompt.')
     if record.get('outputs', {}).get(path.name) != sha256(path):
         raise ValueError('Judge output differs from its manifest hash.')
-    inputs = ['data/grading/cases.jsonl', 'configs/judges.json', spec['prompt_path']]
+    cases_path = str(local_path(root, cases_path).relative_to(root))
+    if record.get('cases_path', 'data/grading/cases.jsonl') != cases_path:
+        raise ValueError('Judge run used a different case file.')
+    inputs = [cases_path, 'configs/judges.json', spec['prompt_path']]
     inputs += [f'{kind}/{kind}.{lang}.jsonl' for kind in ['questions', 'answers'] for lang in COUNTS]
     for relative in inputs:
         if record.get('inputs', {}).get(relative) != sha256(root / relative):
@@ -125,6 +130,8 @@ def compare(cases, keys, judgments, students):
     for cid, case in cases.items():
         detail = dict(case_id=cid, item_id=case['item_id'], lang=case['lang'], category=case['category'],
                       expected_labels=case['expected_labels'])
+        if 'review' in case:
+            detail['review'] = case['review']
         statuses = {}
         for role in ['primary', 'secondary']:
             result = judgments[role].get(cid, dict(state='missing', grade=None))
@@ -162,6 +169,18 @@ def compare(cases, keys, judgments, students):
                       'Existing human-label checks and translation cross-grades remain pending.',
                       'Thresholds remain PI-unconfirmed; this report cannot mark judges validated.',
                       'The Qwen judge shares a model family with the Qwen target.'])
+    if any(c['lang'] != 'en' and c['expected_labels'] for c in cases.values()):
+        report['limitations'].remove('Harmful injected cases are English only; non-English validation is incomplete.')
+        report['limitations'].append('Multilingual harmful cases are constructed; native-language accuracy remains independently unverified.')
+    reviewed = [c['review'] for c in cases.values() if 'review' in c]
+    if reviewed:
+        pairs = {r['original_pair_id']: r for r in reviewed}
+        report['development_review_coverage'] = dict(
+            cases=len(reviewed), pairs=len(pairs),
+            english_evidence_pair_counts=dict(Counter(r['english_evidence'] for r in pairs.values())),
+            flagged_cases=sum(r['english_evidence'] != 'consistent English evidence' for r in reviewed),
+            native_language_verified_cases=sum(r['native_language_verified'] for r in reviewed),
+            note='Open-label pair evidence is descriptive metadata, not student action ratings or native gold.')
     return report, details, action_rows
 
 
@@ -170,7 +189,10 @@ def main():
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--primary', type=Path)
     parser.add_argument('--secondary', type=Path)
-    parser.add_argument('--student-review', type=Path, default=ROOT / 'data/grading/student_review.csv')
+    parser.add_argument('--student-review', type=Path,
+                        help='English action worksheet; the original worksheet is used by default only for baseline cases.')
+    parser.add_argument('--cases', default='data/grading/cases.jsonl',
+                        help='Repository-relative synthetic case file used by both judge runs.')
     parser.add_argument('--recheck-failed-verdicts', action='store_true',
                         help='Revalidate saved complete raw outputs previously rejected by the parser; no inference.')
     args = parser.parse_args()
@@ -180,9 +202,15 @@ def main():
     output = run / 'manifest.json'
     output.write_text(json.dumps(record, indent=2) + '\n')
     try:
-        paths = [Path(__file__), ROOT / 'scripts/validate_dataset.py', ROOT / 'src/samestorm/grading.py',
+        cases_path = local_path(ROOT, args.cases)
+        args.cases = str(cases_path.relative_to(ROOT))
+        record['cases_path'] = args.cases
+        if args.student_review is None and args.cases == 'data/grading/cases.jsonl':
+            args.student_review = ROOT / 'data/grading/student_review.csv'
+        paths = [Path(__file__), ROOT / 'scripts/validate_dataset.py', ROOT / 'scripts/validate_grading.py',
+                 ROOT / 'src/samestorm/grading.py', ROOT / 'src/samestorm/numerical.py',
                  ROOT / 'src/samestorm/judges.py', ROOT / 'src/samestorm/provenance.py',
-                 ROOT / 'data/grading/cases.jsonl', ROOT / 'configs/judges.json', ROOT / 'configs/prompts/judge_v1.txt',
+                 cases_path, ROOT / 'configs/judges.json', ROOT / 'configs/prompts/judge_v1.txt',
                  ROOT / 'configs/toolchain.json', ROOT / 'configs/grading.json']
         paths += [ROOT / f'configs/evidence/judges/{role}/hub_metadata.json' for role in ['primary', 'secondary']]
         paths += [ROOT / kind / f'{kind}.{lang}.jsonl' for kind in ['questions', 'answers'] for lang in COUNTS]
@@ -200,23 +228,32 @@ def main():
                     shutil.copy2(source.parent / 'manifest.json', run / (name + '.manifest.json'))
                     record['inputs'][name + '.manifest.json'] = sha256(run / (name + '.manifest.json'))
         config = load_config(ROOT)
-        rows = read_rows(ROOT / 'data/grading/cases.jsonl')
+        rows = read_rows(cases_path)
         cases = {c['case_id']: c for c in rows}
         if not cases or len(cases) != len(rows):
             raise ValueError('Synthetic case IDs must be nonempty and unique.')
         keys = {lang: load_items(ROOT / f'answers/answers.{lang}.jsonl') for lang in COUNTS}
         questions = {lang: load_items(ROOT / f'questions/questions.{lang}.jsonl') for lang in COUNTS}
+        checks, _ = check_cases(rows, questions, keys)
+        if not all(c['passed'] for c in checks):
+            raise ValueError('Selected synthetic cases have invalid annotations or expected labels.')
         judgments, statuses = {}, {}
         for role in ['primary', 'secondary']:
             path = getattr(args, role)
             judgments[role], statuses[role] = (read_judge_run(path, role, config[role], cases, keys, ROOT,
-                                                           recheck_failed=args.recheck_failed_verdicts)
+                                                           recheck_failed=args.recheck_failed_verdicts,
+                                                           cases_path=args.cases)
                                                if path is not None else ({}, 'not_supplied'))
-        with (run / 'student_review.csv').open(newline='', encoding='utf-8') as stream:
-            students = student_ratings(list(csv.DictReader(stream)), cases, questions, keys)
+        students = {}
+        if args.student_review is not None:
+            with (run / 'student_review.csv').open(newline='', encoding='utf-8') as stream:
+                students = student_ratings(list(csv.DictReader(stream)), cases, questions, keys)
         report, details, actions = compare(cases, keys, judgments, students)
         report['input_run_status'] = statuses
         report['results_present'] = any(judgments.values())
+        report['cases_path'] = args.cases
+        report['cases_sha256'] = record['inputs'][args.cases]
+        report['student_review_supplied'] = args.student_review is not None
         report['recheck_failed_verdicts'] = args.recheck_failed_verdicts
         report['recovered_failed_verdicts'] = {
             role: sum(bool(r.get('rechecked_failure')) for r in judgments[role].values())

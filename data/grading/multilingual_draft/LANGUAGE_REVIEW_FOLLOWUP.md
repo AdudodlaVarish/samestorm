@@ -10,6 +10,11 @@ and 13 remain unresolved. Review the separate [14-pair r2 proposal worksheet](re
 for the proposed changes and their fresh or explicitly reused MT evidence. These
 findings do not replace the student decisions recorded here.
 
+The r2 review is now complete: all 14 designs accepted for their correction
+reasons; English evidence 6 consistent, 6 discrepancy and 2 uncertain. Those
+subset reviews do not add 14 new independent pairs to the original 90 or establish
+native-language verification. Original decisions below are preserved.
+
 | Language | Consistent English evidence | Discrepancy | Uncertain | Flagged for follow-up |
 | --- | ---: | ---: | ---: | ---: |
 | es | 19 | 9 | 2 | 11 |

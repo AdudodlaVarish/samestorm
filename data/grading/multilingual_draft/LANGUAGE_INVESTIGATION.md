@@ -2,7 +2,7 @@
 
 Research prototype. Follow local officials and call 911 in an emergency.
 
-**Agent investigation of all 45 flagged pairs: 18 have source-supported MT changes; 14 have proposed draft/gloss revisions; 13 remain unresolved for context or terminology.** These are provisional findings by the drafting assistant, not independent native-language judgments or changes to the student's 45/36/9 decisions. All cases remain unaccepted.
+**Agent investigation of all 45 flagged pairs: 18 have source-supported MT changes; 14 have proposed draft/gloss revisions; 13 remain unresolved for context or terminology.** These are provisional findings by the drafting assistant, not independent native-language judgments or changes to the student's original 45/36/9 decisions. No cases are independently verified native-language gold.
 
 I compared each original question and answer with its approved same-language actions/official quotations and both retained MT outputs. Official snapshot hashes and all 360 existing MT records were rechecked. Original answers, expected labels, grading instructions, student notes and raw translations are preserved.
 
@@ -16,7 +16,7 @@ I compared each original question and answer with its approved same-language act
 
 The separate [r2 proposals](revision-r2/cases.jsonl) contain 28 proposed records (14 pairs): 11 native answers change, 16 English meanings change, and one unchanged safe companion accompanies the Chinese native revision. Nothing replaces the original 180-case corpus. Proposed labels are retained, not newly confirmed.
 
-A single paired-MT pass is complete for the six pairs containing native edits (12 records, 24 outputs), with no runtime failures or truncation. Gloss-only proposals reuse all 32 exact original MT outputs because source text is unchanged. No iterative paraphrase search or favorable-translator selection. [Review the proposed corrections and both outputs](revision-r2/REVIEW.md); all 14 proposed pairs remain pending.
+A single paired-MT pass is complete for the six pairs containing native edits (12 records, 24 outputs), with no runtime failures or truncation. Gloss-only proposals reuse all 32 exact original MT outputs because source text is unchanged. No iterative paraphrase search or favorable-translator selection. The student has [reviewed all 14 correction pairs](revision-r2/REVIEW.md) and accepted their designs as addressing the stated reasons. English evidence is 6 consistent, 6 discrepancy and 2 uncertain; all 14 notes explicitly leave native-language wording independently unverified. Design acceptance does not approve native-language gold or grader reliability.
 
 ## What the fresh pass actually showed
 
@@ -575,7 +575,7 @@ The signal clause is copied verbatim from the approved Chinese action, including
 
 ## What remains unresolved
 
-The 18 MT-supported findings do not automatically approve native cases; the assistant authored the original data and can share its own blind spots. The 13 terminology/context cases remain visible. The 14 revision pairs need review of the proposed changes and evidence. The existing Chinese electrical-equipment design revision remains pending. No judge inference or native-language human verification has occurred.
+The 18 MT-supported findings do not automatically approve native cases; the assistant authored the original data and can share its own blind spots. The 13 terminology/context cases remain visible. All 14 r2 designs have student acceptance of their correction reasons, but 8 have discrepant or uncertain English evidence and none has independent native-language verification. The existing Chinese electrical-equipment design revision remains separate and pending. No judge inference or native-language human verification has occurred.
 
 Any later judge report must retain original coverage and revision/exclusion history. Do not report the 45 originally consistent pairs or a screened subset as the entire 180-case draft passing. Fresh grader evaluation still requires untouched actual model responses and independent evidence.
 

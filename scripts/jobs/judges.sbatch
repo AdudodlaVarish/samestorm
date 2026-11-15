@@ -12,6 +12,7 @@ cd "${SAMESTORM_REPO:-$SLURM_SUBMIT_DIR}"
 : "${SAMESTORM_PYTHON:?Set to the separate pinned LS6 judge environment}"
 mode="${1:?Choose probe, judge or validate}"
 role="${2:-primary}"
+cases="${SAMESTORM_CASES:-data/grading/cases.jsonl}"
 run_id="judge-${SLURM_JOB_ID}-${mode}-${role}"
 export PYTHONDONTWRITEBYTECODE=1
 export HF_HUB_OFFLINE=1
@@ -30,6 +31,7 @@ case "$mode" in
         SAMESTORM_JUDGE_DIR="$SAMESTORM_SECONDARY_JUDGE_DIR" bash "$0" judge secondary
         exec "$SAMESTORM_PYTHON" scripts/validate_judges.py \
             --run-id "judge-${SLURM_JOB_ID}-comparison" \
+            --cases "$cases" \
             --primary "results/raw/judge-${SLURM_JOB_ID}-judge-primary/judgments.jsonl" \
             --secondary "results/raw/judge-${SLURM_JOB_ID}-judge-secondary/judgments.jsonl"
         ;;
@@ -41,6 +43,7 @@ case "$mode" in
         : "${SAMESTORM_TASKS:?Set to the prepared synthetic judge tasks}"
         exec "$SAMESTORM_PYTHON" scripts/scale_judge.py judge --run-id "$run_id" \
             --judge-role "$role" --model-dir "$SAMESTORM_JUDGE_DIR" --input "$SAMESTORM_TASKS" \
+            --cases "$cases" \
             --task-kind "${SAMESTORM_TASK_KIND:-validation}" \
             --offset "${SAMESTORM_OFFSET:-0}" --limit "${SAMESTORM_LIMIT:-0}"
         ;;

@@ -1,7 +1,7 @@
 {
   "created": "2026-11-14",
   "expanded": "2026-11-14",
-  "status": "draft_investigation_complete_r2_proposed_review_pending",
+  "status": "r2_designs_accepted_english_evidence_mixed_native_unverified",
   "author": "AI assistant",
   "purpose": "Additional synthetic development cases; not independent human gold or held-out evaluation.",
   "case_count": 180,
@@ -143,11 +143,11 @@
     "REVIEW.md": "f25a9e64cf2e7d6a11275a4cf78820076202304a12d8f2f3c6742c44695706ea",
     "LANGUAGE_REVIEW.md": "359d957c30abd43a60446132f67bb37a0bb398805c51fc5000fe5ed4eb5f5242",
     "LANGUAGE_REVIEW.csv": "43d6ba526c5220b669a52dad89e4b4f19827ec78ddd63e3c70e566f4a4342f21",
-    "LANGUAGE_REVIEW_FOLLOWUP.md": "16b5a2d7298ac7cf94df64e024fe997e4d3985b1054133edec9e95555d5cef9d",
-    "LANGUAGE_INVESTIGATION.md": "f76221705e5d072dc0664939cf7b7f9b0d5d2fc5db64ed978dc36ffdf0da35eb",
+    "LANGUAGE_REVIEW_FOLLOWUP.md": "3acb816b7107692bce79c0aa0bb62709c69a9f810525a550585d7a6549cc7ec7",
+    "LANGUAGE_INVESTIGATION.md": "05cb12958a3cd0a05342a0bd01a58c678079b83f3775df8374217d5b464414ab",
     "revision-r2/cases.jsonl": "ccddecd5e12591aa87bcafda21c6e89e5294381ad9eff45f4ed7fcddc585beb5",
-    "revision-r2/REVIEW.md": "6231e4d874df1288cea1220ca73165f62ffea6b9a04fd9e3b5a8dafccc3f3a53",
-    "revision-r2/manifest.json": "111b79052bd11056b05004b94c38ee3346c65293e1cb616409dc94cc426fa99d"
+    "revision-r2/REVIEW.md": "81c6645ca3a02c4168a33e1db8b6664b8b26145b7cf7a8dc4d7d0e7c7456a891",
+    "revision-r2/manifest.json": "8f03e0ab50dea3a9c8181a2f66d31521d0e2a007321f984baf844ba1a0dea2fe"
   },
   "student_design_review": {
     "pair_count": 90,
@@ -252,7 +252,17 @@
     "english_explanation_changes": 16,
     "fresh_proposal_translations": 24,
     "reused_unchanged_source_outputs": 32,
-    "proposed_pairs_accepted": 0,
-    "original_answers_labels_keys_and_judge_settings_unchanged": true
+    "original_answers_labels_keys_and_judge_settings_unchanged": true,
+    "proposed_design_pairs_accepted": 14,
+    "proposed_native_verified_pairs": 0,
+    "r2_reviewed_pairs": 14,
+    "r2_english_evidence_counts": {
+      "discrepancy": 6,
+      "consistent English evidence": 6,
+      "uncertain": 2
+    },
+    "r2_english_evidence_flagged_pairs": 8,
+    "r2_review_audit_run": "results/raw/r2-student-review-20261115-001",
+    "r2_review_audit_manifest_sha256": "5bf2baa9741951f3e9153ec9b8f1d683b6068f28b407ff7d60101e673161b4cc"
   }
 }

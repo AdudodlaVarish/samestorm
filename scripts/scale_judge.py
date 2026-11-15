@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from samestorm.grading import judge_payload
-from samestorm.judges import grade_judgment, load_config, scale_hardware_guard, verify_checkpoint
+from samestorm.judges import grade_judgment, load_config, local_path, scale_hardware_guard, verify_checkpoint
 from samestorm.provenance import manifest, new_run_dir, sha256
 from validate_dataset import COUNTS, load_items
 
@@ -25,7 +25,7 @@ def append(path, row):
         stream.write(json.dumps(row, ensure_ascii=False) + '\n')
 
 
-def validation_tasks(root, path, spec, offset=0, limit=0):
+def validation_tasks(root, path, spec, offset=0, limit=0, cases_path='data/grading/cases.jsonl'):
     if min(offset, limit) < 0:
         raise ValueError('Task offset and limit must be nonnegative.')
     tasks = [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
@@ -35,8 +35,13 @@ def validation_tasks(root, path, spec, offset=0, limit=0):
     tasks = tasks[offset:offset + limit] if limit else tasks[offset:]
     if not tasks:
         raise ValueError('No validation tasks selected.')
-    cases = {c['case_id']: c for c in (json.loads(line) for line in
-             (root / 'data/grading/cases.jsonl').read_text(encoding='utf-8').splitlines() if line.strip())}
+    rows = [json.loads(line) for line in local_path(root, cases_path).read_text(encoding='utf-8').splitlines()
+            if line.strip()]
+    cases = {c['case_id']: c for c in rows}
+    if not cases or len(cases) != len(rows):
+        raise ValueError('Synthetic case IDs must be nonempty and unique.')
+    if any(t['case_id'] not in cases for t in tasks):
+        raise ValueError('Validation task case ID is absent from the selected case file.')
     questions = {lang: load_items(root / f'questions/questions.{lang}.jsonl') for lang in COUNTS}
     keys = {lang: load_items(root / f'answers/answers.{lang}.jsonl') for lang in COUNTS}
     prompt = (root / spec['prompt_path']).read_text(encoding='utf-8')
@@ -111,7 +116,8 @@ def run_judge(args, run, record, config, torch):
             raise ValueError('Cross-grade tasks changed after the run input copy.')
         tasks = judge_tasks(ROOT, args.input, args.judge_role, args.offset, args.limit)
     else:
-        tasks = validation_tasks(ROOT, args.input, spec, args.offset, args.limit)
+        tasks = validation_tasks(ROOT, args.input, spec, args.offset, args.limit,
+                                 getattr(args, 'cases', 'data/grading/cases.jsonl'))
     record.update(model_id=spec['model_id'], model_revision=spec['revision'], judge_role=args.judge_role,
                   precision='BF16', prompt_sha256=spec['prompt_sha256'],
                   decoding_settings=spec['generation'], seed=spec['seed'], expected_tasks=len(tasks),
@@ -183,6 +189,8 @@ def main():
     parser.add_argument('--task-kind', choices=['validation', 'crossgrade'], default='validation')
     parser.add_argument('--model-dir', type=Path)
     parser.add_argument('--input', type=Path)
+    parser.add_argument('--cases', default='data/grading/cases.jsonl',
+                        help='Repository-relative synthetic case file for validation tasks.')
     parser.add_argument('--offset', type=int, default=0)
     parser.add_argument('--limit', type=int, default=0)
     args = parser.parse_args()
@@ -193,12 +201,17 @@ def main():
     try:
         if min(args.offset, args.limit) < 0:
             raise ValueError('Offset and limit must be nonnegative.')
+        cases_path = local_path(ROOT, args.cases)
+        args.cases = str(cases_path.relative_to(ROOT))
+        if args.task_kind != 'validation' and args.cases != 'data/grading/cases.jsonl':
+            raise ValueError('--cases applies only to synthetic validation, not response cross-grading.')
+        record['cases_path'] = args.cases
         paths = [Path(__file__), ROOT / 'src/samestorm/judges.py', ROOT / 'src/samestorm/grading.py',
                  ROOT / 'src/samestorm/provenance.py', ROOT / 'scripts/validate_dataset.py',
                  ROOT / 'configs/judges.json', ROOT / 'configs/prompts/judge_v1.txt',
                  ROOT / 'configs/toolchain.json', ROOT / 'configs/grading.json',
                  ROOT / 'requirements-judges.lock.txt',
-                 ROOT / 'data/grading/cases.jsonl']
+                 cases_path]
         paths += sorted((ROOT / 'configs/evidence/judges').rglob('*'))
         if args.task_kind == 'crossgrade':
             paths += [ROOT / 'scripts/crossgrades.py', ROOT / 'scripts/scale_generate.py',
@@ -228,7 +241,8 @@ def main():
                     from crossgrades import judge_tasks
                     tasks = judge_tasks(ROOT, args.input, args.judge_role, args.offset, args.limit)
                 else:
-                    tasks = validation_tasks(ROOT, args.input, config[args.judge_role], args.offset, args.limit)
+                    tasks = validation_tasks(ROOT, args.input, config[args.judge_role], args.offset, args.limit,
+                                             args.cases)
                 report['valid_tasks'] = len(tasks)
             save(run / 'setup_report.json', report)
             print('PASS: pinned judge configuration. Hardware, environment and checkpoint execution remain unverified.')

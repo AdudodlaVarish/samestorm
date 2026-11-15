@@ -30,6 +30,7 @@ if '--judge-role' in sys.argv and sys.argv[sys.argv.index('--judge-role') + 1] =
             SAMESTORM_PRIMARY_JUDGE_DIR='/pinned primary',
             SAMESTORM_SECONDARY_JUDGE_DIR='/pinned secondary',
             SAMESTORM_TASKS='/validation packets.jsonl', SAMESTORM_TASK_KIND='validation',
+            SAMESTORM_CASES='data/grading/cases.jsonl',
             SAMESTORM_OFFSET='2', SAMESTORM_LIMIT='10', TEST_CALLS=str(self.calls), TEST_FAIL_ROLE='')
 
     def execute(self, **changes):
@@ -46,10 +47,19 @@ if '--judge-role' in sys.argv and sys.argv[sys.argv.index('--judge-role') + 1] =
             self.assertEqual(call, ['scripts/scale_judge.py', 'judge',
                 '--run-id', f'judge-fixture-judge-{role}', '--judge-role', role,
                 '--model-dir', '/pinned ' + role, '--input', '/validation packets.jsonl',
+                '--cases', 'data/grading/cases.jsonl',
                 '--task-kind', 'validation', '--offset', '2', '--limit', '10'])
         self.assertEqual(calls[2], ['scripts/validate_judges.py', '--run-id', 'judge-fixture-comparison',
+            '--cases', 'data/grading/cases.jsonl',
             '--primary', 'results/raw/judge-fixture-judge-primary/judgments.jsonl',
             '--secondary', 'results/raw/judge-fixture-judge-secondary/judgments.jsonl'])
+
+    def test_custom_cases_reach_both_judges_and_comparison(self):
+        selected = 'data/custom cases.jsonl'
+        result, calls = self.execute(SAMESTORM_CASES=selected)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(calls), 3)
+        self.assertTrue(all(call[call.index('--cases') + 1] == selected for call in calls))
 
     def test_failure_stops_later_stages(self):
         for role, expected in [('primary', 1), ('secondary', 2)]:

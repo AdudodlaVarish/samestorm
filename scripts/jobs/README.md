@@ -282,6 +282,18 @@ Failures are never silently retried or discarded. Startup requires complete GPU
 layer offload; server and telemetry processes are cleaned up on exit. These
 elapsed times are run diagnostics; controlled throughput measurements are stage 5.
 
+## Separate multilingual development cases
+
+The [180-case stress input](../../data/grading/multilingual_stress_v1/README.md)
+combines 152 original records and 28 design-reviewed revisions, retaining all
+unresolved evidence flags. All three validation CLIs take the same repository-relative
+`--cases` path. Set `SAMESTORM_CASES=data/grading/multilingual_stress_v1/cases.jsonl`
+for the combined `judges.sbatch validate` job; both workers and comparison receive
+that path and record/check its hash. Without it, the original 115-case default is
+preserved. Custom cases do not automatically inherit the baseline English student
+worksheet. The linked instructions include fresh LS6 preparation and a single
+combined submission; no job has been submitted locally.
+
 ## Response translation and grading cross-checks
 
 `configs/crossgrades.json` preserves the original prospective pairs: Spanish and

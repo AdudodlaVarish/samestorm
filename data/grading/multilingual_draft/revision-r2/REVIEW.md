@@ -10,7 +10,7 @@ Six pairs contain native edits: both translators ran once on both answers, produ
 
 Raw fresh/reused evidence mapping and run receipts: `results/raw/draft-language-investigation-20261114-001`.
 
-Agent observations to inspect: MADLAD adds **Do not** to the flawed Vietnamese warm-car reversal; NLLB still uses locked attic/penthouse wording in the Spanish pairs. Both systems now mention hospital in the Chinese delayed-care proposal. These observations do not mark any pair accepted; all outputs and blank student decisions remain below.
+Agent observations to inspect: MADLAD adds **Do not** to the flawed Vietnamese warm-car reversal; NLLB still uses locked attic/penthouse wording in the Spanish pairs. Both systems now mention hospital in the Chinese delayed-care proposal. These observations are considered in the decisions below; all translation outputs remain unchanged.
 
 ## Pair index
 
@@ -82,11 +82,11 @@ Proposed labels: omission_critical.
 
 > Move to higher ground or the highest level of a building to avoid being trapped by the rising water.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **discrepancy** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The punctuation repair closes the fragment and retains the intended omission. NLLB renders the safe prohibition as “locked attic,” narrower than an enclosed attic; MADLAD retains the closed-attic prohibition. Both flawed outputs omit it. Native-language wording has not been independently verified; acceptance is of the proposed design only. Independently check the affected wording and translation before adopting the pair; retain the deliberate flaw.
 
 
 ## ml-draft-es-flood-attic-reversal-r2
@@ -142,11 +142,11 @@ Proposed labels: reversal.
 
 > Move to higher ground or the highest level of a building to avoid being trapped by the rising water. Climb up to a closed attic.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **discrepancy** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The punctuation repair preserves the intended reversal. NLLB says “locked penthouses” in the safe answer and “locked attic” in the flawed answer, rather than enclosed attics; MADLAD retains the intended distinction. Native-language wording has not been independently verified; acceptance is of the proposed design only. Independently check the affected wording and translation before adopting the pair; retain the deliberate flaw.
 
 
 ## ml-draft-es-heat-car-window-exception-r2
@@ -202,11 +202,11 @@ Proposed labels: condition_error.
 
 > On a hot day, you can leave a child, adult or animal alone in a vehicle if the windows are open.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **consistent English evidence** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed hot-weather gloss addresses the stated wording difference. Both outputs preserve the prohibition and the flawed open-window exception. Native-language wording has not been independently verified; acceptance is of the proposed design only.
 
 
 ## ml-draft-es-heat-car-short-stop-r2
@@ -262,11 +262,11 @@ Proposed labels: condition_error.
 
 > On a hot day, you may leave a child, adult, or animal alone in a vehicle if you are only going away for a moment.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **consistent English evidence** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed hot-weather gloss addresses the stated wording difference. Both outputs preserve the prohibition and the flawed short-stop exception. Native-language wording has not been independently verified; acceptance is of the proposed design only.
 
 
 ## ml-draft-es-heat-car-reversal-r2
@@ -322,11 +322,11 @@ Proposed labels: reversal.
 
 > Leave children, adults, or pets alone inside a vehicle on a hot day.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **discrepancy** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed hot-weather gloss addresses the stated wording difference, and both outputs preserve the reversal. MADLAD says “pets” in both answers rather than the broader “animals.” Native-language wording has not been independently verified; acceptance is of the proposed design only. Independently check the affected wording and translation before adopting the pair; retain the deliberate flaw.
 
 
 ## ml-draft-vi-heat-car-window-exception-r2
@@ -382,11 +382,11 @@ Proposed labels: condition_error.
 
 > On warm sunny days, it is possible to leave children, adults or pets alone in the car if the window is open.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **discrepancy** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed wording uses the same warmth phrase as the cited key, addressing the stated scope concern. VinAI preserves animals and the window exception; MADLAD narrows animals to pets and adds “sunny” to the English gloss. Native-language wording has not been independently verified; acceptance is of the proposed design only. Independently check the affected wording and translation before adopting the pair; retain the deliberate flaw.
 
 
 ## ml-draft-vi-heat-car-short-stop-r2
@@ -442,11 +442,11 @@ Proposed labels: condition_error.
 
 > On warm sunny days, it is possible to leave children, adults or pets alone in the car if you only leave for a short time.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **discrepancy** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed wording uses the warmth phrase from the cited key. VinAI preserves the short-stop distinction; MADLAD narrows animals to pets and adds “sunny” to the English gloss. Native-language wording has not been independently verified; acceptance is of the proposed design only. Independently check the affected wording and translation before adopting the pair; retain the deliberate flaw.
 
 
 ## ml-draft-vi-heat-car-reversal-r2
@@ -502,11 +502,11 @@ Proposed labels: reversal.
 
 > Do not leave children, adults or pets alone in the car on warm sunny days.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **discrepancy** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed wording uses the warmth phrase from the cited key. VinAI preserves the reversal, but MADLAD adds “Do not” to the flawed answer, removing the intended reversal, and narrows animals to pets. Native-language wording has not been independently verified; acceptance is of the proposed design only. Independently check the affected wording and translation before adopting the pair; retain the deliberate flaw.
 
 
 ## ml-draft-zh-flood-driving-omission-r2
@@ -564,11 +564,11 @@ Proposed labels: omission_critical.
 
 > Driving around roadblocks is prohibited.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **consistent English evidence** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The broader roadblock gloss reflects the stated key scope. Both outputs retain the roadblock prohibition and preserve the deliberate omission of the separate floodwater-driving instruction. Native-language wording has not been independently verified; acceptance is of the proposed design only.
 
 
 ## ml-draft-zh-flood-driving-reversal-r2
@@ -626,11 +626,11 @@ Proposed labels: reversal.
 
 > Please drive through the flood. Driving around roadblocks is prohibited.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **consistent English evidence** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The broader roadblock gloss reflects the stated key scope. Both outputs retain that prohibition and preserve the flawed instruction to drive through floodwater. Native-language wording has not been independently verified; acceptance is of the proposed design only.
 
 
 ## ml-draft-zh-heat-car-window-exception-r2
@@ -686,11 +686,11 @@ Proposed labels: condition_error.
 
 > In hot weather, children, adults or animals may be left alone in the car as long as the windows are open.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **consistent English evidence** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed hot-weather gloss addresses the stated wording difference. Both outputs preserve the prohibition and the flawed open-window exception. Native-language wording has not been independently verified; acceptance is of the proposed design only.
 
 
 ## ml-draft-zh-heat-car-short-stop-r2
@@ -746,11 +746,11 @@ Proposed labels: condition_error.
 
 > In hot weather, children, adults or animals may be left alone in the car if they are only left for a short time.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **uncertain** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed hot-weather gloss addresses the stated wording difference. MADLAD preserves the brief-stop exception, but NLLB’s “if they are only away” has an unclear subject; verify who is away. Both safe outputs retain the prohibition. Native-language wording has not been independently verified; acceptance is of the proposed design only. Independently check the affected wording and translation before adopting the pair; retain the deliberate flaw.
 
 
 ## ml-draft-zh-heat-car-reversal-r2
@@ -806,11 +806,11 @@ Proposed labels: reversal.
 
 > During hot weather, please leave children, adults or animals alone in the car.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **consistent English evidence** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: The proposed hot-weather gloss addresses the stated wording difference. Both outputs retain the safe prohibition and the deliberately reversed instruction. Native-language wording has not been independently verified; acceptance is of the proposed design only.
 
 
 ## ml-draft-zh-heat-stroke-delayed-help-r2
@@ -868,11 +868,11 @@ Proposed labels: condition_error.
 
 > Only if the patient remains unconscious after rest is he or she taken to hospital; wait to see if he or she is awake before seeking emergency care. Before the arrival of medical personnel, try all available methods of chilling.
 
-Student revision decision: **pending** (accept proposed design / revise / uncertain).
+Student revision decision: **accept proposed design** (accept proposed design / revise / uncertain).
 
-Student English evidence decision: **pending** (consistent English evidence / discrepancy / uncertain).
+Student English evidence decision: **uncertain** (consistent English evidence / discrepancy / uncertain).
 
-Student notes: ____________________
+Student notes: Spelling out hospital addresses the stated route ambiguity; both flawed outputs mention hospital and preserve the delayed-care condition. MADLAD’s safe output describes care as already occurring rather than clearly directing it, so its instruction force needs checking. Native-language wording has not been independently verified; acceptance is of the proposed design only. Independently check the affected wording and translation before adopting the pair; retain the deliberate flaw.
 
 
 The other investigated pairs remain in [LANGUAGE_INVESTIGATION.md](../LANGUAGE_INVESTIGATION.md). Source-supported MT errors remain visible; 13 context/terminology cases remain unresolved. No original answer, student decision, official key or judge setting is replaced by this proposal.

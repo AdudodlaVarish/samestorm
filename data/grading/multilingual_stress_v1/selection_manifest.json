@@ -1,0 +1,36 @@
+{
+  "stage": "multilingual-development-stress-assembly",
+  "status": "complete",
+  "case_count": 180,
+  "pair_count": 90,
+  "original_records_retained": 152,
+  "revised_records": 28,
+  "cases_by_language": {
+    "es": 60,
+    "vi": 60,
+    "zh": 60
+  },
+  "english_evidence_pair_counts": {
+    "discrepancy": 31,
+    "consistent English evidence": 51,
+    "uncertain": 8
+  },
+  "flagged_pairs": 39,
+  "native_language_verified_cases": 0,
+  "independent_human_gold": false,
+  "validated": false,
+  "headline_eligible": false,
+  "note": "All pairs retained. Expected labels are AI-authored design expectations; pair reviews are not blind action ratings.",
+  "inputs": {
+    "scripts/prepare_grading_stress.py": "07bfd3bd471781714644d84914347eff16b36d405cd1a91325505dee1c9195a3",
+    "data/grading/multilingual_draft/cases.jsonl": "b23713c91647fabacd2530b5ebad07a56b155940cb55c3a266c6b8e5dab80697",
+    "data/grading/multilingual_draft/LANGUAGE_REVIEW.md": "359d957c30abd43a60446132f67bb37a0bb398805c51fc5000fe5ed4eb5f5242",
+    "data/grading/multilingual_draft/revision-r2/cases.jsonl": "ccddecd5e12591aa87bcafda21c6e89e5294381ad9eff45f4ed7fcddc585beb5",
+    "data/grading/multilingual_draft/revision-r2/REVIEW.md": "81c6645ca3a02c4168a33e1db8b6664b8b26145b7cf7a8dc4d7d0e7c7456a891",
+    "data/grading/multilingual_draft/revision-r2/manifest.json": "8f03e0ab50dea3a9c8181a2f66d31521d0e2a007321f984baf844ba1a0dea2fe"
+  },
+  "outputs": {
+    "cases.jsonl": "def78c352f3e7c6561d1b3421580da87c82adb5eaeb6e5e52d18e7a100630230",
+    "README.md": "19ed278b036f7344f8523f0c60e98116d5ee43aed6ceeafb84860af303689e83"
+  }
+}

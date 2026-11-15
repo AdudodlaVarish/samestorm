@@ -28,7 +28,16 @@ The [source investigation](multilingual_draft/LANGUAGE_INVESTIGATION.md) covers 
 contains 14 proposed correction pairs, with 24 fresh and 32 explicitly reused MT
 outputs. The original 180 answers and student decisions remain unchanged. Several
 MT discrepancies persist, including a translator adding a prohibition to a
-deliberately unsafe answer; the proposals remain pending review.
+deliberately unsafe answer. The student accepted all 14 designs as addressing
+their correction reasons. English evidence is 6 consistent, 6 discrepancy and
+2 uncertain; all native-language wording remains independently unverified.
+
+The [assembled development stress input](multilingual_stress_v1/README.md) retains
+all 180 answers, including 28 r2 replacements, with all unresolved flags visible.
+Preparation, judging and comparison now accept the same repository-relative
+`--cases` path; the combined job takes it from `SAMESTORM_CASES`. The default remains
+the original 115-case baseline. The stress directory documents local checks and
+the next combined TACC command. No new judge job has been submitted.
 
 Student design decisions are recorded for all 90 pairs: 89 need language review
 and one needs revision. The Chinese electrical-equipment pair has a proposed
