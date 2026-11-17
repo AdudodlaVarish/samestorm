@@ -1,11 +1,15 @@
-# Pinned conversion/download dependencies. Model inference uses a separate runtime.
+# Use a separate .venv-model-prep; do not install over the pinned judge environment.
+# LFM3's pinned TokenizersBackend metadata requires Transformers v5.
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.11.0+cpu
-huggingface_hub==0.36.2
+huggingface_hub==2.4.0
 numpy==2.4.6
-transformers==4.57.6
-tokenizers==0.22.2
+transformers==5.23.0
+tokenizers==0.23.3
 safetensors==0.8.0
 sentencepiece==0.2.3
 protobuf==4.25.9
 Jinja2==3.1.6
+PyYAML==6.0.3
+tqdm==4.70.1
+requests==2.34.2

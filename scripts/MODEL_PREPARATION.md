@@ -40,6 +40,49 @@ No model answering, judges, TACC submission or calibration is performed here.
 Full conversion and all six formats still need runtime testing. Qwen4 F16 weights
 alone exceed the local 7 GiB inference budget; conversion does not prove GPU fit.
 
+## Conversion environment on LS6
+
+Use a separate `.venv-model-prep` environment for the pilot. Job 3587860 downloaded
+the pinned checkpoint successfully but failed because Transformers 4.57.6 in the
+judge environment cannot load the checkpoint's `TokenizersBackend` class. That
+class belongs to the
+[Transformers v5 tokenizer backend](https://github.com/huggingface/transformers/blob/main/MIGRATION_GUIDE_V5.md).
+The preparation requirements now pin Transformers 5.23.0, Tokenizers 0.23.3 and
+Hugging Face Hub 2.4.0, with CPU PyTorch 2.11.0. The judge environment retains its
+original versions. CUDA answer generation runs through llama-server rather than
+PyTorch, so CPU PyTorch is sufficient in this new environment.
+
+After pulling the fix, create and install this environment once on the login node:
+
+```bash
+cd "$SAMESTORM_REPO"
+"$SAMESTORM_REPO/.venv-judges/bin/python" -m venv "$SAMESTORM_REPO/.venv-model-prep"
+export SAMESTORM_PYTHON="$SAMESTORM_REPO/.venv-model-prep/bin/python"
+"$SAMESTORM_PYTHON" -m pip install --no-compile -r requirements-model-prep.txt
+"$SAMESTORM_PYTHON" -m pip check
+```
+
+Use this Python path again after reconnecting. Do not install these requirements
+over `.venv-judges`, or install the upstream converter's requirements over this
+environment: its pinned Transformers 4.57.6 would recreate the incompatibility.
+Model/checkpoint/toolchain pins and the downloaded files remain unchanged.
+
+Each F16 conversion now first runs the exact pinned converter with `--vocab-only`.
+Its `tokenizer-check.log` and hashed `tokenizer-check.gguf` stay in the conversion
+run directory; full tensor conversion starts only after this check succeeds.
+These tokenizer-only GGUFs are metadata checks, not inference references.
+
+The reported v4 failure was reproduced locally using hash-verified tokenizer and
+configuration files from the exact model revision. Version 5.23.0 passed a token
+round trip and the pinned converter's actual vocabulary-only export. Receipts are
+in `results/raw/tokenizer-compatibility-20261117-001/`. No model weights, full F16
+conversion or GPU inference were used in that local check.
+
+For retrying job 3587860, the checkpoint can be reused after its hashes pass.
+The reported directory contained no F16 file, so no cleanup is needed. Submit a
+fresh `pilot.sbatch` job after setting this new Python path and loading CUDA;
+the new job ID gives it fresh run directories and preserves the failed run.
+
 ## Prepare and generate in one A100 job
 
 `scripts/jobs/pilot.sbatch` combines preparation and the accepted English-first
@@ -56,7 +99,7 @@ After committing/pushing these changes locally, in the LS6 login session:
 source "$SCRATCH/samestorm2-env.sh"
 cd "$SAMESTORM_REPO"
 git pull --ff-only
-export SAMESTORM_PYTHON="$SAMESTORM_REPO/.venv-judges/bin/python"
+export SAMESTORM_PYTHON="$SAMESTORM_REPO/.venv-model-prep/bin/python"
 command -v git
 command -v cmake
 command -v gcc
@@ -69,6 +112,7 @@ Each check must print a path. If tools are missing, inspect `module spider gcc`,
 available on LS6. In particular, CUDA-enabled PyTorch does not supply the `nvcc`
 compiler required to build llama.cpp. The job inherits the submitted module
 environment and records compiler/CUDA versions; it does not install packages.
+Create the conversion environment above first if this Python path does not exist.
 
 ```bash
 mkdir -p results/raw
@@ -121,7 +165,7 @@ Commit and push the local changes first. In the existing LS6 login session:
 source "$SCRATCH/samestorm2-env.sh"
 cd "$SAMESTORM_REPO"
 git pull --ff-only
-export SAMESTORM_PYTHON="$SAMESTORM_REPO/.venv-judges/bin/python"
+export SAMESTORM_PYTHON="$SAMESTORM_REPO/.venv-model-prep/bin/python"
 "$SAMESTORM_PYTHON" --version
 command -v git
 command -v cmake
@@ -130,8 +174,9 @@ command -v c++
 
 If a build tool is missing, inspect `module spider gcc` and `module spider cmake`,
 then load the available compiler/CMake modules before submission. Preserve this
-working Python environment: do not install all upstream llama.cpp requirements
-over its pinned judge dependencies. The job checks converter imports before
+working environments: use the separate conversion environment above, and do not
+install all upstream llama.cpp requirements over it or the judge environment.
+The job checks converter imports before
 downloading weights; missing dependencies are recorded as a failure.
 
 ```bash

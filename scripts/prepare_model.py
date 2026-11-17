@@ -1,5 +1,6 @@
 import argparse
 import hashlib
+import importlib.metadata
 import json
 import subprocess
 import sys
@@ -107,7 +108,7 @@ def main():
     run = new_run_dir(args.run_id)
     inputs = [Path(__file__), ROOT / 'configs/models.json', ROOT / 'configs/toolchain.json',
               ROOT / 'configs/experiment.json', ROOT / model['metadata_path'],
-              ROOT / 'src/samestorm/provenance.py']
+              ROOT / 'src/samestorm/provenance.py', ROOT / 'requirements-model-prep.txt']
     record = manifest(args.run_id, 'model-preparation-' + args.step, inputs, status='running',
                       model_id=model['id'], model_revision=model['revision'], seed=settings['seed'], outputs=[])
     save(run / 'manifest.json', record)
@@ -132,6 +133,18 @@ def main():
                 require_absent([reference, receipt])
                 record['checkpoint_sha256'] = verify_checkpoint(model, checkpoint)
                 reference.parent.mkdir(parents=True, exist_ok=True)
+                record['runtime_versions'] = {name:importlib.metadata.version(name) for name in
+                    ['torch','transformers','tokenizers','huggingface_hub','numpy','safetensors']}
+                vocab_check = run / 'tokenizer-check.gguf'
+                tokenizer_command = [sys.executable, str(toolchain / 'convert_hf_to_gguf.py'), str(checkpoint),
+                                     '--outfile', str(vocab_check), '--outtype', 'f16', '--vocab-only']
+                record['tokenizer_preflight_command'] = tokenizer_command
+                save(run / 'manifest.json', record)
+                with (run / 'tokenizer-check.log').open('w') as log:
+                    subprocess.run(tokenizer_command, stdout=log, stderr=subprocess.STDOUT, check=True)
+                if not vocab_check.is_file() or vocab_check.stat().st_size == 0:
+                    raise ValueError('Tokenizer-only preflight did not produce a usable vocabulary file.')
+                record['tokenizer_preflight_sha256'] = sha256(vocab_check)
                 command = [sys.executable, str(toolchain / 'convert_hf_to_gguf.py'), str(checkpoint),
                            '--outfile', str(reference), '--outtype', 'f16']
                 record['command'] = command

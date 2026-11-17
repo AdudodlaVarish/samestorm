@@ -19,6 +19,7 @@ class ModelPreparation(unittest.TestCase):
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         self.root = Path(directory.name)
+        (self.root/'requirements-model-prep.txt').write_bytes((ROOT/'requirements-model-prep.txt').read_bytes())
         (self.root / 'configs').mkdir()
         self.checkpoint = self.root / 'checkpoint'
         self.checkpoint.mkdir()
@@ -136,6 +137,46 @@ class ModelPreparation(unittest.TestCase):
                 prep.main()
         self.assertEqual(raised.exception.code, 2)
         self.assertFalse((self.root / 'results').exists())
+
+    def test_tokenizer_preflight_stops_failure_or_missing_output_before_full_conversion(self):
+        (self.root/'configs/models.json').write_text(json.dumps(dict(models=[self.model])))
+        for name in ['experiment','toolchain']:
+            (self.root/f'configs/{name}.json').write_bytes((ROOT/f'configs/{name}.json').read_bytes())
+        (self.root/'src/samestorm').mkdir(parents=True)
+        (self.root/'src/samestorm/provenance.py').write_text('synthetic fixture')
+        real_run=prep.subprocess.run
+        for outcome in ['failure','missing-output','success']:
+            commands=[]
+            def execute(command,**kwargs):
+                if len(command)<2 or not command[1].endswith('/convert_hf_to_gguf.py'):
+                    return real_run(command,**kwargs)
+                commands.append(command)
+                if '--vocab-only' in command and outcome=='failure':
+                    raise prep.subprocess.CalledProcessError(1,command)
+                if '--vocab-only' in command and outcome=='missing-output':return
+                Path(command[command.index('--outfile')+1]).write_bytes(b'Synthetic GGUF')
+            run_id='convert-'+outcome
+            with self.subTest(outcome=outcome),patch.object(sys,'argv',[
+                    'prepare_model.py','convert','--model-id',self.model['id'],'--run-id',run_id]),\
+                 patch.object(provenance,'ROOT',self.root),\
+                 patch.object(prep,'verify_toolchain',return_value=self.root),\
+                 patch.object(prep.importlib.metadata,'version',return_value='synthetic-version'),\
+                 patch.object(prep,'require_uncompressed'),\
+                 patch.object(prep.subprocess,'run',side_effect=execute),\
+                 patch('sys.stderr',new=io.StringIO()):
+                self.assertEqual(prep.main(),0 if outcome=='success' else 1)
+            self.assertIn('--vocab-only',commands[0])
+            record=json.loads((self.root/'results/raw'/run_id/'manifest.json').read_text())
+            self.assertEqual(record['runtime_versions']['transformers'],'synthetic-version')
+            if outcome=='success':
+                self.assertEqual(len(commands),2)
+                self.assertNotIn('--vocab-only',commands[1])
+                self.assertTrue(record['tokenizer_preflight_sha256'])
+                self.assertEqual(record['status'],'complete')
+            else:
+                self.assertEqual(len(commands),1)
+                self.assertEqual(record['status'],'failed')
+                self.assertFalse((self.root/self.model['reference_path']).exists())
 
     def test_selected_quantization_prepares_only_requested_format(self):
         (self.root/'configs/models.json').write_text(json.dumps(dict(models=[self.model])))

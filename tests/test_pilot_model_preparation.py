@@ -18,6 +18,7 @@ class PilotModelPreparation(unittest.TestCase):
     def setUp(self):
         temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup)
         self.root=Path(temp.name)
+        (self.root/'requirements-model-prep.txt').write_bytes((ROOT/'requirements-model-prep.txt').read_bytes())
         (self.root/'scripts').mkdir()
         for name in ['prepare_model.py','scale_generate.py']:
             (self.root/'scripts'/name).write_bytes((ROOT/'scripts'/name).read_bytes())

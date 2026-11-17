@@ -275,6 +275,11 @@ versions, the server hash, chat-template hash, hardware, decoding settings and
 inputs in the run manifest. Hardware checks reuse the prepared LS6 expectation
 in `configs/judges.json`. Actual builds and scale execution remain untested.
 
+LFM3 conversion additionally requires the separate Transformers v5 environment
+documented in [model preparation](../MODEL_PREPARATION.md#conversion-environment-on-ls6).
+Use its `.venv-model-prep/bin/python` for the combined pilot job. Keep
+`.venv-judges` on its existing pinned dependencies for subsequent judge jobs.
+
 For the reviewed English-first development pilot, `pilot.sbatch` now combines
 model preparation, CUDA server compilation and both generation runs into one
 allocation. See [the combined-job instructions](../MODEL_PREPARATION.md#prepare-and-generate-in-one-a100-job).

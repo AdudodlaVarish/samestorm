@@ -140,7 +140,7 @@ def prepare(run,record):
     prep.verify_toolchain()  # Never reset or change a pre-existing checkout.
     run_command([sys.executable,toolchain/'convert_hf_to_gguf.py','--help'],run,record,environment)
     record['runtime_versions'] = {p:importlib.metadata.version(p) for p in
-        ['torch','transformers','numpy','sentencepiece','safetensors','huggingface_hub','PyYAML','tqdm','requests']}
+        ['torch','transformers','tokenizers','numpy','sentencepiece','safetensors','huggingface_hub','PyYAML','tqdm','requests']}
     record['compiler'] = subprocess.check_output(['c++','--version'],text=True).splitlines()[0]
     record['cmake'] = subprocess.check_output(['cmake','--version'],text=True).splitlines()[0]
 
@@ -193,7 +193,7 @@ def main():
     model = next(m for m in json.loads((ROOT/'configs/models.json').read_text())['models'] if m['id']==MODEL)
     paths = [Path(__file__),ROOT/'scripts/prepare_model.py',ROOT/'scripts/scale_generate.py',
              ROOT/'configs/models.json',ROOT/'configs/toolchain.json',ROOT/'configs/experiment.json',
-             ROOT/model['metadata_path']]
+             ROOT/model['metadata_path'],ROOT/'requirements-model-prep.txt']
     if args.generate_english_pilot:
         paths += [ROOT/'configs/judges.json',ROOT/'src/samestorm/judges.py']
     stage = 'pilot-preparation-and-generation' if args.generate_english_pilot else 'pilot-model-preparation-bundle'

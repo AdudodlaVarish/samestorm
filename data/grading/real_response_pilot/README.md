@@ -82,3 +82,42 @@ After responses exist, prepare a blind English grading worksheet before showing
 AI verdicts. Native answers, English translation evidence and separate numerical
 extraction remain distinct. This pilot develops the graders; its results do not
 make the full multilingual experiment or headline findings validated.
+
+## Blind worksheet after the combined job succeeds
+
+The exporter is ready while generation runs; it cannot create a real worksheet
+until the completed answer files are available. Once the new script has been
+committed/pushed and pulled on LS6, use your actual combined job ID:
+
+```bash
+"$SAMESTORM_PYTHON" scripts/prepare_pilot_review.py \
+  --pilot-run "results/raw/pilot-${SAMESTORM_PILOT_JOB_ID}" \
+  --run-id "pilot-review-${SAMESTORM_PILOT_JOB_ID}-001"
+```
+
+This lightweight export makes no model calls and needs no additional allocation.
+It verifies the complete parent bundle, both generation-run hashes, frozen input
+hashes, exact prompt/repeat coverage and successful model/scope records. It then
+reuses the existing generated-answer reader, excludes the two fixed-seed repeats,
+shuffles all ten main answers, and assigns anonymous IDs. Identical answers stay
+separate; nothing is selected for being interesting or incorrect.
+
+Only copy/open the resulting `review/` folder for grading. It contains:
+
+- `student_review.csv`: 16 blank required-action ratings, with exact questions,
+  answers, action text, conditions, numerical requirements and grading scope.
+- `answer_outcomes.csv`: 10 blank refusal/language outcome rows.
+- `README.md`: short label definitions, exact-quotation rules and instructions.
+
+Make a working copy before editing, preserving the original export and hashes.
+Fill only the rating, evidence and comment fields specified in its instructions.
+The parent folder contains `private_mapping.json`, linking anonymous IDs to
+source runs/model versions; leave it closed while grading. Model metadata and
+AI-expected labels are absent from the review files. Runtime failures are checked
+from generation records rather than guessed from answers.
+
+Return both completed CSV files before looking at judge verdicts. These are new
+actual-response ratings, separate from the old synthetic fixture worksheet and
+its 90 usable ratings. Sixteen action ratings from five English scenarios cannot
+establish full judge validation or multilingual precision effects. Original
+answers, keys and previous student ratings are not edited by this export.
