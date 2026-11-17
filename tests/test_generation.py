@@ -230,6 +230,8 @@ class GenerationWorker(unittest.TestCase):
                     server.poll.return_value = telemetry.poll.return_value = None
                     def start(command, **kwargs):
                         if 'llama-server' in command[0]:
+                            self.assertIn('--log-verbosity', command)
+                            self.assertEqual(command[command.index('--log-verbosity') + 1], '4')
                             kwargs['stdout'].write(f'offloaded {32 if full_offload else 0}/32 layers to GPU\n')
                             kwargs['stdout'].flush()
                             return server

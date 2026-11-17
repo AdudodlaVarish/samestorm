@@ -319,7 +319,9 @@ and stays out of primary error rates. Truncated responses retain their text and
 are flagged separately. Empty/malformed responses, unexpected thinking, missing
 token/cache evidence and request failures are recorded as runtime failures.
 Failures are never silently retried or discarded. Startup requires complete GPU
-layer offload; server and telemetry processes are cleaned up on exit. These
+layer offload. The worker sets `--log-verbosity 4` because the pinned server hides
+the library's GPU-offload messages at its default level 3 (job 3589701).
+Server and telemetry processes are cleaned up on exit. These
 elapsed times are run diagnostics; controlled throughput measurements are stage 5.
 
 ## Separate multilingual development cases

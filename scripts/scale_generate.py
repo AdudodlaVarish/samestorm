@@ -217,10 +217,11 @@ def run_server(args, packet, job, model_path, run, record):
         port = sock.getsockname()[1]
     settings = packet['plan']['settings']
     binary = toolchain / 'build/bin/llama-server'
+    # Pinned llama.cpp hides library INFO (including GPU offload evidence) below level 4.
     command = [str(binary), '--model', str(model_path), '--host', '127.0.0.1', '--port', str(port),
                '--ctx-size', str(settings['context_tokens']), '--parallel', '1', '--n-gpu-layers', '99',
                '--threads', '4', '--reasoning', 'off', '--jinja', '--no-webui', '--no-cache-prompt',
-               '--no-context-shift', '--fit', 'off', '--alias', args.run_id]
+               '--no-context-shift', '--fit', 'off', '--alias', args.run_id, '--log-verbosity', '4']
     record.update(binary_sha256=sha256(binary), command=command, decoding_settings=settings['decoding'],
                   seed=settings['seed'], cache_state='prompt cache disabled', retrieval_mode='closed_book',
                   prompt_version='system_v1', expected_answers=len(generation_cases(packet, job)),
