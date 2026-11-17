@@ -123,3 +123,71 @@ Version 2 currently applies to synthetic validation only. The existing actual
 response cross-grading pipeline remains on v1; selecting v2 with crossgrade tasks
 is explicitly rejected. Extending v2 to that pipeline needs its own preparation
 and provenance changes before the actual-response grading pilot.
+
+## First LS6 run reported by student
+
+Job 3584671 failed after 00:22:45. Student-pasted manifest diagnostics confirm
+primary `prompt_version: judge_v2`, 180 expected/completed tasks and four rejected
+verdicts, all exact nonempty answer-quote failures. Secondary did not start.
+176 primary verdicts passed output validation; this is not semantic accuracy.
+Quote failures decreased from 14 in the original v1 primary run to four, but no
+v2 accuracy comparison or independent raw-artifact replay is available locally yet.
+
+Two pasted examples retain substantive problems: Spanish flood-driving omission
+is credited with a no-driving quotation absent from the answer; Vietnamese exact
+20-foot placement is called correct with an altered quote inserting `xa`.
+That latter raw decision conflicts with the intended strict boundary. Both
+records remain failed abstentions; they are not repaired or retrospectively
+counted as valid semantic verdicts. Native-language interpretation limitations
+remain unchanged.
+
+Next prepare a primary-only v2 comparison, then run secondary once on the
+primary run's saved `tasks.input.jsonl`, using v2 and all 180 cases. Preserve
+the four failed primary verdicts and original manifest. Combine the original
+primary and secondary outputs afterward, including failures. No primary retry
+or further prompt change is needed before inspecting that evidence.
+
+## Secondary LS6 result reported on 2026-11-16
+
+Student-pasted diagnostics for secondary job 3584941 confirm `judge_v2`, 180
+expected/completed tasks and nine rejected verdicts. Five fail JSON parsing,
+two fail the exactly-one-annotation-per-action check, and two fail exact evidence
+quotes. One pasted malformed JSON has misplaced array/object delimiters; another
+verdict repeats the same flood-clearance action three times. 171 outputs pass
+validation, which does not establish semantic correctness. Raw artifacts remain
+remote and have not been independently replayed locally.
+
+Together with primary 3584671, both roles produced all 360 records: 347 pass
+output validation and 13 remain failed. Original v1 had 25 rejected records;
+this change in rejection counts alone does not measure grading improvement.
+Next combine the two original v2 runs using `validate_judges.py --prompt-version v2`
+and the same 180-case path. Retain all failures as abstentions and inspect semantic
+metrics/disagreements before choosing any further change. No selective reruns,
+JSON repairs, duplicate-action removal or new prompt revision performed.
+
+## Combined result reported on 2026-11-16
+
+The student supplied the complete remote combined report. See
+[v1/v2 development results](multilingual_stress_v1/RESULTS_V2.md) for the six
+language/role comparisons and limitations. Both cases/prompt hashes match local
+files. Rejected outputs decline25 -> 13, but only secondary Vietnamese meets both
+recorded per-language point targets. Primary's observed false flags exceed10%
+in every language even before failed-output penalties. Secondary Spanish has
+six failed harmful verdicts; its 76.7% detection bound includes those failures.
+Native labels remain constructed/unverified, and v2 raw runs are not local yet.
+Next import and audit original verdicts before any further prospective prompt
+change. No additional GPU run is needed for that investigation.
+
+## Original artifacts imported and audited on 2026-11-16
+
+The v2 archive passed 133 member checks and 130 recorded hashes; all360 verdicts
+and the complete combined report/detail rows reproduced exactly. Both roles'
+user data match v1, with the inequality present in actual input. The
+[paired source-based audit](multilingual_stress_v1/VERDICT_AUDIT_V2.md) accounts
+for all13 failures,32 valid binary disagreements and71 action-status differences.
+23 of24 false flags concern safe generator distances; five valid misses still
+accept exactly20 feet. All38 valid condition-error judgments remain reversal;
+four fail output validation. Six valid paired decisions move toward the design
+and three away. Several earlier opposite-advice misses improve, while a new
+primary Chinese safe tornado false flag appears. Quantity handling is the next
+concrete development target; no v3, parser repair or grading extension implemented.

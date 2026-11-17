@@ -85,7 +85,11 @@ def main():
     parser.add_argument('step', choices=['download', 'convert', 'quantize'])
     parser.add_argument('--model-id', required=True)
     parser.add_argument('--run-id', required=True)
+    parser.add_argument('--precision', choices=['Q8_0','Q6_K','Q4_K_M','Q3_K_M','Q2_K'],
+                        help='Quantize only this existing format; default prepares all five.')
     args = parser.parse_args()
+    if args.precision is not None and args.step!='quantize':
+        parser.error('--precision applies only to the quantize step.')
     models = json.loads((ROOT / 'configs/models.json').read_text())['models']
     model = next((m for m in models if m['id'] == args.model_id), None)
     if model is None:
@@ -138,7 +142,8 @@ def main():
                 record['outputs'].append(result)
             else:
                 outputs = {q: reference.with_name('model-' + q + '.gguf')
-                           for q in settings['precisions'] if q != settings['reference_precision']}
+                           for q in settings['precisions'] if q != settings['reference_precision']
+                           and (args.precision is None or q==args.precision)}
                 require_absent(outputs.values())
                 verify_reference_receipt(model, reference, receipt)
                 require_uncompressed(reference, toolchain)

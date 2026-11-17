@@ -20,13 +20,14 @@ def local_path(root, relative):
 
 
 def load_config(root, prompt_version='v1'):
-    if prompt_version not in {'v1', 'v2'}:
+    if prompt_version not in {'v1', 'v2', 'quantity_v1'}:
         raise ValueError('Unknown judge prompt version.')
     config = json.loads((Path(root) / 'configs/judges.json').read_text())
-    if prompt_version == 'v2':
-        revision_path = 'configs/judge_prompt_v2.json'
+    if prompt_version != 'v1':
+        revision_path = ('configs/judge_prompt_v2.json' if prompt_version=='v2'
+                         else 'configs/quantity_extraction_v1.json')
         revision = json.loads(local_path(root, revision_path).read_text())
-        if revision['version'] != 'v2':
+        if revision['version'] != prompt_version:
             raise ValueError('Judge prompt revision does not match the selected version.')
         for role in ['primary', 'secondary']:
             config[role].update(prompt_path=revision['prompt_path'], prompt_sha256=revision['prompt_sha256'],

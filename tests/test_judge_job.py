@@ -34,8 +34,8 @@ if '--judge-role' in sys.argv and sys.argv[sys.argv.index('--judge-role') + 1] =
             SAMESTORM_JUDGE_PROMPT_VERSION='v1',
             SAMESTORM_OFFSET='2', SAMESTORM_LIMIT='10', TEST_CALLS=str(self.calls), TEST_FAIL_ROLE='')
 
-    def execute(self, **changes):
-        result = subprocess.run(['bash', str(JOB), 'validate'],
+    def execute(self, mode='validate', **changes):
+        result = subprocess.run(['bash', str(JOB), mode],
             env={**self.environment, **changes}, capture_output=True, text=True)
         calls = [json.loads(line) for line in self.calls.read_text().splitlines()] if self.calls.exists() else []
         return result, calls
@@ -76,6 +76,26 @@ if '--judge-role' in sys.argv and sys.argv[sys.argv.index('--judge-role') + 1] =
             result, calls = self.execute(TEST_FAIL_ROLE=role)
             self.assertEqual(result.returncode, 7)
             self.assertEqual(len(calls), expected)
+
+    def test_quantity_mode_runs_both_roles_and_reports_retained_failures(self):
+        for failure in ['', 'primary', 'secondary']:
+            self.calls.unlink(missing_ok=True)
+            result,calls=self.execute(mode='quantity',TEST_FAIL_ROLE=failure)
+            self.assertEqual(result.returncode,1 if failure else 0,result.stderr)
+            self.assertEqual(len(calls),3)
+            for call in calls[:2]:
+                self.assertEqual(call[call.index('--task-kind')+1],'quantity')
+            self.assertEqual(calls[2][:2],['scripts/validate_quantities.py','report'])
+
+    def test_quantity_actual_answer_sources_reach_workers_and_report(self):
+        result,calls=self.execute(mode='quantity',SAMESTORM_REFERENCE_ANSWERS='/reference answers.jsonl',
+                                  SAMESTORM_QUANTIZED_ANSWERS='/quantized answers.jsonl')
+        self.assertEqual(result.returncode,0,result.stderr)
+        for call in calls[:2]:
+            self.assertEqual(call.count('--answer-file'),2)
+            self.assertIn('/reference answers.jsonl',call)
+            self.assertIn('/quantized answers.jsonl',call)
+        self.assertEqual(calls[2].count('--answers'),2)
 
     def test_missing_checkpoint_or_wrong_task_kind_fails_before_workers(self):
         for changes in [dict(SAMESTORM_SECONDARY_JUDGE_DIR=''), dict(SAMESTORM_TASK_KIND='crossgrade')]:

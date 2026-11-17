@@ -10,6 +10,7 @@ import socket
 import subprocess
 import sys
 import time
+import unicodedata
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -46,14 +47,33 @@ def input_files(root):
     return sorted(set(paths))
 
 
-def prepare(root):
+def prepare(root, pilot=False, english_only=False):
+    if english_only and not pilot:
+        raise ValueError('--english-only requires the scoped development --pilot.')
     errors = validate_dataset(root)
     if errors:
         raise ValueError('; '.join(errors))
     settings = json.loads((root / 'configs/experiment.json').read_text())
     models = json.loads((root / 'configs/models.json').read_text())['models']
     metadata = load_items(root / 'data/item_metadata.jsonl')
-    plan = build_plan(root, settings, models, list(metadata.values()))
+    selected = list(metadata.values())
+    if pilot:
+        pilot_ids = {'co-001-base', 'flood-001-base', 'heat-001-base', 'tornado-001-base', 'winter-003-base'}
+        selected = [r for r in selected if r['item_id'] in pilot_ids]
+        if {r['item_id'] for r in selected} != pilot_ids:
+            raise ValueError('The five pinned development-pilot scenarios are required.')
+        models = [m for m in models if m['id'] == 'LiquidAI/LFM3-1.7B']
+        if english_only:
+            selected = [dict(row,languages_available=['en']) for row in selected]
+    plan = build_plan(root, settings, models, selected)
+    if pilot:
+        plan['jobs'] = [j for j in plan['jobs'] if j['precision'] in {'F16', 'Q4_K_M'}]
+        for index, job in enumerate(plan['jobs']):
+            job['job_index'] = index
+        plan.update(primary_answers=len(plan['jobs']) * plan['primary_examples_per_job'],
+                    repeat_answers=len(plan['jobs']) * plan['repeat_examples_per_job'],
+                    total_answers=len(plan['jobs']) * (plan['primary_examples_per_job'] + plan['repeat_examples_per_job']),
+                    missing_model_files=[j['model_path'] for j in plan['jobs'] if j['artifact_status']=='missing'])
     questions = {lang: load_items(root / f'questions/questions.{lang}.jsonl') for lang in COUNTS}
     system = (root / 'configs/prompts/system_v1.txt').read_text(encoding='utf-8').strip()
     if not system:
@@ -66,18 +86,35 @@ def prepare(root):
         text = questions[lang][iid]['question' if lang == 'en' else 'translated_question']
         prompts.append(dict(example, split='dev', paired_english_id=iid + ':en',
                             messages=[dict(role='system', content=system), dict(role='user', content=text)]))
-    return dict(plan=plan, prompts=prompts,
-                input_sha256={p: sha256(local_path(root, p)) for p in input_files(root)})
+    packet = dict(plan=plan, prompts=prompts,
+                  input_sha256={p: sha256(local_path(root, p)) for p in input_files(root)})
+    if pilot:
+        packet['development_pilot'] = True
+        if english_only:
+            packet['pilot_english_only'] = True
+    return packet
 
 
-def assert_reviewed_inputs(root, review, expected):
+def assert_reviewed_inputs(root, review, expected, example_ids=None):
+    if review.get('scope')=='development_pilot':
+        if example_ids is None or review.get('example_ids')!=example_ids:
+            raise ValueError('Pilot review cannot authorize a different or full generation scope.')
+    elif example_ids is not None:
+        raise ValueError('Development pilot requires its explicitly scoped student review.')
+    translation_reviewed = (review.get('question_translations_reviewed') is True or
+        (example_ids and all(eid.endswith(':en') for eid in example_ids)
+         and review.get('question_translation_scope') == 'not_applicable_english_only'))
     if (review.get('frozen') is not True or review.get('approved_by') != 'student'
             or not isinstance(review.get('approved_at'), str) or not review['approved_at'].strip()
             or review.get('keys_and_alignment_evidence_reviewed') is not True
-            or review.get('question_translations_reviewed') is not True):
+            or not translation_reviewed):
         raise ValueError('Generation requires a frozen input manifest with recorded student evidence review.')
     if review.get('artifacts') != expected:
         raise ValueError('Frozen input hashes do not match the prepared generation packet.')
+    if example_ids is not None:
+        evidence='ai_logs/translation_prompts_responses.jsonl'
+        if review.get('review_evidence',{}).get(evidence)!=sha256(root/evidence):
+            raise ValueError('Pilot review must bind the existing translation evidence hash.')
     for relative, digest in expected.items():
         if sha256(local_path(root, relative)) != digest:
             raise ValueError('Reviewed input changed: ' + relative)
@@ -257,9 +294,16 @@ def main():
     parser.add_argument('--review-manifest', type=Path)
     parser.add_argument('--model-manifest', type=Path)
     parser.add_argument('--job-index', type=int, default=int(os.environ.get('SLURM_ARRAY_TASK_ID', 0)))
+    parser.add_argument('--pilot', action='store_true',
+                        help='Five development scenarios, first pinned model, F16 and Q4_K_M only.')
+    parser.add_argument('--english-only', action='store_true',
+                        help='With --pilot, first collect the five reviewed English inputs only.')
     args = parser.parse_args()
     run = new_run_dir(args.run_id)
     record = manifest(args.run_id, 'generation-' + args.mode, [], status='running', benchmark_frozen=False)
+    record['development_pilot'] = args.pilot
+    record['pilot_english_only'] = args.english_only
+    record['headline_eligible'] = False
     save(run / 'manifest.json', record)
     try:
         paths = [Path(__file__), ROOT / 'scripts/plan_runs.py', ROOT / 'scripts/prepare_model.py',
@@ -277,12 +321,16 @@ def main():
             if source is not None:
                 shutil.copy2(source, run / name)
                 record['inputs'][name] = sha256(run / name)
-        current = prepare(ROOT)
+        current = prepare(ROOT,pilot=args.pilot,english_only=args.english_only)
         if args.mode == 'check':
             save(run / 'generation_packet.json', current)
             save(run / 'review_template.json', dict(frozen=False, approved_by=None, approved_at=None,
                  keys_and_alignment_evidence_reviewed=False, question_translations_reviewed=False,
-                 artifacts=current['input_sha256']))
+                 artifacts=current['input_sha256'],
+                 **(dict(scope='development_pilot',example_ids=[p['example_id'] for p in current['prompts']],
+                         review_evidence={'ai_logs/translation_prompts_responses.jsonl':
+                                          sha256(ROOT/'ai_logs/translation_prompts_responses.jsonl')})
+                    if args.pilot else {})))
             save(run / 'readiness.json', dict(benchmark_frozen=False, execution_authorized=False,
                  hardware_verified=False, gguf_hashes_verified=False,
                  missing_model_files=current['plan']['missing_model_files'],
@@ -290,11 +338,69 @@ def main():
                  blockers=['Recorded student review and frozen input hashes are required before generation.',
                            'Matching model-preparation receipts and GGUFs are required for each job.',
                            'Allocated TACC hardware and a pinned CUDA llama.cpp build must pass runtime checks.']))
+            if args.pilot:
+                keys = {l:load_items(ROOT / f'answers/answers.{l}.jsonl') for l in COUNTS}
+                questions = {l:load_items(ROOT / f'questions/questions.{l}.jsonl') for l in COUNTS}
+                translations=read_rows(ROOT/'ai_logs/translation_prompts_responses.jsonl')
+                evidence_path=ROOT/'ai_logs/translation_prompts_responses.jsonl'
+                target=run/'inputs/ai_logs/translation_prompts_responses.jsonl'
+                target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(evidence_path,target)
+                record['inputs']['ai_logs/translation_prompts_responses.jsonl']=sha256(target)
+                normalize=lambda s:' '.join(unicodedata.normalize('NFC',s).split())
+                lines = ['# Small development response pilot input review', '',
+                         'Research prototype. Follow local officials and call 911 in an emergency.', '',
+                         f"{len(current['prompts'])} prompts across five scenarios; F16 and Q4_K_M of LiquidAI/LFM3-1.7B.",
+                         'Review the actual prompts and same-language source evidence below before recording a freeze.',
+                         'For each decision, replace pending with consistent, discrepancy or uncertain; add a note for concerns.',
+                         'These decisions review English evidence; they do not independently verify native wording.',
+                         'Existing machine translations are review aids. Official same-language passages remain the keys.',
+                         'This is a pending review packet, not a completed student approval.', '']
+                for prompt in current['prompts']:
+                    key = keys[prompt['lang']][prompt['item_id']]
+                    lines += ['## ' + prompt['example_id'], '', prompt['messages'][1]['content'], '']
+                    question = questions[prompt['lang']][prompt['item_id']]
+                    for field in ['english_original','madlad_backtranslation_en','nllb_backtranslation_en',
+                                  'vinai_backtranslation_en','student_review_status']:
+                        if field in question:
+                            lines += [field + ': ' + str(question[field]), '']
+                    for action in key['required_actions']:
+                        english = next(a for a in keys['en'][prompt['item_id']]['required_actions']
+                                       if a['action_id']==action['action_id'])
+                        lines += ['- Required action: '+action['text'],
+                                  '  Official English action: '+english['text'],
+                                  '  Quantity/condition/scope: '+json.dumps({f:action.get(f)
+                                    for f in ['critical','quantity','condition','grading_scope','numeric_identifier']},ensure_ascii=False)]
+                    for source in key['sources']:
+                        lines += ['- Official quotation: ' + source['official_quote'],
+                                  '  Source: ' + source['url'], '  Location: ' + source['passage_ref']]
+                        if prompt['lang']!='en':
+                            matches={}
+                            for translation in translations:
+                                if (translation['task_kind']=='official_passage'
+                                        and translation['input_language']==prompt['lang']
+                                        and normalize(source['official_quote']) in normalize(translation['input_text'])):
+                                    matches[translation['system_id']]=translation
+                            for system,translation in matches.items():
+                                segments=[s for s in translation['segments']
+                                          if normalize(source['official_quote']) in normalize(s['input_text'])]
+                                english=' '.join(s['response_en'] for s in segments) if segments else translation['response_en']
+                                lines += ['  Saved '+system+' English evidence: '+english,
+                                          '  Evidence scope: '+('matching source segment' if segments else 'whole passage context; inspect alignment'),
+                                          '  Evidence record: '+translation['task_id']+'; run '+translation['run_id']]
+                            if len(matches)<2:
+                                lines += ['  REVIEW GAP: fewer than two saved independent translation systems matched this source quote.']
+                    lines += ['', 'Question English-evidence decision: **pending**',
+                              'Key English-evidence decision: **pending**','Notes: ', '']
+                (run / 'PILOT_INPUT_REVIEW.md').write_text('\n'.join(lines)+'\n')
             print(f"PREPARED: {len(current['prompts'])} prompts, {len(current['plan']['jobs'])} jobs; generation remains blocked.")
         else:
             if args.packet is None or args.review_manifest is None or args.model_manifest is None:
                 raise ValueError('Generation requires explicit packet, reviewed freeze manifest and model-preparation manifest.')
             packet = json.loads((run / 'packet.json').read_text())
+            if bool(packet.get('development_pilot')) != args.pilot:
+                raise ValueError('Development-pilot scope differs; use the matching --pilot setting.')
+            if bool(packet.get('pilot_english_only')) != args.english_only:
+                raise ValueError('English-first scope differs; use the matching --english-only setting.')
             if packet['input_sha256'] != current['input_sha256'] or packet['prompts'] != current['prompts']:
                 raise ValueError('Generation packet differs from current pinned inputs.')
             # Model file presence can change after planning; executable job identities/settings cannot.
@@ -304,7 +410,8 @@ def main():
             if packet['plan']['settings'] != current['plan']['settings']:
                 raise ValueError('Generation settings differ from the fixed experiment.')
             review = json.loads((run / 'review_manifest.json').read_text())
-            assert_reviewed_inputs(ROOT, review, current['input_sha256'])
+            assert_reviewed_inputs(ROOT, review, current['input_sha256'],
+                                   [p['example_id'] for p in current['prompts']] if args.pilot else None)
             if not 0 <= args.job_index < len(current['plan']['jobs']):
                 raise ValueError('Job index is outside the model/precision matrix.')
             job = current['plan']['jobs'][args.job_index]

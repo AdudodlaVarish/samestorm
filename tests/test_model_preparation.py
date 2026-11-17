@@ -137,6 +137,35 @@ class ModelPreparation(unittest.TestCase):
         self.assertEqual(raised.exception.code, 2)
         self.assertFalse((self.root / 'results').exists())
 
+    def test_selected_quantization_prepares_only_requested_format(self):
+        (self.root/'configs/models.json').write_text(json.dumps(dict(models=[self.model])))
+        for name in ['experiment','toolchain']:
+            (self.root/f'configs/{name}.json').write_bytes((ROOT/f'configs/{name}.json').read_bytes())
+        (self.root/'src/samestorm').mkdir(parents=True)
+        (self.root/'src/samestorm/provenance.py').write_text('synthetic fixture')
+        reference=self.root/self.model['reference_path'];reference.write_bytes(b'Synthetic F16')
+        reference.with_suffix('.gguf.json').write_text(json.dumps(dict(model_id=self.model['id'],
+            model_revision=self.model['revision'],sha256=provenance.sha256(reference))))
+        binary=self.root/'build/bin/llama-quantize';binary.parent.mkdir(parents=True)
+        binary.write_bytes(b'Synthetic executable')
+        (self.root/'model-Q8_0.gguf').write_bytes(b'Existing unrelated format')
+        real_run=prep.subprocess.run
+        def execute(command,**kwargs):
+            if command[0]!=str(binary):
+                return real_run(command,**kwargs)
+            self.assertEqual(command[3],'Q4_K_M')
+            Path(command[2]).write_bytes(b'Synthetic quantized output')
+        args=['prepare_model.py','quantize','--model-id',self.model['id'],
+              '--precision','Q4_K_M','--run-id','one-quant']
+        with patch.object(sys,'argv',args),patch.object(provenance,'ROOT',self.root),\
+             patch.object(prep,'verify_toolchain',return_value=self.root),\
+             patch.object(prep,'require_uncompressed'),patch.object(prep.subprocess,'run',side_effect=execute):
+            self.assertEqual(prep.main(),0)
+        record=json.loads((self.root/'results/raw/one-quant/manifest.json').read_text())
+        self.assertEqual([r['quantization_type'] for r in record['outputs']],['Q4_K_M'])
+        self.assertFalse((self.root/'model-Q6_K.gguf').exists())
+        self.assertEqual((self.root/'model-Q8_0.gguf').read_bytes(),b'Existing unrelated format')
+
 
 if __name__ == '__main__':
     unittest.main()

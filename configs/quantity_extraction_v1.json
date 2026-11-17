@@ -1,0 +1,9 @@
+{
+  "version": "quantity_v1",
+  "prompt_path": "configs/prompts/quantity_extraction_v1.txt",
+  "prompt_sha256": "7c9802ec4fd6c925f8bd000ec64ac55eebc8078572779df550cbaa93883b7030",
+  "status": "development_only_extraction_not_validated",
+  "authorization": "2026-11-16 student approved separate AI quantity extraction and arithmetic with fresh checks",
+  "scope": "Literal physical-distance expressions with strict source lower bounds; English, Spanish, Vietnamese, Chinese extraction remains unvalidated.",
+  "headline_eligible": false
+}

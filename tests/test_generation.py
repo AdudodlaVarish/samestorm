@@ -42,6 +42,60 @@ class GenerationInputs(unittest.TestCase):
             self.assertNotIn('official_sources', prompt)
         self.assertFalse(plan['execution_authorized'])
 
+    def test_small_pilot_uses_five_scenarios_two_jobs_and_unchanged_decoding(self):
+        pilot=generation.prepare(ROOT,pilot=True)
+        self.assertTrue(pilot['development_pilot'])
+        self.assertEqual(len(pilot['prompts']),20)
+        self.assertEqual({p['hazard'] for p in pilot['prompts']}, {'winter_power_co','flood','heat','tornado'})
+        plan=pilot['plan']
+        self.assertEqual([j['precision'] for j in plan['jobs']],['F16','Q4_K_M'])
+        self.assertEqual({j['model_id'] for j in plan['jobs']},{'LiquidAI/LFM3-1.7B'})
+        self.assertEqual((plan['primary_answers'],plan['repeat_answers']),(40,8))
+        self.assertEqual(plan['settings'],self.packet['plan']['settings'])
+        self.assertEqual(pilot['input_sha256'],self.packet['input_sha256'])
+        full={p['example_id']:p for p in self.packet['prompts']}
+        self.assertTrue(all(p==full[p['example_id']] for p in pilot['prompts']))
+
+    def test_pilot_check_writes_concrete_review_without_approving_it(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run=Path(directory)
+            with patch.object(generation,'new_run_dir',return_value=run),patch.object(sys,'argv',
+                ['scale_generate.py','check','--pilot','--run-id','pilot']),contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(generation.main(),0)
+            self.assertEqual((run/'PILOT_INPUT_REVIEW.md').read_text().count('## '),20)
+            review=json.loads((run/'review_template.json').read_text())
+            self.assertFalse(review['frozen'])
+            self.assertFalse(review['keys_and_alignment_evidence_reviewed'])
+            self.assertIsNone(review['approved_by'])
+
+    def test_english_first_stage_retains_five_reviewed_prompts_and_precision_pair(self):
+        packet=generation.prepare(ROOT,pilot=True,english_only=True)
+        self.assertTrue(packet['pilot_english_only'])
+        self.assertEqual(len(packet['prompts']),5)
+        self.assertEqual({p['lang'] for p in packet['prompts']},{'en'})
+        self.assertEqual((packet['plan']['primary_answers'],packet['plan']['repeat_answers']),(10,2))
+        self.assertEqual([j['precision'] for j in packet['plan']['jobs']],['F16','Q4_K_M'])
+        full={p['example_id']:p for p in self.packet['prompts']}
+        self.assertTrue(all(p==full[p['example_id']] for p in packet['prompts']))
+        with self.assertRaisesRegex(ValueError,'requires'):
+            generation.prepare(ROOT,english_only=True)
+        pilot=generation.prepare(ROOT,pilot=True)
+        review=dict(frozen=True,approved_by='student',approved_at='synthetic-test-date',
+            keys_and_alignment_evidence_reviewed=True,question_translations_reviewed=True,
+            artifacts=packet['input_sha256'],scope='development_pilot',
+            example_ids=[p['example_id'] for p in packet['prompts']],
+            review_evidence={'ai_logs/translation_prompts_responses.jsonl':
+                             sha256(ROOT/'ai_logs/translation_prompts_responses.jsonl')})
+        generation.assert_reviewed_inputs(ROOT,review,packet['input_sha256'],review['example_ids'])
+        english_review=dict(review,question_translations_reviewed=False,
+                            question_translation_scope='not_applicable_english_only')
+        generation.assert_reviewed_inputs(ROOT,english_review,packet['input_sha256'],review['example_ids'])
+        with self.assertRaisesRegex(ValueError,'review'):
+            generation.assert_reviewed_inputs(ROOT,dict(english_review,question_translation_scope=''),
+                                              packet['input_sha256'],review['example_ids'])
+        with self.assertRaisesRegex(ValueError,'scope'):
+            generation.assert_reviewed_inputs(ROOT,review,pilot['input_sha256'],[p['example_id'] for p in pilot['prompts']])
+
     def test_generation_requires_explicit_recorded_review_and_unchanged_inputs(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -59,6 +113,23 @@ class GenerationInputs(unittest.TestCase):
             path.write_text('Changed fixture')
             with self.assertRaises(ValueError):
                 generation.assert_reviewed_inputs(root, review, expected)
+
+    def test_pilot_review_cannot_authorize_full_generation(self):
+        expected=self.packet['input_sha256']
+        pilot=generation.prepare(ROOT,pilot=True)
+        ids=[p['example_id'] for p in pilot['prompts']]
+        review=dict(frozen=True,approved_by='student',approved_at='synthetic-test-date',
+            keys_and_alignment_evidence_reviewed=True,question_translations_reviewed=True,
+            artifacts=expected,scope='development_pilot',example_ids=ids,
+            review_evidence={'ai_logs/translation_prompts_responses.jsonl':
+                             sha256(ROOT/'ai_logs/translation_prompts_responses.jsonl')})
+        generation.assert_reviewed_inputs(ROOT,review,expected,ids)
+        for scope in [None,ids[:-1]]:
+            with self.subTest(scope=scope),self.assertRaisesRegex(ValueError,'scope'):
+                generation.assert_reviewed_inputs(ROOT,review,expected,scope)
+        del review['scope']
+        with self.assertRaisesRegex(ValueError,'explicitly scoped'):
+            generation.assert_reviewed_inputs(ROOT,review,expected,ids)
 
     def test_gguf_requires_matching_successful_preparation_and_hash(self):
         with tempfile.TemporaryDirectory() as directory:

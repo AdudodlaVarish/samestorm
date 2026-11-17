@@ -21,6 +21,15 @@ COMPARISONS = {'more than': 'gt', 'greater than': 'gt', 'over': 'gt', '>': 'gt',
                'at most': 'le', 'no more than': 'le', '<=': 'le', 'exactly': 'eq', '': 'eq'}
 
 
+def compare_lower_bound(value, comparison, bound):
+    """Compare normalized Decimal lengths with a strict minimum; no language inference."""
+    if comparison in {'gt', 'ge', 'eq'}:
+        return 'supported' if value > bound or (value == bound and comparison == 'gt') else 'violated'
+    if comparison in {'lt', 'le'}:
+        return 'violated' if value <= bound else 'needs_review'
+    return 'needs_review'
+
+
 def numerical_evidence(text, quantity, language='en'):
     result = dict(status='needs_review', label=None, quantities=[], reason='No unambiguous applicable quantity.')
     if language != 'en':
@@ -69,13 +78,11 @@ def numerical_evidence(text, quantity, language='en'):
         return result
     value = Decimal(values[0]['value']); comparison = values[0]['comparison']
     if dimension == 'length' and quantity['source_comparison'] == 'greater_than':
-        if comparison in {'gt', 'ge', 'eq'}:
-            valid = value > bound or (value == bound and comparison == 'gt')
-        elif value <= bound:
-            valid = False
-        else:
+        status = compare_lower_bound(value, comparison, bound)
+        if status == 'needs_review':
             result['reason'] = 'An upper bound alone does not establish safe placement.'
             return result
+        valid = status == 'supported'
     elif dimension == 'time' and quantity['source_comparison'] == 'greater_than':
         if re.search(r'\b(wait|another|additional|delay)\b', text):
             result['reason'] = 'Delay relative to elapsed symptom time needs semantic condition review.'

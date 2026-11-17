@@ -14,7 +14,15 @@ cd "${SAMESTORM_REPO:-$SLURM_SUBMIT_DIR}"
 : "${SAMESTORM_REVIEW_MANIFEST:?Set to recorded student review and frozen input hashes}"
 : "${SAMESTORM_MODEL_MANIFEST:?Set to the matching model-preparation manifest}"
 export PYTHONDONTWRITEBYTECODE=1
+pilot_args=()
+if [[ "${SAMESTORM_DEVELOPMENT_PILOT:-0}" == 1 ]]; then
+    pilot_args=(--pilot)
+fi
+if [[ "${SAMESTORM_ENGLISH_ONLY:-0}" == 1 ]]; then
+    pilot_args+=(--english-only)
+fi
 exec "$SAMESTORM_PYTHON" scripts/scale_generate.py generate \
+    "${pilot_args[@]}" \
     --run-id "generate-${SLURM_JOB_ID}-${SLURM_ARRAY_TASK_ID:-0}" \
     --packet "$SAMESTORM_PACKET" --review-manifest "$SAMESTORM_REVIEW_MANIFEST" \
     --model-manifest "$SAMESTORM_MODEL_MANIFEST" --job-index "${SLURM_ARRAY_TASK_ID:-0}"

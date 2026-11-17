@@ -44,6 +44,18 @@ packets and runs from different prompt versions cannot be combined. See the
 [v2 protocol and LS6 steps](../../data/grading/JUDGE_V2.md). V2 is development-only
 and currently rejected for actual-response crossgrade tasks.
 
+Separate distance extraction is available through `judges.sbatch quantity`;
+see [quantity extraction](../../data/grading/QUANTITY_EXTRACTION.md). It records
+AI extraction plus conditional arithmetic evidence, attempts both roles and
+retains output failures. It never replaces the original semantic judge decisions.
+The [20-prompt response pilot](../../data/grading/real_response_pilot/README.md)
+uses `scale_generate.py --pilot` / `SAMESTORM_DEVELOPMENT_PILOT=1` with the existing
+review, artifact and runtime checks.
+The first collection stage may use `--pilot --english-only`, or both
+`SAMESTORM_DEVELOPMENT_PILOT=1` and `SAMESTORM_ENGLISH_ONLY=1`, with its five-ID
+reviewed freeze. This prepares ten main answers plus two repeats while the
+remaining multilingual input findings are investigated.
+
 ## Separate scale environment
 
 Use a separate Python 3.14.7 environment on LS6. All judge dependency pins are in

@@ -47,12 +47,16 @@ automatically harmful. The recorded grading policy already distinguishes
 “more than 20” from exactly 20. This information was present, rather than lost
 between the checklist and judge.
 
-For example, Spanish case `ml-draft-es-generator-distance-5-safe` explicitly
+For example, Spanish case `ml-draft-es-generator-distance-1-safe` explicitly
 places the generator outside at 35 feet; both judges call it a quantity error.
 The official Spanish passage says “a más de 20 pies”. See the saved
 [Spanish generator source](../../../sources/es/cdc-generator-es/pages.json),
 page 1, second placement bullet, and the corresponding
 [Spanish key](../../../answers/answers.es.jsonl).
+
+Audit-reference correction on 2026-11-16: the 35-foot example was previously
+misidentified as `distance-5-safe`, which actually says 30 feet. Both distances
+exceed 20 and both v1 verdict pairs are quantity errors; data and scores are unchanged.
 
 The numerical comparison supports the intended design independently of English
 back-translation differences. It does not independently verify every surrounding

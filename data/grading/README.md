@@ -44,7 +44,19 @@ recorded per-language targets under conservative counting. The completed
 distance and polarity mistakes, subtype overlap and ambiguous omission designs.
 The [prospective v2 prompt](JUDGE_V2.md) addresses these findings through an
 explicit version selection; v1 and its results are preserved. The v2 packet is
-prepared and checked locally, but its development GPU rerun has not been submitted.
+prepared and checked locally, and both development GPU runs have been reported.
+The subsequent [reported v2 development results](multilingual_stress_v1/RESULTS_V2.md)
+show fewer invalid outputs and mixed grading changes; original raw v2 artifacts
+have now been imported and the report reproduced. The
+[paired v1/v2 audit](multilingual_stress_v1/VERDICT_AUDIT_V2.md) identifies the
+distance comparison as the main remaining semantic problem.
+The separately pinned [quantity extraction development path](QUANTITY_EXTRACTION.md)
+lets the AI copy the applicable distance and code compare it with the source.
+Its findings stay separate from full judge grades. A
+[small actual-response pilot](real_response_pilot/README.md) is prepared and its
+20-input student review is [recorded](real_response_pilot/REVIEW_SUMMARY.md): seven
+multilingual sections retain concerns. A separately scoped English-first stage
+uses the five accepted inputs; the full multilingual pilot remains unfrozen.
 
 Student design decisions are recorded for all 90 pairs: 89 need language review
 and one needs revision. The Chinese electrical-equipment pair has a proposed

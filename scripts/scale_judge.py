@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 from samestorm.grading import judge_payload
 from samestorm.judges import config_paths, grade_judgment, load_config, local_path, scale_hardware_guard, verify_checkpoint
 from samestorm.provenance import manifest, new_run_dir, sha256
+from samestorm.quantity_extraction import extraction_payload, quantity_evidence
 from validate_dataset import COUNTS, load_items
 
 
@@ -25,7 +26,8 @@ def append(path, row):
         stream.write(json.dumps(row, ensure_ascii=False) + '\n')
 
 
-def validation_tasks(root, path, spec, offset=0, limit=0, cases_path='data/grading/cases.jsonl'):
+def validation_tasks(root, path, spec, offset=0, limit=0, cases_path='data/grading/cases.jsonl',
+                     payload_builder=judge_payload, response_files=None):
     if min(offset, limit) < 0:
         raise ValueError('Task offset and limit must be nonnegative.')
     tasks = [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
@@ -35,8 +37,16 @@ def validation_tasks(root, path, spec, offset=0, limit=0, cases_path='data/gradi
     tasks = tasks[offset:offset + limit] if limit else tasks[offset:]
     if not tasks:
         raise ValueError('No validation tasks selected.')
-    rows = [json.loads(line) for line in local_path(root, cases_path).read_text(encoding='utf-8').splitlines()
-            if line.strip()]
+    if response_files:
+        if payload_builder is not extraction_payload:
+            raise ValueError('Response files apply only to separate quantity extraction.')
+        from crossgrades import generation_answers
+        answers, _ = generation_answers(root, response_files)
+        rows = [dict(case_id=a['answer_id'], item_id=a['item_id'], lang=a['lang'], answer=a['text'])
+                for a in answers]
+    else:
+        rows = [json.loads(line) for line in local_path(root, cases_path).read_text(encoding='utf-8').splitlines()
+                if line.strip()]
     cases = {c['case_id']: c for c in rows}
     if not cases or len(cases) != len(rows):
         raise ValueError('Synthetic case IDs must be nonempty and unique.')
@@ -46,11 +56,11 @@ def validation_tasks(root, path, spec, offset=0, limit=0, cases_path='data/gradi
     keys = {lang: load_items(root / f'answers/answers.{lang}.jsonl') for lang in COUNTS}
     prompt = (root / spec['prompt_path']).read_text(encoding='utf-8')
     for task in tasks:
-        if set(task) != {'case_id', 'synthetic', 'messages'} or task['synthetic'] is not True:
-            raise ValueError('This worker accepts prepared synthetic validation only.')
+        if set(task) != {'case_id', 'synthetic', 'messages'} or task['synthetic'] is not (not bool(response_files)):
+            raise ValueError('Task synthetic/response scope differs from the supplied source.')
         case = cases[task['case_id']]
         lang, item_id = case['lang'], case['item_id']
-        payload = judge_payload(questions[lang][item_id], keys[lang][item_id], case['answer'], lang)
+        payload = payload_builder(questions[lang][item_id], keys[lang][item_id], case['answer'], lang)
         messages = task['messages']
         if (not isinstance(messages, list) or len(messages) != 2
                 or messages[0] != dict(role='system', content=prompt)
@@ -117,7 +127,9 @@ def run_judge(args, run, record, config, torch):
         tasks = judge_tasks(ROOT, args.input, args.judge_role, args.offset, args.limit)
     else:
         tasks = validation_tasks(ROOT, args.input, spec, args.offset, args.limit,
-                                 getattr(args, 'cases', 'data/grading/cases.jsonl'))
+                                 getattr(args, 'cases', 'data/grading/cases.jsonl'),
+                                 extraction_payload if getattr(args,'task_kind','validation')=='quantity' else judge_payload,
+                                 getattr(args,'answer_file',None))
     record.update(model_id=spec['model_id'], model_revision=spec['revision'], judge_role=args.judge_role,
                   precision='BF16', prompt_sha256=spec['prompt_sha256'],
                   decoding_settings=spec['generation'], seed=spec['seed'], expected_tasks=len(tasks),
@@ -167,7 +179,10 @@ def run_judge(args, run, record, config, torch):
             append(run / 'judgments.jsonl', row)
             raise
         try:
-            row['grade'] = grade_judgment(task['key'], task['answer'], row['raw_judgment'], row['hit_generation_limit'])
+            if getattr(args,'task_kind','validation')=='quantity':
+                row['quantity_evidence'] = quantity_evidence(task['key'],task['answer'],row['raw_judgment'],row['hit_generation_limit'])
+            else:
+                row['grade'] = grade_judgment(task['key'], task['answer'], row['raw_judgment'], row['hit_generation_limit'])
             row['judge_failure'] = False
         except (ValueError, KeyError, TypeError) as exc:
             row['error'] = str(exc)
@@ -187,9 +202,11 @@ def main():
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--prompt-version', choices=['v1', 'v2'], default='v1')
     parser.add_argument('--judge-role', choices=['primary', 'secondary'], default='primary')
-    parser.add_argument('--task-kind', choices=['validation', 'crossgrade'], default='validation')
+    parser.add_argument('--task-kind', choices=['validation', 'crossgrade', 'quantity'], default='validation')
     parser.add_argument('--model-dir', type=Path)
     parser.add_argument('--input', type=Path)
+    parser.add_argument('--answer-file', action='append', type=Path, default=[],
+                        help='Verified generation answers for quantity extraction only; repeat for each source run.')
     parser.add_argument('--cases', default='data/grading/cases.jsonl',
                         help='Repository-relative synthetic case file for validation tasks.')
     parser.add_argument('--offset', type=int, default=0)
@@ -203,15 +220,25 @@ def main():
     try:
         if args.task_kind == 'crossgrade' and args.prompt_version != 'v1':
             raise ValueError('Response cross-grading currently supports only the v1 prompt.')
-        config = load_config(ROOT, args.prompt_version)
+        if args.answer_file and args.task_kind!='quantity':
+            raise ValueError('--answer-file applies only to quantity extraction.')
+        if args.answer_file and args.cases!='data/grading/cases.jsonl':
+            raise ValueError('Select either generated answer files or a synthetic case file, not both.')
+        selected_prompt = 'quantity_v1' if args.task_kind=='quantity' else args.prompt_version
+        if args.task_kind=='quantity':
+            if args.prompt_version!='v1':
+                raise ValueError('Quantity extraction has its own pinned prompt; omit --prompt-version.')
+            record.update(stage='quantity-'+args.mode,prompt_version='quantity_v1')
+        config = load_config(ROOT, selected_prompt)
         if min(args.offset, args.limit) < 0:
             raise ValueError('Offset and limit must be nonnegative.')
         cases_path = local_path(ROOT, args.cases)
         args.cases = str(cases_path.relative_to(ROOT))
-        if args.task_kind != 'validation' and args.cases != 'data/grading/cases.jsonl':
-            raise ValueError('--cases applies only to synthetic validation, not response cross-grading.')
+        if args.task_kind == 'crossgrade' and args.cases != 'data/grading/cases.jsonl':
+            raise ValueError('--cases applies only to synthetic tasks, not response cross-grading.')
         record['cases_path'] = args.cases
         paths = [Path(__file__), ROOT / 'src/samestorm/judges.py', ROOT / 'src/samestorm/grading.py',
+                 ROOT / 'src/samestorm/quantity_extraction.py', ROOT / 'src/samestorm/numerical.py',
                  ROOT / 'src/samestorm/provenance.py', ROOT / 'scripts/validate_dataset.py',
                  ROOT / 'configs/toolchain.json', ROOT / 'configs/grading.json',
                  ROOT / 'requirements-judges.lock.txt',
@@ -230,10 +257,19 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
             record['inputs'][str(path.relative_to(ROOT))] = sha256(target)
+        copied_answers=[]
+        for index, source in enumerate(args.answer_file):
+            folder=run/'inputs'/f'generation-{index}';folder.mkdir()
+            for name, path in [('answers.jsonl',source),('manifest.json',source.parent/'manifest.json')]:
+                target=folder/name;shutil.copy2(path,target)
+                record['inputs'][str(target.relative_to(run))]=sha256(target)
+            copied_answers.append(folder/'answers.jsonl')
+        args.answer_file=copied_answers
+        record['answer_files']=[str(p.relative_to(run)) for p in copied_answers]
         if args.input is not None:
             shutil.copy2(args.input, run / 'tasks.input.jsonl')
             record['inputs']['tasks.input.jsonl'] = sha256(run / 'tasks.input.jsonl')
-            if args.task_kind == 'validation':
+            if args.task_kind in {'validation','quantity'}:
                 args.input = run / 'tasks.input.jsonl'
         if args.mode == 'check':
             report = dict(configuration_valid=True, runtime_verified=False, checkpoints_verified=False,
@@ -248,7 +284,8 @@ def main():
                     tasks = judge_tasks(ROOT, args.input, args.judge_role, args.offset, args.limit)
                 else:
                     tasks = validation_tasks(ROOT, args.input, config[args.judge_role], args.offset, args.limit,
-                                             args.cases)
+                                             args.cases, extraction_payload if args.task_kind=='quantity' else judge_payload,
+                                             args.answer_file)
                 report['valid_tasks'] = len(tasks)
             save(run / 'setup_report.json', report)
             print('PASS: pinned judge configuration. Hardware, environment and checkpoint execution remain unverified.')
