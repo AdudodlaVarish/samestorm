@@ -4,8 +4,8 @@ Research prototype. Follow local officials and call 911 in an emergency.
 
 The selected models are LiquidAI/LFM3-1.7B and Qwen/Qwen3-4B-Instruct-2507.
 Exact revisions, checkpoint metadata hashes and output paths are in
-`configs/models.json`. This commit contains preparation tools and public metadata;
-weights and llama.cpp have not been installed in this repository.
+`configs/models.json`. Git tracks preparation tools and public metadata;
+weights and the llama.cpp checkout stay untracked and depend on the machine.
 
 Install conversion dependencies in the local environment when ready:
 
@@ -142,6 +142,34 @@ The retry verifies and reuses the successful F16 receipt from job 3589077, then
 builds the quantizer, creates Q4 and proceeds to CUDA generation. It does not
 repeat a valid download or F16 conversion. No Python dependency reinstall is
 needed. Keep the GCC/CUDA modules loaded when submitting and using these binaries.
+
+## Server UI assets after job 3589311
+
+Job 3589311 reached the CUDA server build, so F16 and Q4 preparation and hash
+verification had completed. The server build then downloaded a browser UI bundle
+whose files did not satisfy the pinned asset validator (`workbox[hash].js` was
+missing). The experiment uses the local HTTP API with `--no-webui`.
+
+The build now sets both `LLAMA_BUILD_UI=OFF` and `LLAMA_USE_PREBUILT_UI=OFF`.
+The first controls building UI source; the second controls prebuilt downloads
+([pinned upstream options](https://github.com/ggml-org/llama.cpp/blob/f7591a6a01f9273de03331732bdc0b39721168be/CMakeLists.txt)).
+The runner also preserves existing `build/tools/ui/dist` under the sibling name
+`dist-disabled-pilot-JOBID` before configuring. This matters because the upstream
+generator otherwise validates stale cached assets even when downloads are off.
+It never overwrites an existing preserved directory. Models, receipts, CPU build
+files and the other partial CUDA build files remain available for reuse.
+
+After committing/pushing and pulling this fix, keep GCC 12.2.0, CUDA 12.8 and the
+existing `.venv-model-prep` Python selected and submit `pilot.sbatch` again. No
+dependency reinstall, manual asset cleanup or full build-directory archive is
+needed for this fix. The UI helper still generates a small empty asset table;
+an upstream warning about no embedded UI is expected. The server API is retained.
+
+Local verification reproduced failure with incomplete cached assets, then passed
+the pinned asset generator after preservation, producing zero embedded assets
+without downloads. The complete CPU server build also passed and its help lists
+all generation-worker flags. CUDA compilation and model execution remain scale
+checks; a successful CPU build does not establish either.
 
 ## Prepare and generate in one A100 job
 

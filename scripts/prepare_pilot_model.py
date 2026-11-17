@@ -71,13 +71,20 @@ def generate_pilot(run,record,bundle,packet):
                        OMP_NUM_THREADS='4',MKL_NUM_THREADS='4')
     toolchain = prep.verify_toolchain()
     build = toolchain/'build'
+    assets = build/'tools/ui/dist'
+    if assets.exists() or assets.is_symlink():
+        preserved = assets.with_name('dist-disabled-'+run.name)
+        prep.require_absent([preserved])
+        assets.rename(preserved)
+        record['preserved_ui_assets'] = str(preserved.relative_to(ROOT))
     record['nvcc'] = subprocess.check_output(['nvcc','--version'],text=True).strip()
     run_command(['cmake','-S',toolchain,'-B',build,'-DCMAKE_BUILD_TYPE=Release',
                  '-DGGML_CUDA=ON','-DCMAKE_CUDA_ARCHITECTURES=80','-DGGML_NATIVE=OFF',
                  *gcc_cmake_args(build,cuda=True),
                  '-DLLAMA_OPENSSL=OFF','-DLLAMA_BUILD_COMMON=ON','-DLLAMA_BUILD_TOOLS=ON',
                  '-DLLAMA_BUILD_SERVER=ON','-DLLAMA_BUILD_TESTS=OFF',
-                 '-DLLAMA_BUILD_EXAMPLES=OFF','-DLLAMA_BUILD_APP=OFF','-DLLAMA_BUILD_UI=OFF'],
+                 '-DLLAMA_BUILD_EXAMPLES=OFF','-DLLAMA_BUILD_APP=OFF',
+                 '-DLLAMA_BUILD_UI=OFF','-DLLAMA_USE_PREBUILT_UI=OFF'],
                 run,record,environment)
     run_command(['cmake','--build',build,'--target','llama-server','-j','4'],run,record,environment)
     record['generation_runs'] = []

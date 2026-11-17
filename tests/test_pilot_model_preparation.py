@@ -142,6 +142,8 @@ class PilotModelPreparation(unittest.TestCase):
         bundle=pilot.prepare(self.run,{})
         packet=pilot.generation.prepare(ROOT,pilot=True,english_only=True)
         record={'inference_performed':False}
+        assets=self.toolchain/'build/tools/ui/dist';assets.mkdir(parents=True)
+        (assets/'index.html').write_text('Incomplete old UI assets')
         self.commands.clear()
 
         def generate(command,run,record,environment):
@@ -168,6 +170,11 @@ class PilotModelPreparation(unittest.TestCase):
         self.assertIn('-DCMAKE_CUDA_ARCHITECTURES=80',configure)
         self.assertIn('-DCMAKE_CXX_COMPILER=/synthetic/g++',configure)
         self.assertIn('-DCMAKE_CUDA_HOST_COMPILER=/synthetic/g++',configure)
+        self.assertIn('-DLLAMA_BUILD_UI=OFF',configure)
+        self.assertIn('-DLLAMA_USE_PREBUILT_UI=OFF',configure)
+        self.assertFalse(assets.exists())
+        self.assertEqual((self.root/record['preserved_ui_assets']/'index.html').read_text(),
+                         'Incomplete old UI assets')
         result=json.loads((self.run/'generation_bundle.json').read_text())
         self.assertEqual((result['main_answers'],result['repeat_answers']),(10,2))
         self.assertEqual([o['precision'] for o in result['outputs']],['F16','Q4_K_M'])
@@ -223,6 +230,16 @@ class PilotModelPreparation(unittest.TestCase):
         with patch.object(pilot,'run_command',side_effect=fail):
             with self.assertRaisesRegex(RuntimeError,'linker failure'):pilot.prepare(self.run,{})
         self.assertFalse(any(len(r)>1 and 'prepare_model.py' in r[1] for r in self.commands))
+
+    def test_existing_preserved_ui_assets_are_never_overwritten(self):
+        assets=self.toolchain/'build/tools/ui/dist';assets.mkdir(parents=True)
+        (assets/'index.html').write_text('Current assets')
+        preserved=assets.with_name('dist-disabled-'+self.run.name);preserved.mkdir()
+        (preserved/'index.html').write_text('Previously preserved assets')
+        with self.assertRaisesRegex(ValueError,'not be overwritten'):
+            pilot.generate_pilot(self.run,{'inference_performed':False},{},{})
+        self.assertEqual((assets/'index.html').read_text(),'Current assets')
+        self.assertEqual((preserved/'index.html').read_text(),'Previously preserved assets')
 
 
 if __name__=='__main__':unittest.main()

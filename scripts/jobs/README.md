@@ -264,9 +264,18 @@ On scale, build a clean checkout at the commit in `configs/toolchain.json` with
 CUDA enabled for A100. The CPU quantization build is not the inference build:
 
 ```sh
-cmake -S vendor/llama.cpp -B vendor/llama.cpp/build -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=80
+cmake -S vendor/llama.cpp -B vendor/llama.cpp/build \
+  -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=80 \
+  -DCMAKE_C_COMPILER="$(command -v gcc)" \
+  -DCMAKE_CXX_COMPILER="$(command -v g++)" \
+  -DCMAKE_CUDA_HOST_COMPILER="$(command -v g++)" \
+  -DLLAMA_BUILD_UI=OFF -DLLAMA_USE_PREBUILT_UI=OFF
 cmake --build vendor/llama.cpp/build --target llama-server -j 4
 ```
+
+Use matching GCC/CUDA modules. If an earlier UI build downloaded incomplete assets,
+follow the [UI recovery instructions](../MODEL_PREPARATION.md#server-ui-assets-after-job-3589311);
+the combined pilot preserves those cached assets automatically before rebuilding.
 
 The generation worker uses the GGUF reader from that pinned checkout. Its Python
 dependencies are already present in the prepared scale judge environment; it can
