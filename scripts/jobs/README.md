@@ -275,6 +275,13 @@ versions, the server hash, chat-template hash, hardware, decoding settings and
 inputs in the run manifest. Hardware checks reuse the prepared LS6 expectation
 in `configs/judges.json`. Actual builds and scale execution remain untested.
 
+For the reviewed English-first development pilot, `pilot.sbatch` now combines
+model preparation, CUDA server compilation and both generation runs into one
+allocation. See [the combined-job instructions](../MODEL_PREPARATION.md#prepare-and-generate-in-one-a100-job).
+This scoped pilot accepts gpu-a100-dev as well as gpu-a100 while retaining the
+same GPU count, model and memory checks. Full generation and measurements keep
+their configured gpu-a100 requirement. This combined job does not run judges.
+
 After execution is authorized and reviewed inputs, matching GGUFs and hardware
 are ready, configure a single job first:
 

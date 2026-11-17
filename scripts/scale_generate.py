@@ -180,8 +180,10 @@ def collect_answers(cases, job, request, run, record):
         save(run / 'manifest.json', record)
 
 
-def hardware_probe(root):
+def hardware_probe(root, development_pilot=False):
     expected = json.loads((root / 'configs/judges.json').read_text())['hardware']
+    if development_pilot and os.environ.get('SLURM_JOB_PARTITION') == 'gpu-a100-dev':
+        expected = dict(expected, partition='gpu-a100-dev')
     if not os.environ.get('SLURM_JOB_ID') or os.environ.get('SLURM_JOB_PARTITION') != expected['partition']:
         raise ValueError('Generation requires the configured Slurm GPU allocation; no laptop fallback.')
     output = subprocess.check_output(['nvidia-smi', '--query-gpu=name,memory.total',
@@ -418,7 +420,7 @@ def main():
             record.update(model_id=job['model_id'], model_revision=job['model_revision'],
                           quantization_type=job['precision'], benchmark_frozen=True,
                           reviewed_inputs=current['input_sha256'])
-            record['hardware'] = hardware_probe(ROOT)
+            record['hardware'] = hardware_probe(ROOT, development_pilot=args.pilot)
             model_path = verified_artifact(ROOT, job, json.loads((run / 'model_manifest.json').read_text()))
             record['gguf_sha256'] = sha256(model_path)
             run_server(args, current, job, model_path, run, record)

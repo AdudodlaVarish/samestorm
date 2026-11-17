@@ -1,4 +1,4 @@
-"""Prepare the pinned pilot F16/Q4 artifacts on one allocated CPU node; no inference."""
+"""Prepare pinned pilot F16/Q4 files; optionally generate the reviewed English pilot on A100."""
 import argparse
 import importlib.metadata
 import json
@@ -12,10 +12,74 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT/'src'),str(ROOT/'scripts')]
 import prepare_model as prep
+import scale_generate as generation
 from samestorm.provenance import manifest,new_run_dir,sha256
 from scale_generate import verified_artifact
 
 MODEL = 'LiquidAI/LFM3-1.7B'
+
+
+def generation_preflight(run,record):
+    record['hardware'] = generation.hardware_probe(ROOT,development_pilot=True)
+    for binary in ['nvcc','gcc','g++']:
+        if not shutil.which(binary):
+            raise ValueError('Missing '+binary+'; load compatible GCC/CUDA modules before submission.')
+    packet = generation.prepare(ROOT,pilot=True,english_only=True)
+    review = ROOT/'data/grading/real_response_pilot/ENGLISH_FIRST_FREEZE.json'
+    generation.assert_reviewed_inputs(ROOT,json.loads(review.read_text()),packet['input_sha256'],
+                                      [p['example_id'] for p in packet['prompts']])
+    shutil.copy2(review,run/'review_manifest.json')
+    generation.save(run/'generation_packet.json',packet)
+    record['inputs']['generation_review_manifest'] = sha256(run/'review_manifest.json')
+    return packet
+
+
+def generate_pilot(run,record,bundle,packet):
+    environment = dict(os.environ,HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1',
+                       OMP_NUM_THREADS='4',MKL_NUM_THREADS='4')
+    toolchain = prep.verify_toolchain()
+    build = toolchain/'build'
+    record['nvcc'] = subprocess.check_output(['nvcc','--version'],text=True).strip()
+    run_command(['cmake','-S',toolchain,'-B',build,'-DCMAKE_BUILD_TYPE=Release',
+                 '-DGGML_CUDA=ON','-DCMAKE_CUDA_ARCHITECTURES=80','-DGGML_NATIVE=OFF',
+                 '-DCMAKE_C_COMPILER='+shutil.which('gcc'),
+                 '-DCMAKE_CXX_COMPILER='+shutil.which('g++'),
+                 '-DCMAKE_CUDA_HOST_COMPILER='+shutil.which('g++'),
+                 '-DLLAMA_OPENSSL=OFF','-DLLAMA_BUILD_COMMON=ON','-DLLAMA_BUILD_TOOLS=ON',
+                 '-DLLAMA_BUILD_SERVER=ON','-DLLAMA_BUILD_TESTS=OFF',
+                 '-DLLAMA_BUILD_EXAMPLES=OFF','-DLLAMA_BUILD_APP=OFF','-DLLAMA_BUILD_UI=OFF'],
+                run,record,environment)
+    run_command(['cmake','--build',build,'--target','llama-server','-j','4'],run,record,environment)
+    record['generation_runs'] = []
+    outputs = []
+    for job in packet['plan']['jobs']:
+        artifact = next(a for a in bundle['artifacts'] if a['precision']==job['precision'])
+        receipt = ROOT/artifact['preparation_manifest']
+        if sha256(receipt)!=artifact['manifest_sha256']:
+            raise ValueError('Model preparation manifest changed before generation.')
+        child_id = run.name+'-generate-'+job['precision'].lower()
+        child = ROOT/'results/raw'/child_id
+        record['generation_runs'].append(str(child.relative_to(ROOT)))
+        try:
+            run_command([sys.executable,ROOT/'scripts/scale_generate.py','generate','--pilot','--english-only',
+                         '--run-id',child_id,'--packet',run/'generation_packet.json',
+                         '--review-manifest',run/'review_manifest.json','--model-manifest',receipt,
+                         '--job-index',str(job['job_index'])],run,record,environment)
+        finally:
+            record['inference_performed'] = bool(record['inference_performed']
+                or (child/'warmup.json').exists() or (child/'answers.jsonl').exists())
+        result = json.loads((child/'manifest.json').read_text())
+        expected = len(generation.generation_cases(packet,job))
+        if (result.get('status')!='complete' or result.get('completed_answers')!=expected
+                or result.get('expected_answers')!=expected or result.get('runtime_failures')!=0):
+            raise ValueError('Generation did not produce a complete usable result: '+child_id)
+        outputs.append(dict(precision=job['precision'],answers=str((child/'answers.jsonl').relative_to(ROOT)),
+                            answers_sha256=sha256(child/'answers.jsonl'),
+                            manifest=str((child/'manifest.json').relative_to(ROOT)),
+                            manifest_sha256=sha256(child/'manifest.json'),completed_answers=expected))
+    generation.save(run/'generation_bundle.json',dict(scope='english_first_development_pilot',
+        outputs=outputs,main_answers=packet['plan']['primary_answers'],
+        repeat_answers=packet['plan']['repeat_answers'],judges_run=False,headline_eligible=False))
 
 
 def run_command(command,run,record,environment):
@@ -122,22 +186,31 @@ def prepare(run,record):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-id',required=True)
+    parser.add_argument('--generate-english-pilot',action='store_true',
+                        help='On A100, also build CUDA llama-server and generate the reviewed 12-answer pilot.')
     args = parser.parse_args()
     run = new_run_dir(args.run_id)
     model = next(m for m in json.loads((ROOT/'configs/models.json').read_text())['models'] if m['id']==MODEL)
     paths = [Path(__file__),ROOT/'scripts/prepare_model.py',ROOT/'scripts/scale_generate.py',
              ROOT/'configs/models.json',ROOT/'configs/toolchain.json',ROOT/'configs/experiment.json',
              ROOT/model['metadata_path']]
-    record = manifest(args.run_id,'pilot-model-preparation-bundle',paths,status='running',
+    if args.generate_english_pilot:
+        paths += [ROOT/'configs/judges.json',ROOT/'src/samestorm/judges.py']
+    stage = 'pilot-preparation-and-generation' if args.generate_english_pilot else 'pilot-model-preparation-bundle'
+    record = manifest(args.run_id,stage,paths,status='running',
                       model_id=MODEL,inference_performed=False,headline_eligible=False)
     output = run/'manifest.json'
     output.write_text(json.dumps(record,indent=2)+'\n')
     try:
+        packet = generation_preflight(run,record) if args.generate_english_pilot else None
         bundle = prepare(run,record)
         (run/'model_bundle.json').write_text(json.dumps(bundle,indent=2)+'\n')
+        if args.generate_english_pilot:
+            generate_pilot(run,record,bundle,packet)
         record['status'] = 'complete'
-        print('PREPARED: verified F16 and Q4_K_M. No inference performed.')
-        print(run/'model_bundle.json')
+        print('COMPLETE: 12 English pilot answers; no judges run.' if args.generate_english_pilot
+              else 'PREPARED: verified F16 and Q4_K_M. No inference performed.')
+        print(run/('generation_bundle.json' if args.generate_english_pilot else 'model_bundle.json'))
         return 0
     except Exception as error:
         record.update(status='failed',error=str(error))

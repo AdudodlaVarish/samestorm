@@ -47,6 +47,13 @@ scope. That freeze cannot authorize the multilingual pilot or full matrix.
 
 ## Model and runtime preparation
 
+To prepare the models and generate the English-first answers in one allocation,
+use [`scripts/jobs/pilot.sbatch`](../../../scripts/jobs/pilot.sbatch) and the
+[combined-job instructions](../../../scripts/MODEL_PREPARATION.md#prepare-and-generate-in-one-a100-job).
+It verifies the reviewed English scope, prepares F16/Q4, builds CUDA llama-server,
+then runs both precisions sequentially: ten main answers and two repeats. It does
+not run judges. GCC, CMake and the CUDA compiler must be available when submitted.
+
 Use the [single-job LS6 model preparation instructions](../../../scripts/MODEL_PREPARATION.md#english-first-pilot-on-ls6).
 The CPU batch job fetches the pinned checkpoint and llama.cpp revision, converts
 F16, builds a CPU quantizer, and prepares only Q4_K_M. It reuses existing artifacts
@@ -62,7 +69,8 @@ completed pilot review manifest. Both generation jobs require matching successfu
 model-preparation receipts, verified GGUF hashes, full GPU offload and the pinned
 runtime. Use job index 0 for F16 and 1 for Q4_K_M. The batch script accepts
 `SAMESTORM_DEVELOPMENT_PILOT=1`; direct CLI generation requires `--pilot`.
-Its existing hardware guard currently requires the gpu-a100 partition.
+The development pilot accepts gpu-a100 or gpu-a100-dev with the same three-A100
+hardware checks; full-matrix generation and measurement retain gpu-a100.
 
 For the accepted English-first stage, add `--english-only` to preparation and
 generation, and use `ENGLISH_FIRST_FREEZE.json`. Set `SAMESTORM_ENGLISH_ONLY=1`

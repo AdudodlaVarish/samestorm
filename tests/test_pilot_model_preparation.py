@@ -22,12 +22,14 @@ class PilotModelPreparation(unittest.TestCase):
         for name in ['prepare_model.py','scale_generate.py']:
             (self.root/'scripts'/name).write_bytes((ROOT/'scripts'/name).read_bytes())
         (self.root/'configs').mkdir()
-        for name in ['models','toolchain','experiment']:
+        for name in ['models','toolchain','experiment','judges']:
             (self.root/f'configs/{name}.json').write_bytes((ROOT/f'configs/{name}.json').read_bytes())
         self.model=next(m for m in json.loads((self.root/'configs/models.json').read_text())['models']
                         if m['id']==pilot.MODEL)
         metadata=self.root/self.model['metadata_path'];metadata.parent.mkdir(parents=True)
         metadata.write_bytes((ROOT/self.model['metadata_path']).read_bytes())
+        source=self.root/'src/samestorm/judges.py';source.parent.mkdir(parents=True)
+        source.write_bytes((ROOT/'src/samestorm/judges.py').read_bytes())
         self.toolchain=self.root/'vendor/llama.cpp';self.toolchain.mkdir(parents=True)
         self.run=self.root/'results/raw/bundle';self.run.mkdir(parents=True)
         self.commands=[]
@@ -111,6 +113,79 @@ class PilotModelPreparation(unittest.TestCase):
         self.assertEqual(record['status'],'failed')
         self.assertEqual(record['error'],'Synthetic conversion failure')
         self.assertFalse(record['inference_performed'])
+
+    def test_combined_job_rejects_unapproved_inputs_before_model_preparation(self):
+        packet=pilot.generation.prepare(ROOT,pilot=True,english_only=True)
+        review=self.root/'data/grading/real_response_pilot/ENGLISH_FIRST_FREEZE.json'
+        review.parent.mkdir(parents=True)
+        saved=json.loads((ROOT/'data/grading/real_response_pilot/ENGLISH_FIRST_FREEZE.json').read_text())
+        saved['frozen']=False;review.write_text(json.dumps(saved))
+        with patch.object(pilot,'new_run_dir',return_value=self.run),\
+             patch.object(pilot.generation,'hardware_probe',return_value={'partition':'gpu-a100-dev'}),\
+             patch.object(pilot.generation,'prepare',return_value=packet),\
+             patch.object(pilot,'prepare') as prepare,\
+             patch.object(sys,'argv',['prepare_pilot_model.py','--run-id','bundle','--generate-english-pilot']),\
+             contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(pilot.main(),1)
+        prepare.assert_not_called()
+        record=json.loads((self.run/'manifest.json').read_text())
+        self.assertEqual(record['status'],'failed')
+        self.assertIn('frozen input manifest',record['error'])
+
+    def test_combined_generation_builds_cuda_and_uses_each_matching_receipt(self):
+        bundle=pilot.prepare(self.run,{})
+        packet=pilot.generation.prepare(ROOT,pilot=True,english_only=True)
+        record={'inference_performed':False}
+        self.commands.clear()
+
+        def generate(command,run,record,environment):
+            values=[str(x) for x in command];self.commands.append(values)
+            self.assertNotIn('CUDA_VISIBLE_DEVICES',environment)
+            if len(values)<2 or 'scale_generate.py' not in values[1]:return
+            child=values[values.index('--run-id')+1]
+            index=int(values[values.index('--job-index')+1])
+            precision=packet['plan']['jobs'][index]['precision']
+            artifact=next(a for a in bundle['artifacts'] if a['precision']==precision)
+            self.assertEqual(values[values.index('--model-manifest')+1],
+                             str(self.root/artifact['preparation_manifest']))
+            self.assertIn('--pilot',values);self.assertIn('--english-only',values)
+            folder=self.root/'results/raw'/child;folder.mkdir()
+            (folder/'manifest.json').write_text(json.dumps(dict(status='complete',
+                completed_answers=6,expected_answers=6,runtime_failures=0)))
+            (folder/'answers.jsonl').write_text('Synthetic response\n'*6)
+
+        with patch.object(pilot,'run_command',side_effect=generate):
+            pilot.generate_pilot(self.run,record,bundle,packet)
+        self.assertTrue(record['inference_performed'])
+        configure=next(r for r in self.commands if '-S' in r)
+        self.assertIn('-DGGML_CUDA=ON',configure)
+        self.assertIn('-DCMAKE_CUDA_ARCHITECTURES=80',configure)
+        result=json.loads((self.run/'generation_bundle.json').read_text())
+        self.assertEqual((result['main_answers'],result['repeat_answers']),(10,2))
+        self.assertEqual([o['precision'] for o in result['outputs']],['F16','Q4_K_M'])
+        self.assertFalse(result['judges_run'])
+
+    def test_failed_generation_preserves_first_run_and_stops_before_second(self):
+        bundle=pilot.prepare(self.run,{})
+        packet=pilot.generation.prepare(ROOT,pilot=True,english_only=True)
+        record={'inference_performed':False}
+        commands=[]
+
+        def fail(command,run,record,environment):
+            values=[str(x) for x in command];commands.append(values)
+            if len(values)<2 or 'scale_generate.py' not in values[1]:return
+            child=self.root/'results/raw'/values[values.index('--run-id')+1]
+            child.mkdir();(child/'answers.jsonl').write_text('Preserved partial output\n')
+            raise RuntimeError('Synthetic failed generation')
+
+        with patch.object(pilot,'run_command',side_effect=fail):
+            with self.assertRaisesRegex(RuntimeError,'failed generation'):
+                pilot.generate_pilot(self.run,record,bundle,packet)
+        self.assertTrue(record['inference_performed'])
+        self.assertEqual(len(record['generation_runs']),1)
+        self.assertEqual((self.root/record['generation_runs'][0]/'answers.jsonl').read_text(),
+                         'Preserved partial output\n')
+        self.assertFalse((self.run/'generation_bundle.json').exists())
 
 
 if __name__=='__main__':unittest.main()

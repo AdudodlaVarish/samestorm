@@ -189,6 +189,18 @@ class GenerationInputs(unittest.TestCase):
                 generation.hardware_probe(ROOT)
             command.assert_not_called()
 
+    def test_a100_dev_is_allowed_only_for_pilot_and_keeps_gpu_requirements(self):
+        environment=dict(SLURM_JOB_ID='fixture',SLURM_JOB_PARTITION='gpu-a100-dev')
+        with patch.dict(os.environ,environment,clear=True),patch.object(
+                generation.subprocess,'check_output',return_value='NVIDIA A100, 40960\n'*3) as command:
+            with self.assertRaisesRegex(ValueError,'configured Slurm GPU'):
+                generation.hardware_probe(ROOT)
+            command.assert_not_called()
+            self.assertEqual(generation.hardware_probe(ROOT,development_pilot=True)['partition'],'gpu-a100-dev')
+            command.return_value='NVIDIA A100, 40960\n'
+            with self.assertRaisesRegex(ValueError,'GPU count'):
+                generation.hardware_probe(ROOT,development_pilot=True)
+
 
 class GenerationWorker(unittest.TestCase):
     def test_fake_server_preserves_protocol_and_cleans_processes(self):

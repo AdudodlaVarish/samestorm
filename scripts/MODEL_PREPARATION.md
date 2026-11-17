@@ -40,6 +40,72 @@ No model answering, judges, TACC submission or calibration is performed here.
 Full conversion and all six formats still need runtime testing. Qwen4 F16 weights
 alone exceed the local 7 GiB inference budget; conversion does not prove GPU fit.
 
+## Prepare and generate in one A100 job
+
+`scripts/jobs/pilot.sbatch` combines preparation and the accepted English-first
+generation in one allocation. It requests either `gpu-a100` or `gpu-a100-dev`;
+Slurm chooses one. Both retain checks for three A100 GPUs and at least 37 GiB
+per GPU. The job has a two-hour ceiling, matching the
+[LS6 development queue limit](https://docs.tacc.utexas.edu/hpc/lonestar6/#running-jobs).
+GPU allocation time includes download, conversion and compilation, even before
+answer generation starts. The CPU-only alternative remains documented below.
+
+After committing/pushing these changes locally, in the LS6 login session:
+
+```bash
+source "$SCRATCH/samestorm2-env.sh"
+cd "$SAMESTORM_REPO"
+git pull --ff-only
+export SAMESTORM_PYTHON="$SAMESTORM_REPO/.venv-judges/bin/python"
+command -v git
+command -v cmake
+command -v gcc
+command -v g++
+command -v nvcc
+```
+
+Each check must print a path. If tools are missing, inspect `module spider gcc`,
+`module spider cmake` and `module spider cuda`, then load compatible modules
+available on LS6. In particular, CUDA-enabled PyTorch does not supply the `nvcc`
+compiler required to build llama.cpp. The job inherits the submitted module
+environment and records compiler/CUDA versions; it does not install packages.
+
+```bash
+mkdir -p results/raw
+sbatch -A CCR23028 scripts/jobs/pilot.sbatch
+```
+
+Only this one submission is needed for the combined path. The script invokes
+`prepare_pilot_model.py --generate-english-pilot`. It first validates the frozen
+five-input English scope and hardware, then prepares/reuses verified F16/Q4
+files, builds CUDA llama-server for A100, and calls the existing generation
+worker once per precision. The worker preserves the fixed messages, seed,
+decoding, thinking-off setting, prompt-cache policy and full GPU-offload checks.
+No AI judges or automatic retries run. A failed stage stops the pipeline while
+preserving model files, manifests, logs and any answers already generated.
+
+Using `1234567` as an example job ID, inspect:
+
+```bash
+export SAMESTORM_PILOT_JOB_ID=1234567
+sacct -j "$SAMESTORM_PILOT_JOB_ID" --format=JobID,State,Elapsed,ExitCode
+tail -n 60 "results/raw/pilot-${SAMESTORM_PILOT_JOB_ID}/preparation.log"
+cat "results/raw/pilot-${SAMESTORM_PILOT_JOB_ID}/generation_bundle.json"
+```
+
+The bundle appears only after both generation runs succeed. It records hashes
+and paths to:
+
+- `results/raw/pilot-JOBID-generate-f16/answers.jsonl`: five main answers plus one repeat.
+- `results/raw/pilot-JOBID-generate-q4_k_m/answers.jsonl`: the same five prompts plus one repeat.
+
+Each child run preserves its own preparation receipt, generation manifest,
+server log and GPU telemetry. The parent `model_bundle.json` describes the
+preparation stage; `generation_bundle.json` describes the completed answer runs.
+Next, prepare the blind English worksheet and obtain student ratings before
+showing AI verdicts. Local tests use synthetic files and simulated subprocesses;
+the actual CUDA build and generation must still be verified on LS6.
+
 ## English-first pilot on LS6
 
 `scripts/jobs/prepare_pilot_model.sbatch` combines the pinned LFM3 download,
