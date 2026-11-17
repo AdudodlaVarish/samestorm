@@ -47,23 +47,17 @@ scope. That freeze cannot authorize the multilingual pilot or full matrix.
 
 ## Model and runtime preparation
 
-Local checks currently find neither required target GGUF. On LS6, check for
-existing artifacts/receipts before preparing anything again. Use the existing
-pinned `scripts/prepare_model.py` download and F16-conversion steps. Quantization
-now accepts `--precision Q4_K_M`, so this pilot need not prepare all five formats:
-
-```bash
-"$SAMESTORM_PYTHON" scripts/prepare_model.py quantize \
-  --model-id LiquidAI/LFM3-1.7B --precision Q4_K_M --run-id pilot-q4-preparation-001
-```
-
-Conversion/quantization needs the verified reference/checkpoint and pinned
-llama.cpp build. Execute preparation on suitable compute resources; no target
-downloads, conversions or inference were performed by the local preflight.
+Use the [single-job LS6 model preparation instructions](../../../scripts/MODEL_PREPARATION.md#english-first-pilot-on-ls6).
+The CPU batch job fetches the pinned checkpoint and llama.cpp revision, converts
+F16, builds a CPU quantizer, and prepares only Q4_K_M. It reuses existing artifacts
+only when their successful preparation receipts and hashes match. It preserves
+unverified or partial files and stops for inspection. Weights remain ignored.
+No actual model preparation or inference was performed by the local checks.
 
 ## Generation after readiness checks
 
-Regenerate with `scale_generate.py check --pilot` on LS6. Use that packet and the
+After preparation, build and verify the pinned CUDA inference runtime; the CPU
+quantizer does not provide it. Regenerate with `scale_generate.py check --pilot` on LS6. Use that packet and the
 completed pilot review manifest. Both generation jobs require matching successful
 model-preparation receipts, verified GGUF hashes, full GPU offload and the pinned
 runtime. Use job index 0 for F16 and 1 for Q4_K_M. The batch script accepts

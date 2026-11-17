@@ -146,7 +146,7 @@ class ModelPreparation(unittest.TestCase):
         reference=self.root/self.model['reference_path'];reference.write_bytes(b'Synthetic F16')
         reference.with_suffix('.gguf.json').write_text(json.dumps(dict(model_id=self.model['id'],
             model_revision=self.model['revision'],sha256=provenance.sha256(reference))))
-        binary=self.root/'build/bin/llama-quantize';binary.parent.mkdir(parents=True)
+        binary=self.root/'build-prep/bin/llama-quantize';binary.parent.mkdir(parents=True)
         binary.write_bytes(b'Synthetic executable')
         (self.root/'model-Q8_0.gguf').write_bytes(b'Existing unrelated format')
         real_run=prep.subprocess.run
@@ -156,7 +156,7 @@ class ModelPreparation(unittest.TestCase):
             self.assertEqual(command[3],'Q4_K_M')
             Path(command[2]).write_bytes(b'Synthetic quantized output')
         args=['prepare_model.py','quantize','--model-id',self.model['id'],
-              '--precision','Q4_K_M','--run-id','one-quant']
+              '--precision','Q4_K_M','--quantizer',str(binary),'--run-id','one-quant']
         with patch.object(sys,'argv',args),patch.object(provenance,'ROOT',self.root),\
              patch.object(prep,'verify_toolchain',return_value=self.root),\
              patch.object(prep,'require_uncompressed'),patch.object(prep.subprocess,'run',side_effect=execute):

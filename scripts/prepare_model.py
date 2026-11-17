@@ -87,9 +87,13 @@ def main():
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--precision', choices=['Q8_0','Q6_K','Q4_K_M','Q3_K_M','Q2_K'],
                         help='Quantize only this existing format; default prepares all five.')
+    parser.add_argument('--quantizer', type=Path,
+                        help='Explicit llama-quantize binary inside the pinned checkout; default uses build/bin.')
     args = parser.parse_args()
     if args.precision is not None and args.step!='quantize':
         parser.error('--precision applies only to the quantize step.')
+    if args.quantizer is not None and args.step!='quantize':
+        parser.error('--quantizer applies only to the quantize step.')
     models = json.loads((ROOT / 'configs/models.json').read_text())['models']
     model = next((m for m in models if m['id'] == args.model_id), None)
     if model is None:
@@ -147,7 +151,11 @@ def main():
                 require_absent(outputs.values())
                 verify_reference_receipt(model, reference, receipt)
                 require_uncompressed(reference, toolchain)
-                binary = toolchain / 'build/bin/llama-quantize'
+                binary = (args.quantizer.resolve() if args.quantizer is not None
+                          else toolchain / 'build/bin/llama-quantize')
+                if (not binary.resolve().is_relative_to(toolchain.resolve())
+                        or binary.name!='llama-quantize'):
+                    raise ValueError('Quantizer must be llama-quantize inside the pinned toolchain checkout.')
                 record.update(reference_sha256=sha256(reference), binary_sha256=sha256(binary),
                               calibration_recipe_id='no-imatrix')
                 for quant, output in outputs.items():
