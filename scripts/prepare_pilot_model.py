@@ -19,6 +19,38 @@ from scale_generate import verified_artifact
 MODEL = 'LiquidAI/LFM3-1.7B'
 
 
+def gcc_cmake_args(build,cuda=False):
+    compilers = [('C',shutil.which('gcc')),('CXX',shutil.which('g++'))]
+    if cuda:compilers.append(('CUDA_HOST',shutil.which('g++')))
+    cache = (build/'CMakeCache.txt').read_text() if (build/'CMakeCache.txt').exists() else ''
+    for language,path in compilers:
+        if path is None:raise ValueError('Load a GCC module providing gcc and g++ before building.')
+        cached = re.search(r'^CMAKE_'+language+r'_COMPILER:[A-Z_]+=(.+)$',cache,re.M)
+        if cached and Path(cached[1]).resolve()!=Path(path).resolve():
+            raise ValueError('Cached compiler differs in '+str(build)+': '+cached[1]+
+                             '. Preserve that build directory under another name before rebuilding with '+path+'.')
+    return ['-DCMAKE_'+language+'_COMPILER='+path for language,path in compilers]
+
+
+def check_compiler(run,record,environment):
+    gcc_cmake_args(run/'compiler-probe-build')
+    compiler = shutil.which('g++')
+    source,binary = run/'compiler-check.cpp',run/'compiler-check'
+    source.write_text('''#include <filesystem>
+int main() {
+    namespace fs = std::filesystem;
+    const auto current = fs::current_path();
+    const auto relative = fs::relative(current, current.parent_path());
+    return !fs::is_directory(fs::status(current)) || relative.empty();
+}
+''')
+    record['compiler_paths'] = dict(c=shutil.which('gcc'),cxx=compiler)
+    record['compiler'] = subprocess.check_output([compiler,'--version'],text=True).splitlines()[0]
+    run_command([compiler,'-std=c++17',source,'-o',binary],run,record,environment)
+    run_command([binary],run,record,environment)
+    record['compiler_check_sha256'] = sha256(binary)
+
+
 def generation_preflight(run,record):
     record['hardware'] = generation.hardware_probe(ROOT,development_pilot=True)
     for binary in ['nvcc','gcc','g++']:
@@ -42,9 +74,7 @@ def generate_pilot(run,record,bundle,packet):
     record['nvcc'] = subprocess.check_output(['nvcc','--version'],text=True).strip()
     run_command(['cmake','-S',toolchain,'-B',build,'-DCMAKE_BUILD_TYPE=Release',
                  '-DGGML_CUDA=ON','-DCMAKE_CUDA_ARCHITECTURES=80','-DGGML_NATIVE=OFF',
-                 '-DCMAKE_C_COMPILER='+shutil.which('gcc'),
-                 '-DCMAKE_CXX_COMPILER='+shutil.which('g++'),
-                 '-DCMAKE_CUDA_HOST_COMPILER='+shutil.which('g++'),
+                 *gcc_cmake_args(build,cuda=True),
                  '-DLLAMA_OPENSSL=OFF','-DLLAMA_BUILD_COMMON=ON','-DLLAMA_BUILD_TOOLS=ON',
                  '-DLLAMA_BUILD_SERVER=ON','-DLLAMA_BUILD_TESTS=OFF',
                  '-DLLAMA_BUILD_EXAMPLES=OFF','-DLLAMA_BUILD_APP=OFF','-DLLAMA_BUILD_UI=OFF'],
@@ -121,7 +151,7 @@ def existing_receipt(root,model,precision):
 def prepare(run,record):
     if not os.environ.get('SLURM_JOB_ID'):
         raise ValueError('Run model preparation in the supplied Slurm batch job, not on a login node.')
-    for binary in ['git','cmake','c++']:
+    for binary in ['git','cmake','gcc','g++']:
         if not shutil.which(binary):
             raise ValueError('Missing '+binary+'; load compiler/CMake modules before submission.')
     model = next(m for m in json.loads((ROOT/'configs/models.json').read_text())['models'] if m['id']==MODEL)
@@ -138,10 +168,11 @@ def prepare(run,record):
         run_command(['git','-C',toolchain,'fetch','--depth','1','origin',pin['llama_cpp_commit']],run,record,environment)
         run_command(['git','-C',toolchain,'checkout','--detach',pin['llama_cpp_commit']],run,record,environment)
     prep.verify_toolchain()  # Never reset or change a pre-existing checkout.
+    compiler_args = gcc_cmake_args(toolchain/'build-prep')
+    check_compiler(run,record,environment)
     run_command([sys.executable,toolchain/'convert_hf_to_gguf.py','--help'],run,record,environment)
     record['runtime_versions'] = {p:importlib.metadata.version(p) for p in
         ['torch','transformers','tokenizers','numpy','sentencepiece','safetensors','huggingface_hub','PyYAML','tqdm','requests']}
-    record['compiler'] = subprocess.check_output(['c++','--version'],text=True).splitlines()[0]
     record['cmake'] = subprocess.check_output(['cmake','--version'],text=True).splitlines()[0]
 
     reference = existing_receipt(ROOT,model,'F16')
@@ -161,6 +192,7 @@ def prepare(run,record):
     if quantized is None:
         build = toolchain/'build-prep'
         run_command(['cmake','-S',toolchain,'-B',build,'-DCMAKE_BUILD_TYPE=Release',
+                     *compiler_args,
                      '-DGGML_CUDA=OFF','-DGGML_NATIVE=OFF','-DLLAMA_OPENSSL=OFF',
                      '-DLLAMA_BUILD_SERVER=OFF','-DLLAMA_BUILD_TESTS=OFF',
                      '-DLLAMA_BUILD_EXAMPLES=OFF','-DLLAMA_BUILD_APP=OFF'],run,record,environment)
@@ -186,8 +218,11 @@ def prepare(run,record):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-id',required=True)
-    parser.add_argument('--generate-english-pilot',action='store_true',
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument('--generate-english-pilot',action='store_true',
                         help='On A100, also build CUDA llama-server and generate the reviewed 12-answer pilot.')
+    modes.add_argument('--check-compiler',action='store_true',
+                       help='Only compile/link/run a tiny C++17 filesystem check; no allocation or model work.')
     args = parser.parse_args()
     run = new_run_dir(args.run_id)
     model = next(m for m in json.loads((ROOT/'configs/models.json').read_text())['models'] if m['id']==MODEL)
@@ -197,20 +232,28 @@ def main():
     if args.generate_english_pilot:
         paths += [ROOT/'configs/judges.json',ROOT/'src/samestorm/judges.py']
     stage = 'pilot-preparation-and-generation' if args.generate_english_pilot else 'pilot-model-preparation-bundle'
+    if args.check_compiler:stage = 'compiler-link-check'
     record = manifest(args.run_id,stage,paths,status='running',
                       model_id=MODEL,inference_performed=False,headline_eligible=False)
     output = run/'manifest.json'
     output.write_text(json.dumps(record,indent=2)+'\n')
     try:
-        packet = generation_preflight(run,record) if args.generate_english_pilot else None
-        bundle = prepare(run,record)
-        (run/'model_bundle.json').write_text(json.dumps(bundle,indent=2)+'\n')
-        if args.generate_english_pilot:
-            generate_pilot(run,record,bundle,packet)
+        if args.check_compiler:
+            check_compiler(run,record,dict(os.environ))
+            for build in ['build-prep','build']:
+                gcc_cmake_args(ROOT/'vendor/llama.cpp'/build,cuda=build=='build')
+        else:
+            packet = generation_preflight(run,record) if args.generate_english_pilot else None
+            bundle = prepare(run,record)
+            (run/'model_bundle.json').write_text(json.dumps(bundle,indent=2)+'\n')
+            if args.generate_english_pilot:
+                generate_pilot(run,record,bundle,packet)
         record['status'] = 'complete'
-        print('COMPLETE: 12 English pilot answers; no judges run.' if args.generate_english_pilot
+        print('PASS: GCC C++17 filesystem compile, link and runtime check.' if args.check_compiler
+              else 'COMPLETE: 12 English pilot answers; no judges run.' if args.generate_english_pilot
               else 'PREPARED: verified F16 and Q4_K_M. No inference performed.')
-        print(run/('generation_bundle.json' if args.generate_english_pilot else 'model_bundle.json'))
+        print(output if args.check_compiler else
+              run/('generation_bundle.json' if args.generate_english_pilot else 'model_bundle.json'))
         return 0
     except Exception as error:
         record.update(status='failed',error=str(error))

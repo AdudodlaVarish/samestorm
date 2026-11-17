@@ -37,7 +37,7 @@ class PilotModelPreparation(unittest.TestCase):
         self.patches=[patch.object(pilot,'ROOT',self.root),
             patch.dict(os.environ,{'SLURM_JOB_ID':'fixture'},clear=True),
             patch.object(pilot.prep,'verify_toolchain',return_value=self.toolchain),
-            patch.object(pilot.shutil,'which',return_value='/synthetic/tool'),
+            patch.object(pilot.shutil,'which',side_effect=lambda name:'/synthetic/'+name),
             patch.object(pilot.importlib.metadata,'version',return_value='synthetic-version'),
             patch.object(pilot.subprocess,'check_output',return_value='Synthetic compiler/tool\n'),
             patch.object(pilot,'run_command',side_effect=self.command)]
@@ -45,7 +45,10 @@ class PilotModelPreparation(unittest.TestCase):
 
     def command(self,command,run,record,environment):
         values=[str(x) for x in command];self.commands.append(values)
-        if 'prepare_model.py' not in values[1]:return
+        if '-std=c++17' in values:
+            Path(values[values.index('-o')+1]).write_bytes(b'Synthetic compiler executable')
+            return
+        if len(values)<2 or 'prepare_model.py' not in values[1]:return
         step=values[2]
         self.assertEqual(environment['CUDA_VISIBLE_DEVICES'],'')
         if step=='download':
@@ -74,6 +77,8 @@ class PilotModelPreparation(unittest.TestCase):
         self.assertEqual(steps,['download','convert','quantize'])
         configure=next(r for r in self.commands if r[0]=='cmake' and '-S' in r)
         self.assertIn('-DGGML_CUDA=OFF',configure)
+        self.assertIn('-DCMAKE_C_COMPILER=/synthetic/gcc',configure)
+        self.assertIn('-DCMAKE_CXX_COMPILER=/synthetic/g++',configure)
         quantize=next(r for r in self.commands if '--precision' in r)
         self.assertEqual(quantize[quantize.index('--precision')+1],'Q4_K_M')
         self.assertEqual(quantize[quantize.index('--quantizer')+1],str(self.toolchain/'build-prep/bin/llama-quantize'))
@@ -161,6 +166,8 @@ class PilotModelPreparation(unittest.TestCase):
         configure=next(r for r in self.commands if '-S' in r)
         self.assertIn('-DGGML_CUDA=ON',configure)
         self.assertIn('-DCMAKE_CUDA_ARCHITECTURES=80',configure)
+        self.assertIn('-DCMAKE_CXX_COMPILER=/synthetic/g++',configure)
+        self.assertIn('-DCMAKE_CUDA_HOST_COMPILER=/synthetic/g++',configure)
         result=json.loads((self.run/'generation_bundle.json').read_text())
         self.assertEqual((result['main_answers'],result['repeat_answers']),(10,2))
         self.assertEqual([o['precision'] for o in result['outputs']],['F16','Q4_K_M'])
@@ -187,6 +194,35 @@ class PilotModelPreparation(unittest.TestCase):
         self.assertEqual((self.root/record['generation_runs'][0]/'answers.jsonl').read_text(),
                          'Preserved partial output\n')
         self.assertFalse((self.run/'generation_bundle.json').exists())
+
+    def test_wrong_cached_compiler_is_preserved_and_rejected_before_model_work(self):
+        build=self.toolchain/'build-prep';build.mkdir()
+        cache=build/'CMakeCache.txt';cache.write_text('CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++\n')
+        with self.assertRaisesRegex(ValueError,'Cached compiler differs'):
+            pilot.prepare(self.run,{})
+        self.assertEqual(cache.read_text(),'CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++\n')
+        self.assertEqual(self.commands,[])
+
+    def test_compiler_only_mode_needs_no_slurm_or_model_work(self):
+        with patch.object(pilot,'new_run_dir',return_value=self.run),\
+             patch.dict(os.environ,{},clear=True),patch.object(pilot,'prepare') as prepare,\
+             patch.object(sys,'argv',['prepare_pilot_model.py','--run-id','bundle','--check-compiler']),\
+             contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(pilot.main(),0)
+        prepare.assert_not_called()
+        record=json.loads((self.run/'manifest.json').read_text())
+        self.assertEqual(record['stage'],'compiler-link-check')
+        self.assertFalse(record['inference_performed'])
+        self.assertEqual(record['compiler_paths']['cxx'],'/synthetic/g++')
+        self.assertTrue(record['compiler_check_sha256'])
+
+    def test_failed_compiler_check_stops_before_checkpoint_download(self):
+        def fail(command,run,record,environment):
+            if '-std=c++17' in [str(x) for x in command]:raise RuntimeError('Synthetic linker failure')
+            self.command(command,run,record,environment)
+        with patch.object(pilot,'run_command',side_effect=fail):
+            with self.assertRaisesRegex(RuntimeError,'linker failure'):pilot.prepare(self.run,{})
+        self.assertFalse(any(len(r)>1 and 'prepare_model.py' in r[1] for r in self.commands))
 
 
 if __name__=='__main__':unittest.main()

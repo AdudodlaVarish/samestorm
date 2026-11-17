@@ -83,6 +83,66 @@ The reported directory contained no F16 file, so no cleanup is needed. Submit a
 fresh `pilot.sbatch` job after setting this new Python path and loading CUDA;
 the new job ID gives it fresh run directories and preserves the failed run.
 
+## Compiler recovery after job 3589077
+
+The next job completed the tokenizer check and F16 conversion (287 tensors,
+approximately 3.5 GB), then failed linking llama-quantize with unresolved C++17
+filesystem functions. Its link command used `/usr/bin/c++`, while the available
+GCC toolchain was under `/opt/apps/gcc/9.4.0` and the Intel module remained loaded.
+The CPU CMake command had not explicitly selected gcc/g++. Both CPU and CUDA
+builds now select them explicitly and reject caches naming other compilers.
+No `-lstdc++fs` workaround is applied: GCC 9 and later integrate this functionality
+into libstdc++ ([GCC release notes](https://gcc.gnu.org/gcc-9/changes.html#libstdcxx)).
+
+On LS6, use the available GCC 12.2.0 module followed by CUDA 12.8. GCC 12 is in
+[CUDA 12.8's supported host compiler range](https://docs.nvidia.com/cuda/archive/12.8.0/cuda-installation-guide-linux/#host-compiler-support-policy).
+After committing/pushing this fix and pulling it on LS6:
+
+```bash
+source "$SCRATCH/samestorm2-env.sh"
+cd "$SAMESTORM_REPO"
+git pull --ff-only
+module load gcc/12.2.0
+module load cuda/12.8
+export SAMESTORM_PYTHON="$SAMESTORM_REPO/.venv-model-prep/bin/python"
+g++ --version
+```
+
+Preserve old build trees so the new compiler starts with fresh objects and cache.
+This moves build files only; model weights and run receipts stay in place:
+
+```bash
+for build in build-prep build; do
+    if [ -d "vendor/llama.cpp/$build" ]; then
+        mv -T -n "vendor/llama.cpp/$build" \
+          "vendor/llama.cpp/${build}-before-gcc12-3589077"
+    fi
+done
+```
+
+Run the small compile/link/runtime check before another allocation, using a fresh
+run ID. It compiles and runs a tiny filesystem program; it loads no models and
+does not require Slurm, CUDA or GPU access:
+
+```bash
+"$SAMESTORM_PYTHON" scripts/prepare_pilot_model.py \
+  --check-compiler --run-id compiler-check-3589077-001
+```
+
+Continue only after it prints `PASS`. A failure preserves the compiler command,
+source, logs and manifest under that run directory; inspect `preparation.log`.
+The full job repeats this check before model work. The check also rejects stale
+CPU/CUDA compiler caches; it does not verify a CUDA build or GPU execution.
+
+```bash
+sbatch -A CCR23028 scripts/jobs/pilot.sbatch
+```
+
+The retry verifies and reuses the successful F16 receipt from job 3589077, then
+builds the quantizer, creates Q4 and proceeds to CUDA generation. It does not
+repeat a valid download or F16 conversion. No Python dependency reinstall is
+needed. Keep the GCC/CUDA modules loaded when submitting and using these binaries.
+
 ## Prepare and generate in one A100 job
 
 `scripts/jobs/pilot.sbatch` combines preparation and the accepted English-first
@@ -100,6 +160,8 @@ source "$SCRATCH/samestorm2-env.sh"
 cd "$SAMESTORM_REPO"
 git pull --ff-only
 export SAMESTORM_PYTHON="$SAMESTORM_REPO/.venv-model-prep/bin/python"
+module load gcc/12.2.0
+module load cuda/12.8
 command -v git
 command -v cmake
 command -v gcc
@@ -113,6 +175,8 @@ available on LS6. In particular, CUDA-enabled PyTorch does not supply the `nvcc`
 compiler required to build llama.cpp. The job inherits the submitted module
 environment and records compiler/CUDA versions; it does not install packages.
 Create the conversion environment above first if this Python path does not exist.
+If compiler caches already exist from a different compiler, follow the recovery
+section above. Run `--check-compiler` with a fresh run ID before submission.
 
 ```bash
 mkdir -p results/raw
